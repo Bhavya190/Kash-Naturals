@@ -1,0 +1,207 @@
+/* -------------------------------------------------------------
+   WOOCOMMERCE CUSTOM STYLESHEET OVERRIDES FOR KASH NATURALS
+   ------------------------------------------------------------- */
+
+.shop-grid-wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 40px;
+}
+
+.shop-sidebar-area {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    height: fit-content;
+}
+
+.custom-shop-filter-widget {
+    margin-bottom: 36px;
+}
+
+.custom-shop-filter-widget:last-child {
+    margin-bottom: 0;
+}
+
+.widget-title {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    color: var(--color-accent-gold);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cocoa-filter-list {
+    list-style: none;
+}
+
+.cocoa-filter-list li {
+    margin-bottom: 12px;
+}
+
+.cocoa-filter-list a {
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.filter-radio {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--color-accent-gold);
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.flavor-chips-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.flavor-chip {
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-light);
+    color: var(--color-text-muted);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.flavor-chip:hover {
+    border-color: var(--color-accent-gold);
+    color: var(--color-accent-gold);
+}
+
+.shop-toolbar {
+    margin-bottom: 30px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+}
+
+/* WooCommerce Default Buttons & Forms Override */
+.woocommerce button.button,
+.woocommerce a.button,
+.woocommerce input.button {
+    background: linear-gradient(135deg, #e6b85c, #c89530) !important;
+    color: var(--color-bg-primary) !important;
+    font-family: var(--font-body) !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-md) !important;
+    padding: 10px 24px !important;
+    border: none !important;
+    transition: all var(--transition-fast) !important;
+}
+
+.woocommerce button.button:hover,
+.woocommerce a.button:hover,
+.woocommerce input.button:hover {
+    background: linear-gradient(135deg, #ffd275, #e6b85c) !important;
+    box-shadow: 0 4px 15px rgba(230, 184, 92, 0.4) !important;
+}
+
+/* Cart Table Overrides */
+.cart-page-wrapper {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+}
+
+.cart-header {
+    margin-bottom: 30px;
+}
+
+.shipping-progress-bar {
+    width: 100%;
+    max-width: 400px;
+    height: 8px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-full);
+    margin: 15px auto 0;
+    overflow: hidden;
+}
+
+.shipping-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent-gold), var(--color-accent-copper));
+}
+
+table.shop_table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-md);
+    margin-bottom: 40px;
+}
+
+table.shop_table th {
+    background: var(--color-bg-primary);
+    color: var(--color-accent-gold);
+    padding: 16px;
+    font-family: var(--font-heading);
+}
+
+table.shop_table td {
+    padding: 16px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.cart-item-title {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+/* Checkout Form Grid */
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+}
+
+.checkout-box-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    padding: 36px;
+    border-radius: var(--radius-lg);
+}
+
+.woocommerce-billing-fields h3,
+.woocommerce-shipping-fields h3,
+#order_review_heading {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+    color: var(--color-accent-gold);
+}
+
+.woocommerce-input-wrapper input,
+.woocommerce-input-wrapper select,
+.woocommerce-input-wrapper textarea {
+    width: 100%;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    color: #fff;
+}
+
+.woocommerce-input-wrapper input:focus {
+    border-color: var(--color-accent-gold);
+    outline: none;
+}
+
+@media (max-width: 992px) {
+    .shop-grid-wrapper, .checkout-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,41 @@
+/*
+Theme Name: Kash Naturals
+Theme URI: https://kashnaturals.com
+Author: Kash Naturals Team
+Author URI: https://kashnaturals.com
+Description: Premium Artisan & Handcrafted Chocolate E-Commerce WordPress Theme built specifically for WooCommerce. Features luxury dark chocolate design aesthetic, custom cocoa percentage indicators, flavor profiling, responsive grid, and optimized cart/checkout templates.
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: kash-naturals
+Tags: e-commerce, woocommerce, chocolate, luxury, artisan, dark-mode, custom-header, custom-menu, featured-images, responsive-layout, theme-options
+
+Kash Naturals WordPress Theme, (C) 2026 Kash Naturals.
+*/
+
+/* Reset & CSS Custom Properties */
+:root {
+    --color-bg-primary: #120a08;
+    --color-bg-secondary: #1c100c;
+    --color-bg-card: #251611;
+    --color-bg-card-hover: #2f1c16;
+    --color-text-primary: #f9f5f0;
+    --color-text-secondary: #d4c5b9;
+    --color-text-muted: #9e8a7c;
+    --color-accent-gold: #e6b85c;
+    --color-accent-gold-hover: #ffd275;
+    --color-accent-copper: #c86d44;
+    --color-border: #3d271d;
+    --color-border-light: #4f3326;
+    --font-heading: 'Playfair Display', Georgia, serif;
+    --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
