@@ -131,20 +131,20 @@
     </footer>`;
 
     function loadLayout() {
-        // Inject Notice Bar
-        const noticeTarget = document.getElementById('kash-noticebar') || document.querySelector('.top-notice-bar');
+        // Inject Notice Bar if placeholder exists
+        const noticeTarget = document.getElementById('kash-noticebar');
         if (noticeTarget) {
             noticeTarget.outerHTML = noticeBarHTML;
         }
 
-        // Inject Header
-        const headerTarget = document.getElementById('kash-header') || document.querySelector('.site-header');
+        // Inject Header if placeholder exists
+        const headerTarget = document.getElementById('kash-header');
         if (headerTarget) {
             headerTarget.outerHTML = headerHTML;
         }
 
-        // Inject Footer
-        const footerTarget = document.getElementById('kash-footer') || document.querySelector('.site-footer-exact');
+        // Inject Footer if placeholder exists
+        const footerTarget = document.getElementById('kash-footer');
         if (footerTarget) {
             footerTarget.outerHTML = footerHTML;
         }

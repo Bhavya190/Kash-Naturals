@@ -127,7 +127,7 @@ if (!defined('ABSPATH')) {
             <button class="close-search-btn" id="close-search">&times;</button>
             <h3><?php esc_html_e('Search Artisan Chocolates', 'kash-naturals'); ?></h3>
             <form role="search" method="get" class="search-form" action="<?php echo esc_url(home_url('/')); ?>">
-                <input type="search" class="search-field" placeholder="<?php esc_attr_e('Search dark chocolate, truffle gift boxes, vegan bars...', 'kash-naturals'); ?>" value="<?php echo get_search_query(); ?>" name="s" autofocus />
+                <input type="search" class="search-field" placeholder="<?php esc_attr_e('Search dark chocolate, truffle gift boxes, vegan bars...', 'kash-naturals'); ?>" value="<?php echo function_exists('get_search_query') ? get_search_query() : ''; ?>" name="s" autofocus />
                 <input type="hidden" name="post_type" value="product" />
                 <button type="submit" class="search-submit-btn"><i class="fa-solid fa-arrow-right"></i></button>
             </form>
