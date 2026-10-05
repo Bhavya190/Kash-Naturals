@@ -1,6 +1,7 @@
 <?php
 /**
- * The Footer for Kash Naturals Theme
+ * The Centralized Global Footer for Kash Naturals Theme
+ * Included across all site pages via get_footer()
  *
  * @package KashNaturals
  */
@@ -11,41 +12,10 @@ if (!defined('ABSPATH')) {
 ?>
     </main><!-- #primary -->
 
-    <!-- Trust Badges Section -->
-    <section class="trust-features-section">
-        <div class="container trust-grid">
-            <div class="trust-card">
-                <div class="trust-icon"><i class="fa-solid fa-leaf"></i></div>
-                <div class="trust-text">
-                    <h4>100% Organic Cocoa</h4>
-                    <p>Sustainably grown, non-GMO, zero artificial add-ons.</p>
-                </div>
-            </div>
-            <div class="trust-card">
-                <div class="trust-icon"><i class="fa-solid fa-handshake-simple"></i></div>
-                <div class="trust-text">
-                    <h4>Ethical Fair-Trade</h4>
-                    <p>Directly supporting farming families in Ecuador & Ghana.</p>
-                </div>
-            </div>
-            <div class="trust-card">
-                <div class="trust-icon"><i class="fa-solid fa-snowflake"></i></div>
-                <div class="trust-text">
-                    <h4>Insulated Cold Shipping</h4>
-                    <p>Temperature-managed delivery guarantees no melting.</p>
-                </div>
-            </div>
-            <div class="trust-card">
-                <div class="trust-icon"><i class="fa-solid fa-award"></i></div>
-                <div class="trust-text">
-                    <h4>Master Craftsmanship</h4>
-                    <p>Small-batch stone-ground Belgian-style chocolatiering.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Trust Features Section -->
+    <?php get_template_part('template-parts/content', 'trust-badges'); ?>
 
-    <!-- Main Footer (Exact Design Matching Screenshot) -->
+    <!-- Main Global Site Footer -->
     <footer id="colophon" class="site-footer-exact">
         <div class="container footer-grid-5">
 
@@ -71,11 +41,11 @@ if (!defined('ABSPATH')) {
             <div class="footer-col">
                 <h4 class="footer-col-title"><?php esc_html_e('SHOP', 'kash-naturals'); ?></h4>
                 <ul class="footer-nav-list">
-                    <li><a href="#"><?php esc_html_e('Mouth Fresheners', 'kash-naturals'); ?></a></li>
-                    <li><a href="#"><?php esc_html_e('Chocolate Dragees', 'kash-naturals'); ?></a></li>
-                    <li><a href="#"><?php esc_html_e('Kunafa Bars', 'kash-naturals'); ?></a></li>
-                    <li><a href="#"><?php esc_html_e('Gift Combos', 'kash-naturals'); ?></a></li>
-                    <li><a href="#"><?php esc_html_e('All Products', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Mouth Fresheners', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Chocolate Dragees', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Kunafa Bars', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Gift Combos', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('All Products', 'kash-naturals'); ?></a></li>
                 </ul>
             </div>
 
@@ -83,11 +53,11 @@ if (!defined('ABSPATH')) {
             <div class="footer-col">
                 <h4 class="footer-col-title"><?php esc_html_e('HELP & INFO', 'kash-naturals'); ?></h4>
                 <ul class="footer-nav-list">
-                    <li><a href="<?php echo esc_url(home_url('/shipping-policy/')); ?>"><?php esc_html_e('Shipping Policy', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/return-policy/')); ?>"><?php esc_html_e('Return Policy', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>"><?php esc_html_e('Privacy Policy', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/terms-and-conditions/')); ?>"><?php esc_html_e('Terms & Conditions', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/contact/')); ?>"><?php esc_html_e('FAQs', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/shipping-policy')); ?>"><?php esc_html_e('Shipping Policy', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/return-policy')); ?>"><?php esc_html_e('Return Policy', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/privacy-policy')); ?>"><?php esc_html_e('Privacy Policy', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/terms-and-conditions')); ?>"><?php esc_html_e('Terms & Conditions', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/contact')); ?>"><?php esc_html_e('FAQs', 'kash-naturals'); ?></a></li>
                 </ul>
             </div>
 
@@ -95,10 +65,10 @@ if (!defined('ABSPATH')) {
             <div class="footer-col">
                 <h4 class="footer-col-title"><?php esc_html_e('ABOUT US', 'kash-naturals'); ?></h4>
                 <ul class="footer-nav-list">
-                    <li><a href="<?php echo esc_url(home_url('/about/')); ?>"><?php esc_html_e('Our Story', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/about/')); ?>"><?php esc_html_e('Why Kash Natural', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/about/')); ?>"><?php esc_html_e('Quality Promise', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/contact/')); ?>"><?php esc_html_e('Contact Us', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/about')); ?>"><?php esc_html_e('Our Story', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/about')); ?>"><?php esc_html_e('Why Kash Natural', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/about')); ?>"><?php esc_html_e('Quality Promise', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/contact')); ?>"><?php esc_html_e('Contact Us', 'kash-naturals'); ?></a></li>
                 </ul>
             </div>
 

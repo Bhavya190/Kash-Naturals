@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-get_header('shop');
+get_header();
 ?>
 
 <div class="shop-hero-header section-padding text-center">
@@ -91,4 +91,4 @@ get_header('shop');
 </div>
 
 <?php
-get_footer('shop');
+get_footer();

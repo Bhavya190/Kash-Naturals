@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-get_header('shop');
+get_header();
 ?>
 
 <div class="container section-padding single-product-container">
@@ -21,4 +21,4 @@ get_header('shop');
 </div>
 
 <?php
-get_footer('shop');
+get_footer();
