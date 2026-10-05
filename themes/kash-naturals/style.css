@@ -15,18 +15,18 @@ Kash Naturals WordPress Theme, (C) 2026 Kash Naturals.
 
 /* Reset & CSS Custom Properties */
 :root {
-    --color-bg-primary: #120a08;
-    --color-bg-secondary: #1c100c;
-    --color-bg-card: #251611;
-    --color-bg-card-hover: #2f1c16;
-    --color-text-primary: #f9f5f0;
-    --color-text-secondary: #d4c5b9;
-    --color-text-muted: #9e8a7c;
-    --color-accent-gold: #e6b85c;
-    --color-accent-gold-hover: #ffd275;
-    --color-accent-copper: #c86d44;
-    --color-border: #3d271d;
-    --color-border-light: #4f3326;
+    --color-bg-primary: #fdfbf7;
+    --color-bg-secondary: #f7f5f0;
+    --color-bg-card: #ffffff;
+    --color-bg-card-hover: #ffffff;
+    --color-text-primary: #1c2b1f;
+    --color-text-secondary: #444444;
+    --color-text-muted: #666666;
+    --color-accent-gold: #c49a56;
+    --color-accent-gold-hover: #d4af37;
+    --color-accent-copper: #0a331a;
+    --color-border: #e5e0d8;
+    --color-border-light: #ece7df;
     --font-heading: 'Playfair Display', Georgia, serif;
     --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --transition-fast: 0.2s ease;
@@ -35,7 +35,7 @@ Kash Naturals WordPress Theme, (C) 2026 Kash Naturals.
     --radius-md: 8px;
     --radius-lg: 16px;
     --radius-full: 9999px;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.6);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
