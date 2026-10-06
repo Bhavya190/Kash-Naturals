@@ -92,10 +92,20 @@ if (!defined('ABSPATH')) {
                     ?>
                     <ul class="nav-menu-list">
                         <li class="current-menu-item"><a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('HOME', 'kash-naturals'); ?></a></li>
-                        <li class="menu-item-has-children">
-                            <a href="<?php echo esc_url(class_exists('WooCommerce') ? wc_get_page_permalink('shop') : '#'); ?>"><?php esc_html_e('SHOP', 'kash-naturals'); ?> <i class="fa-solid fa-chevron-down nav-chevron"></i></a>
+                        <li class="menu-item-has-children nav-dropdown-item">
+                            <a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('SHOP', 'kash-naturals'); ?> <i class="fa-solid fa-chevron-down nav-chevron"></i></a>
+                            <ul class="sub-menu header-dropdown-menu">
+                                <li><a href="<?php echo esc_url(home_url('/shop?category=mouth-fresheners')); ?>"><i class="fa-solid fa-leaf"></i> <?php esc_html_e('Mouth Fresheners', 'kash-naturals'); ?></a></li>
+                                <li><a href="<?php echo esc_url(home_url('/shop?category=chocolate-dragees')); ?>"><i class="fa-solid fa-cookie-bite"></i> <?php esc_html_e('Chocolate Dragees', 'kash-naturals'); ?></a></li>
+                                <li><a href="<?php echo esc_url(home_url('/shop?category=kunafa-bars')); ?>"><i class="fa-solid fa-layer-group"></i> <?php esc_html_e('Kunafa Bars', 'kash-naturals'); ?></a></li>
+                                <li><a href="<?php echo esc_url(home_url('/combos')); ?>"><i class="fa-solid fa-gift"></i> <?php esc_html_e('Gift Combos', 'kash-naturals'); ?></a></li>
+                                <li class="dropdown-divider-line"></li>
+                                <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><i class="fa-solid fa-border-all"></i> <?php esc_html_e('All Products', 'kash-naturals'); ?></a></li>
+                            </ul>
                         </li>
-                        <li><a href="<?php echo esc_url(home_url('/#combos')); ?>"><?php esc_html_e('COMBOS', 'kash-naturals'); ?></a></li>
+
+                        <li><a href="<?php echo esc_url(home_url('/combos/')); ?>"><?php esc_html_e('COMBOS', 'kash-naturals'); ?></a></li>
+
                         <li><a href="<?php echo esc_url(home_url('/about/')); ?>"><?php esc_html_e('ABOUT US', 'kash-naturals'); ?></a></li>
                         <li><a href="<?php echo esc_url(home_url('/contact/')); ?>"><?php esc_html_e('CONTACT US', 'kash-naturals'); ?></a></li>
                     </ul>

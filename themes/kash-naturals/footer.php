@@ -43,7 +43,7 @@ if (!defined('ABSPATH')) {
                     <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Mouth Fresheners', 'kash-naturals'); ?></a></li>
                     <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Chocolate Dragees', 'kash-naturals'); ?></a></li>
                     <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Kunafa Bars', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Gift Combos', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/combos')); ?>"><?php esc_html_e('Gift Combos', 'kash-naturals'); ?></a></li>
                     <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('All Products', 'kash-naturals'); ?></a></li>
                 </ul>
             </div>
@@ -56,7 +56,8 @@ if (!defined('ABSPATH')) {
                     <li><a href="<?php echo esc_url(home_url('/return-policy')); ?>"><?php esc_html_e('Return Policy', 'kash-naturals'); ?></a></li>
                     <li><a href="<?php echo esc_url(home_url('/privacy-policy')); ?>"><?php esc_html_e('Privacy Policy', 'kash-naturals'); ?></a></li>
                     <li><a href="<?php echo esc_url(home_url('/terms-and-conditions')); ?>"><?php esc_html_e('Terms & Conditions', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/contact')); ?>"><?php esc_html_e('FAQs', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/faqs')); ?>"><?php esc_html_e('FAQs', 'kash-naturals'); ?></a></li>
+
                 </ul>
             </div>
 

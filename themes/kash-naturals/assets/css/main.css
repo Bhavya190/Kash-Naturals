@@ -2608,6 +2608,706 @@ img {
     }
 }
 
+/* Combos & Gift Hampers Custom UI Styles */
+.combos-page-header {
+    background: linear-gradient(135deg, #092614 0%, #113821 100%);
+    padding: 65px 0 55px 0;
+    color: #ffffff;
+    text-align: center;
+    border-bottom: 2px solid #c68b27;
+}
+
+.combos-header-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #c68b27;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.combos-header-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 14px 0;
+}
+
+.combos-breadcrumb {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    color: #c5d4c9;
+}
+
+.combos-breadcrumb a {
+    color: #c68b27;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.combos-breadcrumb a:hover {
+    color: #ffffff;
+}
+
+.combos-breadcrumb .sep {
+    margin: 0 8px;
+    opacity: 0.6;
+}
+
+/* Combos Value Bar */
+.combos-value-bar {
+    background-color: #faf6f0;
+    padding: 35px 0;
+    border-bottom: 1px solid #ede5d8;
+}
+
+.combos-value-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.value-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background-color: #ffffff;
+    padding: 20px 22px;
+    border-radius: 14px;
+    border: 1px solid #f0eadf;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+}
+
+.value-icon {
+    width: 50px;
+    height: 50px;
+    background-color: #f2f7f3;
+    color: #0f3820;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.value-text h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f3820;
+    margin: 0 0 4px 0;
+}
+
+.value-text p {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.84rem;
+    color: #666666;
+    margin: 0;
+}
+
+/* Combos Showcase Section */
+.combos-showcase-section {
+    padding: 70px 0 85px 0;
+    background-color: #ffffff;
+}
+
+.combos-grid-showcase {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 36px;
+}
+
+.combo-card-exact {
+    background-color: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #eee7dd;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.combo-card-exact:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.combo-badge-floating {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 3;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tag-popular { background-color: #e67e22; }
+.tag-value { background-color: #27ae60; }
+.tag-luxury { background-color: #8e44ad; }
+.tag-favorite { background-color: #c68b27; }
+
+.combo-img-box {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    background-color: #faf6f0;
+}
+
+.combo-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.combo-card-exact:hover .combo-img-box img {
+    transform: scale(1.04);
+}
+
+.combo-card-content {
+    padding: 30px 28px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.combo-rating-stars {
+    color: #f39c12;
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+}
+
+.combo-rating-stars span {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    color: #777777;
+    margin-left: 6px;
+}
+
+.combo-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f3820;
+    margin: 0 0 10px 0;
+}
+
+.combo-desc {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #555555;
+    margin: 0 0 20px 0;
+}
+
+.combo-items-checklist {
+    background-color: #faf6f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border: 1px solid #f0eadf;
+}
+
+.combo-items-checklist h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f3820;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.combo-items-checklist ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.combo-items-checklist li {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    color: #333333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.combo-items-checklist li i {
+    color: #27ae60;
+    font-size: 0.85rem;
+}
+
+.combo-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #f0eadf;
+}
+
+.combo-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.combo-sale-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0f3820;
+}
+
+.combo-regular-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    color: #999999;
+    text-decoration: line-through;
+}
+
+.btn-combo-add-cart {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #0f3820;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 13px 24px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.btn-combo-add-cart:hover {
+    background-color: #17502e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 56, 32, 0.25);
+}
+
+/* Combos Responsive */
+@media (max-width: 991px) {
+    .combos-value-grid {
+        grid-template-columns: 1fr;
+    }
+    .combos-grid-showcase {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .combos-header-title {
+        font-size: 2rem;
+    }
+    .combo-price-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+    .btn-combo-add-cart {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Header SHOP Nav Dropdown Styles */
+.nav-dropdown-item {
+    position: relative;
+}
+
+.header-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 230px;
+    background: #0f3820;
+    border-radius: 12px;
+    padding: 10px 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    list-style: none;
+    margin: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
+    z-index: 999;
+    border: 1px solid rgba(198, 139, 39, 0.3);
+}
+
+.nav-dropdown-item:hover .header-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.header-dropdown-menu li {
+    margin: 0;
+    padding: 0;
+}
+
+.header-dropdown-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #e2ece5;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+}
+
+.header-dropdown-menu li a i {
+    font-size: 0.95rem;
+    color: #c68b27;
+    width: 18px;
+    text-align: center;
+}
+
+.header-dropdown-menu li a:hover {
+    background-color: #17502e;
+    color: #ffffff;
+    padding-left: 24px;
+}
+
+.dropdown-divider-line {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.12);
+    margin: 6px 0 !important;
+}
+
+/* Shop Collection Custom UI Styles */
+.shop-page-header {
+    background: linear-gradient(135deg, #092614 0%, #113821 100%);
+    padding: 65px 0 55px 0;
+    color: #ffffff;
+    text-align: center;
+    border-bottom: 2px solid #c68b27;
+}
+
+.shop-header-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #c68b27;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.shop-header-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 14px 0;
+}
+
+.shop-breadcrumb {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    color: #c5d4c9;
+}
+
+.shop-breadcrumb a {
+    color: #c68b27;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.shop-breadcrumb a:hover {
+    color: #ffffff;
+}
+
+.shop-breadcrumb .sep {
+    margin: 0 8px;
+    opacity: 0.6;
+}
+
+/* Shop Main Section */
+.shop-main-section {
+    padding: 60px 0 80px 0;
+    background-color: #faf6f0;
+}
+
+.shop-filter-bar-exact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.filter-pills-exact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    background-color: #ffffff;
+    border: 1px solid #e2d8c9;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #4a4a4a;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.filter-pill-btn i {
+    font-size: 0.9rem;
+    color: #888888;
+    transition: color 0.25s ease;
+}
+
+.filter-pill-btn:hover,
+.filter-pill-btn.active {
+    background-color: #0f3820;
+    color: #ffffff;
+    border-color: #0f3820;
+    box-shadow: 0 4px 14px rgba(15, 56, 32, 0.2);
+}
+
+.filter-pill-btn:hover i,
+.filter-pill-btn.active i {
+    color: #c68b27;
+}
+
+.filter-count-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #777777;
+}
+
+/* Shop Products Grid */
+.shop-grid-exact {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+}
+
+.shop-product-card-exact {
+    background-color: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #eee7dd;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shop-product-card-exact:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+.product-badge-tag {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    background-color: #0f3820;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 15px;
+}
+
+.product-img-box-exact {
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background-color: #faf6f0;
+}
+
+.product-img-box-exact img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.shop-product-card-exact:hover .product-img-box-exact img {
+    transform: scale(1.05);
+}
+
+.product-card-info {
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.product-cat-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #c68b27;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.product-title-exact {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f3820;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.product-desc-short {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: #666666;
+    margin: 0 0 14px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-rating-stars {
+    color: #f39c12;
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+}
+
+.product-rating-stars span {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    color: #888888;
+}
+
+.product-price-row-exact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #f2ede4;
+}
+
+.price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.current-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #0f3820;
+}
+
+.old-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    color: #999999;
+    text-decoration: line-through;
+}
+
+.btn-add-cart-exact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #0f3820;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.btn-add-cart-exact:hover {
+    background-color: #17502e;
+    transform: translateY(-2px);
+}
+
+/* Responsive Shop Grid */
+@media (max-width: 1199px) {
+    .shop-grid-exact {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 991px) {
+    .shop-grid-exact {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .header-dropdown-menu {
+        position: static;
+        width: 100%;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        border: none;
+        background: transparent;
+        padding: 0 0 0 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .shop-grid-exact {
+        grid-template-columns: 1fr;
+    }
+    .shop-header-title {
+        font-size: 2rem;
+    }
+    .shop-filter-bar-exact {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+
 
 
 
