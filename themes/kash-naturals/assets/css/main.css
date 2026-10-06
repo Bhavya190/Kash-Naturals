@@ -997,43 +997,268 @@ img {
     color: var(--color-accent-gold);
 }
 
-/* Testimonials */
-.testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+/* Testimonials - Exact Reference Design */
+.testimonials-section-exact {
+    padding: 60px 0 70px 0;
+    background-color: #ffffff;
 }
 
-.testimonial-card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 32px;
-    position: relative;
+.testimonials-header-exact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 45px;
+    width: 100%;
 }
 
-.quote-icon {
-    font-size: 2.5rem;
-    color: var(--color-border-light);
-    margin-bottom: 12px;
+.testimonials-header-exact .header-line {
+    flex: 1;
+    max-width: 300px;
+    height: 1px;
+    background-color: #1a422b;
+    opacity: 0.35;
 }
 
-.review-text {
-    font-style: italic;
-    color: var(--color-text-secondary);
-    margin: 16px 0;
+.testimonials-header-exact .header-dot {
+    width: 4px;
+    height: 4px;
+    background-color: #1a422b;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
-.reviewer-name {
-    display: block;
+.testimonials-title-exact {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
     font-weight: 700;
-    color: var(--color-accent-gold);
+    color: #113821;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0 8px;
+    white-space: nowrap;
 }
 
-.reviewer-role {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+.testimonials-grid-exact {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
 }
+
+@media (max-width: 991px) {
+    .testimonials-grid-exact {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .testimonials-header-exact .header-line {
+        max-width: 60px;
+    }
+}
+
+.testimonial-card-exact {
+    background-color: #fbf7f1;
+    border-radius: 14px;
+    padding: 28px 24px 26px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.02);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-card-exact:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.testimonial-quote-mark {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 4.2rem;
+    line-height: 0.65;
+    color: #beaf9b;
+    font-weight: 700;
+    flex-shrink: 0;
+    user-select: none;
+    margin-top: 4px;
+}
+
+.testimonial-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.testimonial-stars-exact {
+    color: #e59819;
+    font-size: 1.15rem;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    line-height: 1;
+}
+
+.testimonial-text-exact {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: #2c2c2c;
+    margin: 0 0 20px 0;
+    font-weight: 400;
+}
+
+.testimonial-text-exact strong {
+    font-weight: 700;
+    color: #111111;
+}
+
+.testimonial-author-exact {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2c2c2c;
+    margin-top: auto;
+}
+
+/* Our Story Section - Exact Design */
+.our-story-section-exact {
+    padding: 50px 0 80px 0;
+    background-color: #ffffff;
+}
+
+.our-story-card-exact {
+    background-color: #faf6f0;
+    border-radius: 20px;
+    padding: 28px 32px 28px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+}
+
+.our-story-leaf-wrapper {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.leaf-svg-accent {
+    width: 140px;
+    height: 140px;
+}
+
+.our-story-grid-exact {
+    display: grid;
+    grid-template-columns: 44% 56%;
+    gap: 36px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.our-story-img-col {
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.our-story-main-img {
+    width: 100%;
+    height: 310px;
+    object-fit: cover;
+    display: block;
+    border-radius: 14px;
+    transition: transform 0.4s ease;
+}
+
+.our-story-card-exact:hover .our-story-main-img {
+    transform: scale(1.02);
+}
+
+.our-story-text-col {
+    padding-right: 20px;
+}
+
+.our-story-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #c68b27;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.our-story-subtitle .sub-line {
+    display: inline-block;
+    width: 36px;
+    height: 1px;
+    background-color: #c68b27;
+    opacity: 0.6;
+}
+
+.our-story-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.3rem;
+    font-weight: 600;
+    color: #0f3820;
+    margin: 0 0 16px 0;
+    line-height: 1.25;
+}
+
+.our-story-desc {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: #333333;
+    margin: 0 0 28px 0;
+    max-width: 580px;
+}
+
+.btn-our-story-exact {
+    display: inline-block;
+    background-color: #0f3820;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 13px 26px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.btn-our-story-exact:hover {
+    background-color: #17502e;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 56, 32, 0.25);
+}
+
+@media (max-width: 991px) {
+    .our-story-grid-exact {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .our-story-text-col {
+        padding-right: 0;
+    }
+    .our-story-main-img {
+        height: 240px;
+    }
+    .our-story-title {
+        font-size: 1.9rem;
+    }
+    .our-story-card-exact {
+        padding: 24px;
+    }
+}
+
+
 
 /* Trust Features Bar */
 .trust-features-section {
@@ -1401,5 +1626,581 @@ img {
     .category-cards-grid {
         grid-template-columns: 1fr;
         gap: 24px;
+    }
+}
+
+/* Brand USPs & Value Features Bar - Exact Image Match */
+.kash-usp-bar-section {
+    background-color: #fdfbf7;
+    border-top: 1px solid #e8e1d3;
+    border-bottom: 1px solid #e8e1d3;
+    padding: 42px 0;
+}
+
+.kash-usp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+}
+
+.kash-usp-item {
+    padding: 10px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #e5dec9;
+    transition: transform 0.2s ease;
+}
+
+.kash-usp-item:last-child {
+    border-right: none;
+}
+
+.kash-usp-item:hover {
+    transform: translateY(-2px);
+}
+
+.kash-usp-icon {
+    font-size: 2.6rem;
+    color: #0a331a;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    width: 52px;
+}
+
+.kash-usp-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.96rem;
+    color: #0a331a;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+    line-height: 1.25;
+}
+
+.kash-usp-desc {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    color: #444444;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.45;
+    max-width: 210px;
+}
+
+@media (max-width: 992px) {
+    .kash-usp-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px 0;
+    }
+    .kash-usp-item:nth-child(2) {
+        border-right: none;
+    }
+    .kash-usp-item {
+        border-bottom: 1px solid #e5dec9;
+        padding-bottom: 24px;
+    }
+    .kash-usp-item:nth-child(3),
+    .kash-usp-item:nth-child(4) {
+        border-bottom: none;
+        padding-top: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .kash-usp-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .kash-usp-item {
+        border-right: none !important;
+        border-bottom: 1px solid #e5dec9 !important;
+        padding-bottom: 20px;
+    }
+    .kash-usp-item:last-child {
+        border-bottom: none !important;
+    }
+}
+
+/* Best Sellers / Customer Favorites Section - Exact Image Match */
+.best-sellers-section-exact {
+    background-color: #fdfbf7;
+    padding: 75px 0 90px;
+}
+
+.bestseller-header-exact {
+    margin-bottom: 40px;
+}
+
+.bestseller-sub-heading {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #d48b10;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.bestseller-main-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    color: #1c2b1f;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.3px;
+}
+
+.bestseller-star-rating {
+    color: #d48b10;
+    font-size: 1.3rem;
+    letter-spacing: 4px;
+}
+
+.bestseller-grid-6 {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.bestseller-card-exact {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #eae5db;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.bestseller-card-exact:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(10, 51, 26, 0.08);
+    border-color: #c49a56;
+}
+
+.bestseller-img-wrap {
+    background: #fdfbf7;
+    border-radius: 10px;
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.bestseller-prod-img {
+    max-height: 160px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.bestseller-card-exact:hover .bestseller-prod-img {
+    transform: scale(1.06);
+}
+
+.bestseller-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    width: 100%;
+}
+
+.bestseller-prod-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.94rem;
+    color: #1c2b1f;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+}
+
+.bestseller-prod-price {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: #1c2b1f;
+    margin: 0 0 14px 0;
+}
+
+.btn-add-to-cart-outline {
+    border: 1.5px solid #d4c8b5;
+    background: #ffffff;
+    color: #1c2b1f;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 8px 14px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-add-to-cart-outline i {
+    font-size: 0.82rem;
+}
+
+.btn-add-to-cart-outline:hover {
+    background-color: #0a331a;
+    color: #ffffff;
+    border-color: #0a331a;
+}
+
+@media (max-width: 1200px) {
+    .bestseller-grid-6 {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .bestseller-grid-6 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bestseller-grid-6 {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Combo Offers Section - Exact Image Match Card View */
+.combo-offers-section-exact {
+    background-color: #fdfbf7;
+    padding: 60px 0 85px;
+}
+
+.combo-header-exact {
+    margin-bottom: 42px;
+}
+
+.combo-sub-heading {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0a331a;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+}
+
+.combo-cards-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    align-items: stretch;
+}
+
+.combo-card-exact {
+    background: #f7f4ed;
+    border-radius: 16px;
+    border: 1px solid #eae5db;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+    padding: 24px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.combo-card-exact:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(10, 51, 26, 0.09);
+    border-color: #0a331a;
+}
+
+.combo-img-container {
+    width: 100%;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.combo-card-img {
+    max-height: 175px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.combo-card-exact:hover .combo-card-img {
+    transform: scale(1.05);
+}
+
+.combo-card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    width: 100%;
+}
+
+.combo-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #1c2b1f;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0 0 6px 0;
+    line-height: 1.25;
+}
+
+.combo-card-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    color: #555555;
+    font-weight: 400;
+    margin: 0 0 18px 0;
+    line-height: 1.4;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.combo-pricing-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.combo-sale-price {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #1c2b1f;
+}
+
+.combo-old-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    color: #999999;
+    text-decoration: line-through;
+    font-weight: 400;
+}
+
+.btn-combo-shop-now {
+    background-color: #0a331a;
+    color: #ffffff !important;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.88rem;
+    padding: 12px 36px;
+    border-radius: 6px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(10, 51, 26, 0.2);
+}
+
+.btn-combo-shop-now:hover {
+    background-color: #174f2c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(10, 51, 26, 0.3);
+}
+
+@media (max-width: 1024px) {
+    .combo-cards-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .combo-cards-grid-4 {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .combo-card-subtitle {
+        min-height: auto;
+    }
+}
+
+/* Shop on Amazon Banner Section - Exact Image Match */
+.amazon-banner-section-exact {
+    background-color: #fdfbf7;
+    padding: 30px 0 60px;
+}
+
+.amazon-banner-card-exact {
+    background: linear-gradient(135deg, #093118 0%, #062311 50%, #031409 100%);
+    border-radius: 18px;
+    padding: 36px 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.amazon-banner-content-wrap {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex: 1;
+    z-index: 2;
+}
+
+.amazon-app-badge-box {
+    width: 105px;
+    height: 105px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.amazon-badge-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.amazon-banner-text-content {
+    color: #ffffff;
+}
+
+.amazon-banner-headline {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    line-height: 1.25;
+}
+
+.amazon-gold-text {
+    color: #e59a16;
+}
+
+.amazon-banner-subheadline {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    color: #d0e4d4;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+}
+
+.btn-amazon-buy-now {
+    background: linear-gradient(135deg, #e89c1e, #d68a10);
+    color: #0a331a !important;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.92rem;
+    padding: 13px 34px;
+    border-radius: 8px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 4px 14px rgba(232, 156, 30, 0.35);
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-amazon-buy-now:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #f5a92a, #e89c1e);
+    box-shadow: 0 6px 18px rgba(232, 156, 30, 0.45);
+}
+
+.amazon-banner-image-wrap {
+    max-width: 440px;
+    width: 42%;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.amazon-banner-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    border-radius: 14px;
+    transition: transform 0.5s ease;
+}
+
+.amazon-banner-card-exact:hover .amazon-banner-img {
+    transform: scale(1.04);
+}
+
+@media (max-width: 992px) {
+    .amazon-banner-card-exact {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 32px 28px;
+    }
+    .amazon-banner-image-wrap {
+        max-width: 100%;
+        width: 100%;
+    }
+    .amazon-banner-img {
+        height: 180px;
+    }
+}
+
+@media (max-width: 600px) {
+    .amazon-banner-content-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+    .amazon-app-badge-box {
+        width: 80px;
+        height: 80px;
+    }
+    .btn-amazon-buy-now {
+        width: 100%;
+        text-align: center;
     }
 }

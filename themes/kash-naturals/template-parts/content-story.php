@@ -1,6 +1,6 @@
 <?php
 /**
- * Brand Story & Cocoa Process Section
+ * Our Story Section Template Part
  *
  * @package KashNaturals
  */
@@ -8,49 +8,59 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+$story_img = function_exists('get_template_directory_uri') ? get_template_directory_uri() . '/assets/images/jar-royal-mukhwas.jpg' : '/wp-content/themes/kash-naturals/assets/images/jar-royal-mukhwas.jpg';
+$about_url = function_exists('home_url') ? home_url('/about') : '/about';
 ?>
-<section class="section-padding brand-story-section" id="about-us">
-    <div class="container story-grid">
-        <div class="story-image-column">
-            <div class="craft-badge-floating">
-                <i class="fa-solid fa-fire-flame-curved"></i>
-                <span>Slow Roasted at 120°C</span>
+<section class="our-story-section-exact">
+    <div class="container">
+        <div class="our-story-card-exact">
+            
+            <!-- Decorative Leaf Vector Accent -->
+            <div class="our-story-leaf-wrapper">
+                <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" class="leaf-svg-accent">
+                    <!-- Branch Stem -->
+                    <path d="M160 0 C130 25 90 60 35 125" stroke="#264b2d" stroke-width="3.5" stroke-linecap="round"/>
+                    <!-- Leaf 1 (Top) -->
+                    <path d="M135 12 C108 2 82 20 92 50 C110 64 132 46 135 12 Z" fill="#3c7345"/>
+                    <path d="M135 12 C118 24 102 37 92 50" stroke="#1d3d23" stroke-width="1.2"/>
+                    <!-- Leaf 2 (Upper Right) -->
+                    <path d="M155 38 C128 32 108 52 122 80 C144 88 162 65 155 38 Z" fill="#295431"/>
+                    <path d="M155 38 C141 52 130 66 122 80" stroke="#152f1b" stroke-width="1.2"/>
+                    <!-- Leaf 3 (Middle) -->
+                    <path d="M96 52 C70 42 52 60 62 88 C83 94 101 77 96 52 Z" fill="#4d8956"/>
+                    <path d="M96 52 C82 63 71 75 62 88" stroke="#254a2c" stroke-width="1.2"/>
+                    <!-- Leaf 4 (Lower) -->
+                    <path d="M65 90 C44 80 25 98 35 125 C56 131 74 114 65 90 Z" fill="#34633b"/>
+                    <path d="M65 90 C52 101 42 113 35 125" stroke="#1b3820" stroke-width="1.2"/>
+                </svg>
             </div>
-            <div class="story-img-frame">
-                <div class="story-placeholder-box">
-                    <i class="fa-solid fa-mortar-pestle"></i>
-                    <h4>Traditional Granite Stone Conching</h4>
+
+            <div class="our-story-grid-exact">
+                <!-- Left Image Column -->
+                <div class="our-story-img-col">
+                    <img src="<?php echo esc_url($story_img); ?>" alt="About Kash Natural" class="our-story-main-img">
                 </div>
-            </div>
-        </div>
 
-        <div class="story-text-column">
-            <span class="section-subtitle">Our Bean-To-Bar Philosophy</span>
-            <h2 class="section-title">Rooted in Nature. Crafted for Connoisseurs.</h2>
-            <div class="gold-divider left-align"></div>
-            <p class="story-lead">
-                At <strong>Kash Naturals</strong>, we believe chocolate should be an uncompromised sensory journey. We source rare heirloom Criollo and Trinitario cocoa beans directly from certified organic smallholder farms.
-            </p>
-            <p>
-                Every pod is hand-selected, fermented naturally under banana leaves, and stone-ground in traditional granite mills for 72 continuous hours to achieve silky, velvet texture without synthetic emulsifiers or palm oil.
-            </p>
-
-            <div class="craft-steps-list">
-                <div class="step-item">
-                    <div class="step-icon"><i class="fa-solid fa-seedling"></i></div>
-                    <div class="step-details">
-                        <h4>1. Direct Farm Sourcing</h4>
-                        <p>Fair wages and sustainable eco-farming in Ecuador, Peru, and Madagascar.</p>
+                <!-- Right Text Column -->
+                <div class="our-story-text-col">
+                    <div class="our-story-subtitle">
+                        <span>OUR STORY</span>
+                        <span class="sub-line"></span>
+                    </div>
+                    <h2 class="our-story-title">About Kash Natural</h2>
+                    <p class="our-story-desc">
+                        Kash Natural was founded with a simple mission &ndash; to bring premium mouth fresheners and delightful confectionery products made with quality ingredients to every Indian household.
+                    </p>
+                    <div class="our-story-action">
+                        <a href="<?php echo esc_url($about_url); ?>" class="btn-our-story-exact">
+                            KNOW MORE ABOUT US
+                        </a>
                     </div>
                 </div>
-                <div class="step-item">
-                    <div class="step-icon"><i class="fa-solid fa-temperature-arrow-down"></i></div>
-                    <div class="step-details">
-                        <h4>2. Precise Artisan Tempering</h4>
-                        <p>Hand-poured on marble tables to secure that satisfying crisp snap.</p>
-                    </div>
-                </div>
             </div>
+
         </div>
     </div>
 </section>
+

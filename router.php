@@ -137,6 +137,24 @@ if (!function_exists('esc_attr_e')) {
     }
 }
 
+if (!function_exists('esc_js')) {
+    function esc_js($text) {
+        return addslashes((string)$text);
+    }
+}
+
+if (!function_exists('wp_kses_post')) {
+    function wp_kses_post($content) {
+        return $content;
+    }
+}
+
+if (!function_exists('wp_kses')) {
+    function wp_kses($content, $allowed_html = array()) {
+        return $content;
+    }
+}
+
 if (!function_exists('_e')) {
     function _e($text, $domain = 'default') {
         echo htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');

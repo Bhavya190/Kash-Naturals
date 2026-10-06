@@ -12,8 +12,7 @@ if (!defined('ABSPATH')) {
 ?>
     </main><!-- #primary -->
 
-    <!-- Trust Features Section -->
-    <?php get_template_part('template-parts/content', 'trust-badges'); ?>
+
 
     <!-- Main Global Site Footer -->
     <footer id="colophon" class="site-footer-exact">
