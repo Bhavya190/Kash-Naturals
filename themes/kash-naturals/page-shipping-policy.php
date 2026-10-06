@@ -12,45 +12,101 @@ if (!defined('ABSPATH')) {
 get_header();
 ?>
 
-<div class="page-header-banner">
-    <h1 class="page-banner-title"><?php the_title(); ?></h1>
-    <div class="breadcrumb-links">
-        <a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home', 'kash-naturals'); ?></a> &nbsp;&nbsp;/&nbsp;&nbsp; <span><?php the_title(); ?></span>
+<!-- Page Banner Header -->
+<div class="policy-page-header">
+    <div class="container text-center">
+        <span class="policy-header-subtitle"><?php esc_html_e('TRANSPARENT & TRUSTED SHIPPING', 'kash-naturals'); ?></span>
+        <h1 class="policy-header-title"><?php esc_html_e('Shipping & Delivery Policy', 'kash-naturals'); ?></h1>
+        <div class="policy-breadcrumb">
+            <a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home', 'kash-naturals'); ?></a>
+            <span class="sep">/</span>
+            <span class="current"><?php esc_html_e('Shipping Policy', 'kash-naturals'); ?></span>
+        </div>
     </div>
 </div>
 
-<div class="policy-container">
-    <p style="font-size: 0.9rem; color: #777;"><?php esc_html_e('Effective Date: October 2026', 'kash-naturals'); ?></p>
+<!-- Main Policy Layout -->
+<section class="policy-main-section">
+    <div class="container">
+        <div class="policy-layout-grid">
+            
+            <!-- Policy Navigation Sidebar -->
+            <aside class="policy-sidebar">
+                <div class="policy-nav-card">
+                    <h3 class="policy-sidebar-title"><?php esc_html_e('Policy Navigation', 'kash-naturals'); ?></h3>
+                    <ul class="policy-nav-list">
+                        <li><a href="<?php echo esc_url(home_url('/shipping-policy')); ?>" class="active"><i class="fa-solid fa-truck-fast"></i> <?php esc_html_e('Shipping Policy', 'kash-naturals'); ?></a></li>
+                        <li><a href="<?php echo esc_url(home_url('/return-policy')); ?>"><i class="fa-solid fa-rotate-left"></i> <?php esc_html_e('Return Policy', 'kash-naturals'); ?></a></li>
+                        <li><a href="<?php echo esc_url(home_url('/privacy-policy')); ?>"><i class="fa-solid fa-user-shield"></i> <?php esc_html_e('Privacy Policy', 'kash-naturals'); ?></a></li>
+                        <li><a href="<?php echo esc_url(home_url('/terms-and-conditions')); ?>"><i class="fa-solid fa-file-contract"></i> <?php esc_html_e('Terms & Conditions', 'kash-naturals'); ?></a></li>
+                        <li><a href="<?php echo esc_url(home_url('/faqs')); ?>"><i class="fa-solid fa-circle-question"></i> <?php esc_html_e('FAQs', 'kash-naturals'); ?></a></li>
+                    </ul>
+                </div>
 
-    <p><?php esc_html_e('At Kash Natural, we ensure that your natural mouth fresheners, chocolate dragees, and luxury combos reach you in peak freshness and perfect packaging. We partner with reliable courier services for fast, Pan-India delivery.', 'kash-naturals'); ?></p>
+                <div class="policy-help-card">
+                    <i class="fa-solid fa-headset"></i>
+                    <h4><?php esc_html_e('Need Assistance?', 'kash-naturals'); ?></h4>
+                    <p><?php esc_html_e('Our customer care team is available to help with tracking and logistics queries.', 'kash-naturals'); ?></p>
+                    <a href="mailto:info@kashnatural.com" class="btn-sidebar-contact">info@kashnatural.com</a>
+                </div>
+            </aside>
 
-    <div class="shipping-grid">
-        <div class="shipping-card">
-            <h3><i class="fa-solid fa-clock" style="color:#d4af37; margin-right:8px;"></i> <?php esc_html_e('Processing Time', 'kash-naturals'); ?></h3>
-            <p><?php esc_html_e('Orders are dispatched within 24 to 48 working hours from order confirmation.', 'kash-naturals'); ?></p>
-        </div>
-        <div class="shipping-card">
-            <h3><i class="fa-solid fa-truck" style="color:#d4af37; margin-right:8px;"></i> <?php esc_html_e('Delivery Window', 'kash-naturals'); ?></h3>
-            <p><?php esc_html_e('Standard delivery takes 3 to 7 business days depending on delivery pincode.', 'kash-naturals'); ?></p>
-        </div>
-        <div class="shipping-card">
-            <h3><i class="fa-solid fa-box-open" style="color:#d4af37; margin-right:8px;"></i> <?php esc_html_e('Secure Packaging', 'kash-naturals'); ?></h3>
-            <p><?php esc_html_e('All items are sealed in airtight glass jars and eco-protective bubble padding.', 'kash-naturals'); ?></p>
+            <!-- Policy Content Area -->
+            <div class="policy-content-card">
+                <div class="policy-date-badge">
+                    <i class="fa-solid fa-calendar-check"></i> <?php esc_html_e('Effective Date: October 2026 • Pan-India Logistics', 'kash-naturals'); ?>
+                </div>
+
+                <p class="policy-lead-text">
+                    <?php esc_html_e('At Kash Natural, we ensure that your natural mouth fresheners, chocolate dragees, and luxury gift combos reach you in peak freshness, sealed packaging, and optimal condition. We partner with India’s leading express logistics providers for fast, reliable delivery.', 'kash-naturals'); ?>
+                </p>
+
+                <!-- Highlight Cards Row -->
+                <div class="policy-highlights-grid">
+                    <div class="policy-highlight-card">
+                        <div class="highlight-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <h4><?php esc_html_e('24-48 Hour Dispatch', 'kash-naturals'); ?></h4>
+                        <p><?php esc_html_e('Orders prepared & packed within 24 to 48 hours.', 'kash-naturals'); ?></p>
+                    </div>
+                    <div class="policy-highlight-card">
+                        <div class="highlight-icon"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                        <h4><?php esc_html_e('2-5 Days Delivery', 'kash-naturals'); ?></h4>
+                        <p><?php esc_html_e('Fast express shipping across 26,000+ pincodes.', 'kash-naturals'); ?></p>
+                    </div>
+                    <div class="policy-highlight-card">
+                        <div class="highlight-icon"><i class="fa-solid fa-snowflake"></i></div>
+                        <h4><?php esc_html_e('Cold Insulated', 'kash-naturals'); ?></h4>
+                        <p><?php esc_html_e('Temperature managed packing preventing melt.', 'kash-naturals'); ?></p>
+                    </div>
+                </div>
+
+                <div class="policy-body-section">
+                    <h2><span class="sec-num">1</span> <?php esc_html_e('Shipping Rates & Delivery Options', 'kash-naturals'); ?></h2>
+                    <p><?php esc_html_e('We provide simple, transparent shipping pricing for orders placed on our website:', 'kash-naturals'); ?></p>
+                    <ul>
+                        <li><strong><?php esc_html_e('Prepaid Orders', 'kash-naturals'); ?>:</strong> <?php esc_html_e('FREE Shipping on all prepaid orders nationwide.', 'kash-naturals'); ?></li>
+                        <li><strong><?php esc_html_e('Cash on Delivery (COD)', 'kash-naturals'); ?>:</strong> <?php esc_html_e('A nominal convenience fee of ₹49 applies on COD orders to cover courier handling charges.', 'kash-naturals'); ?></li>
+                        <li><strong><?php esc_html_e('Express Air Dispatch', 'kash-naturals'); ?>:</strong> <?php esc_html_e('Priority air courier option available for select metro cities.', 'kash-naturals'); ?></li>
+                    </ul>
+
+                    <h2><span class="sec-num">2</span> <?php esc_html_e('Order Dispatch & Tracking', 'kash-naturals'); ?></h2>
+                    <p><?php esc_html_e('Once your order is confirmed, our warehouse team handpicks and seals your items. As soon as your parcel is handed over to our courier partner, a live tracking link is sent via WhatsApp, SMS, and Email.', 'kash-naturals'); ?></p>
+
+                    <h2><span class="sec-num">3</span> <?php esc_html_e('Insulated Packaging Guarantee', 'kash-naturals'); ?></h2>
+                    <p><?php esc_html_e('To ensure our artisanal chocolates and dragees arrive intact even in warm weather, we utilize thermal insulation liners and ice gel pods during peak summer shipping.', 'kash-naturals'); ?></p>
+
+                    <h2><span class="sec-num">4</span> <?php esc_html_e('Failed Delivery Attempts & Address Resolution', 'kash-naturals'); ?></h2>
+                    <p><?php esc_html_e('Our courier partners attempt delivery up to 3 times. If delivery cannot be completed due to incorrect address or recipient unavailability, our support team will contact you to schedule re-delivery.', 'kash-naturals'); ?></p>
+                </div>
+            </div>
+
         </div>
     </div>
+</section>
 
-    <h2><?php esc_html_e('1. Shipping Charges', 'kash-naturals'); ?></h2>
-    <p><?php esc_html_e('We offer FREE Shipping on all prepaid orders across India. For Cash on Delivery (COD) orders, a nominal handling fee of ₹49 may apply.', 'kash-naturals'); ?></p>
-
-    <h2><?php esc_html_e('2. Order Tracking', 'kash-naturals'); ?></h2>
-    <p><?php esc_html_e('Once your order is dispatched, a tracking link with live carrier updates will be sent via SMS and Email to the contact details provided at checkout.', 'kash-naturals'); ?></p>
-
-    <h2><?php esc_html_e('3. Delivery Locations', 'kash-naturals'); ?></h2>
-    <p><?php esc_html_e('We deliver across 26,000+ pincodes in India. For remote locations where express shipping is unavailable, standard India Post or surface logistics may be utilized.', 'kash-naturals'); ?></p>
-
-    <h2><?php esc_html_e('4. Non-Delivery & Failed Delivery Attempts', 'kash-naturals'); ?></h2>
-    <p><?php esc_html_e('If courier agents are unable to reach you after 3 attempts, the shipment will return to our central warehouse. Contact customer care at care@kashnatural.com to schedule re-dispatch.', 'kash-naturals'); ?></p>
-</div>
+<!-- Shop on Amazon Banner Section -->
+<?php get_template_part('template-parts/content', 'amazon-banner'); ?>
 
 <?php
 get_footer();
+
