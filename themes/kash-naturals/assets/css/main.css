@@ -1258,6 +1258,382 @@ img {
     }
 }
 
+/* About Us Page Custom UI Styles */
+.about-page-header {
+    background: linear-gradient(135deg, #092614 0%, #113821 100%);
+    padding: 65px 0 55px 0;
+    color: #ffffff;
+    text-align: center;
+    border-bottom: 2px solid #c68b27;
+}
+
+.about-header-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #c68b27;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.about-header-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 14px 0;
+}
+
+.about-breadcrumb {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    color: #c5d4c9;
+}
+
+.about-breadcrumb a {
+    color: #c68b27;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.about-breadcrumb a:hover {
+    color: #ffffff;
+}
+
+.about-breadcrumb .sep {
+    margin: 0 8px;
+    opacity: 0.6;
+}
+
+/* About Hero Section */
+.about-hero-section {
+    padding: 70px 0;
+    background-color: #ffffff;
+}
+
+.about-hero-grid {
+    display: grid;
+    grid-template-columns: 54% 46%;
+    gap: 45px;
+    align-items: center;
+}
+
+.section-badge-gold {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #c68b27;
+    letter-spacing: 2.5px;
+    margin-bottom: 12px;
+}
+
+.section-badge-gold .badge-line {
+    width: 40px;
+    height: 1px;
+    background-color: #c68b27;
+    opacity: 0.7;
+}
+
+.about-hero-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0f3820;
+    line-height: 1.25;
+    margin: 0 0 20px 0;
+}
+
+.about-hero-lead {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: #1a1a1a;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.about-hero-desc {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: #4a4a4a;
+    margin-bottom: 32px;
+}
+
+.about-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px solid #eae5dc;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f3820;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.82rem;
+    color: #666666;
+    margin-top: 4px;
+}
+
+/* Hero Media */
+.about-hero-media {
+    position: relative;
+}
+
+.about-img-frame {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.about-main-img {
+    width: 100%;
+    height: 440px;
+    object-fit: cover;
+    display: block;
+    border-radius: 18px;
+}
+
+.about-floating-badge {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(198, 139, 39, 0.3);
+}
+
+.about-floating-badge i {
+    font-size: 1.6rem;
+    color: #0f3820;
+}
+
+.about-floating-badge strong {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    color: #0f3820;
+    font-weight: 700;
+}
+
+.about-floating-badge span {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Core Pillars Section */
+.about-pillars-section {
+    padding: 70px 0;
+    background-color: #faf6f0;
+}
+
+.section-subtitle-exact {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #c68b27;
+    letter-spacing: 2.5px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.section-title-exact {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #0f3820;
+    margin: 0 0 14px 0;
+}
+
+.title-gold-divider {
+    width: 60px;
+    height: 3px;
+    background-color: #c68b27;
+    margin: 0 auto 40px auto;
+    border-radius: 2px;
+}
+
+.about-pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.about-pillar-card {
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 30px 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #f2ede4;
+}
+
+.about-pillar-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
+.pillar-icon-box {
+    width: 56px;
+    height: 56px;
+    background-color: #f2f7f3;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #0f3820;
+    margin-bottom: 20px;
+}
+
+.pillar-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f3820;
+    margin: 0 0 10px 0;
+}
+
+.pillar-card-desc {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #555555;
+    margin: 0;
+}
+
+/* Specialties Showcase Section */
+.about-specialties-section {
+    padding: 75px 0;
+    background-color: #ffffff;
+}
+
+.about-specialties-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.specialty-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid #ece7df;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.specialty-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+.specialty-img-box {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.specialty-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.specialty-card:hover .specialty-img-box img {
+    transform: scale(1.05);
+}
+
+.specialty-content {
+    padding: 24px;
+}
+
+.specialty-tag {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #c68b27;
+    letter-spacing: 1.5px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.specialty-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #0f3820;
+    margin: 0 0 10px 0;
+}
+
+.specialty-desc {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #555555;
+    margin: 0;
+}
+
+/* Responsive About Page Styles */
+@media (max-width: 991px) {
+    .about-hero-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+    }
+    .about-main-img {
+        height: 300px;
+    }
+    .about-pillars-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .about-specialties-grid {
+        grid-template-columns: 1fr;
+    }
+    .about-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .about-header-title {
+        font-size: 2rem;
+    }
+    .about-hero-heading {
+        font-size: 1.8rem;
+    }
+    .about-pillars-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 
 
 /* Trust Features Bar */
