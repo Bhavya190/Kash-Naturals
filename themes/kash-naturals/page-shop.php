@@ -12,7 +12,8 @@ if (!defined('ABSPATH')) {
 get_header();
 
 $theme_uri = get_template_directory_uri();
-$current_category = isset($_GET['category']) ? sanitize_text_field($_GET['category']) : 'all';
+$raw_category = isset($_GET['category']) ? $_GET['category'] : 'all';
+$current_category = function_exists('sanitize_text_field') ? sanitize_text_field($raw_category) : trim(strip_tags((string)$raw_category));
 
 // Map category slug to display title
 $category_titles = array(
@@ -305,7 +306,7 @@ if ($current_category === 'all' || !isset($category_titles[$current_category])) 
                                 <span class="current-price"><?php echo esc_html($prod['price']); ?></span>
                                 <span class="old-price"><?php echo esc_html($prod['regular_price']); ?></span>
                             </div>
-                            <button type="button" class="btn-add-cart-exact" onclick="alert('<?php echo esc_js($prod['name']); ?> added to cart!');">
+                            <button type="button" class="btn-add-cart-exact">
                                 <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
                             </button>
                         </div>
