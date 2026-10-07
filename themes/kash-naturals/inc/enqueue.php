@@ -13,7 +13,7 @@ function kash_naturals_scripts() {
     // Enqueue Google Fonts (Playfair Display for headings & Outfit for body text)
     wp_enqueue_style(
         'kash-google-fonts',
-        'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&display=swap',
+        'https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400;1,600&display=swap',
         array(),
         null
     );

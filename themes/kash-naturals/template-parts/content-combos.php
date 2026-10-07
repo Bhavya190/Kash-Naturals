@@ -1,6 +1,6 @@
 <?php
 /**
- * Combo Offers Section Template Part (Matches Reference Screenshot Design)
+ * Combo Offers Section Template Part (Matching Reference UI Design)
  *
  * @package KashNaturals
  */
@@ -14,36 +14,48 @@ $shop_url = home_url('/shop');
 
 $combo_items = array(
     array(
-        'title'    => 'FRESHNESS COMBO',
-        'subtitle' => '3 Mouth Fresheners',
-        'price'    => '₹699',
-        'old_price'=> '₹870',
-        'image'    => $theme_uri . '/assets/images/combo-freshness.jpg',
-        'link'     => $shop_url . '?combo=freshness-combo',
+        'script'    => 'Freshness',
+        'title'     => 'Signature Duo',
+        'subtitle'  => 'Aromatic Calcutta Paan & Sweet Saunf Mukhwas in sealed glass jars for daily post-meal digestive freshness.',
+        'rating'    => '4.9',
+        'price'     => '₹499',
+        'old_price' => '₹599',
+        'bg_color'  => '#688A28',
+        'image'     => $theme_uri . '/assets/images/combo-freshness.jpg',
+        'link'      => $shop_url . '?combo=freshness-combo',
     ),
     array(
-        'title'    => 'FAMILY COMBO',
-        'subtitle' => '5 Mouth Fresheners',
-        'price'    => '₹999',
-        'old_price'=> '₹1,245',
-        'image'    => $theme_uri . '/assets/images/combo-family.jpg',
-        'link'     => $shop_url . '?combo=family-combo',
+        'script'    => 'Bestseller',
+        'title'     => 'Family Pack',
+        'subtitle'  => 'Complete family assortment featuring 4 signature jars of mouth fresheners & chocolate dragees.',
+        'rating'    => '5.0',
+        'price'     => '₹899',
+        'old_price' => '₹1,199',
+        'bg_color'  => '#DF8B2B',
+        'image'     => $theme_uri . '/assets/images/combo-family.jpg',
+        'link'      => $shop_url . '?combo=family-combo',
     ),
     array(
-        'title'    => 'PREMIUM COMBO',
-        'subtitle' => '5 Mouth Fresheners<br>+ Chocolate Dragees',
-        'price'    => '₹1,299',
-        'old_price'=> '₹1,650',
-        'image'    => $theme_uri . '/assets/images/combo-premium.jpg',
-        'link'     => $shop_url . '?combo=premium-combo',
+        'script'    => 'Handcrafted',
+        'title'     => 'Royal Connoisseur',
+        'subtitle'  => 'Luxury hamper packed with crunchy Pistachio Kunafa, Dark Chocolate Almond Dragees & Silver Paan.',
+        'rating'    => '4.9',
+        'price'     => '₹1,299',
+        'old_price' => '₹1,799',
+        'bg_color'  => '#56771C',
+        'image'     => $theme_uri . '/assets/images/combo-premium.jpg',
+        'link'      => $shop_url . '?combo=premium-combo',
     ),
     array(
-        'title'    => 'CELEBRATION BOX',
-        'subtitle' => 'Mouth Fresheners<br>+ Dragees + Kunafa Bars',
-        'price'    => '₹1,599',
-        'old_price'=> '₹2,000',
-        'image'    => $theme_uri . '/assets/images/combo-celebration.jpg',
-        'link'     => $shop_url . '?combo=celebration-box',
+        'script'    => 'Celebration',
+        'title'     => 'Artisanal Box',
+        'subtitle'  => 'Grand gift hamper featuring Hazelnut Dragees, Royal Mukhwas, Pistachio Kunafa Bar & gift ribbon box.',
+        'rating'    => '4.8',
+        'price'     => '₹1,599',
+        'old_price' => '₹2,000',
+        'bg_color'  => '#A13423',
+        'image'     => $theme_uri . '/assets/images/combo-celebration.jpg',
+        'link'      => $shop_url . '?combo=celebration-box',
     ),
 );
 ?>
@@ -52,30 +64,54 @@ $combo_items = array(
     <div class="container">
         
         <!-- Section Header -->
-        <div class="combo-header-exact text-center">
-            <span class="combo-sub-heading">— COMBO OFFERS —</span>
+        <div class="combo-header-exact text-center mb-5">
+            <span class="combo-sub-heading">— CURATED COMBOS —</span>
+            <h2 class="combo-main-heading">Special Savings & Gift Hampers</h2>
+            <div class="gold-divider"></div>
         </div>
 
-        <!-- 4-Combo Card Grid -->
-        <div class="combo-cards-grid-4">
-            <?php foreach ($combo_items as $combo) : ?>
-                <div class="combo-card-exact">
-                    <div class="combo-img-container">
-                        <img src="<?php echo esc_url($combo['image']); ?>" alt="<?php echo esc_attr($combo['title']); ?>" class="combo-card-img" loading="lazy">
+        <!-- 4-Combo Card Grid Matching Reference UI -->
+        <div class="combo-ref-grid-4">
+            <?php foreach ($combo_items as $index => $combo) : ?>
+                <div class="combo-ref-card" style="--card-bg: <?php echo esc_attr($combo['bg_color']); ?>;">
+                    
+                    <!-- Floating Image Tray Overflowing Top -->
+                    <div class="combo-ref-img-wrapper">
+                        <div class="combo-ref-img-tray">
+                            <img src="<?php echo esc_url($combo['image']); ?>" alt="<?php echo esc_attr($combo['title']); ?>" class="combo-ref-img" loading="lazy">
+                        </div>
                     </div>
-                    <div class="combo-card-body">
-                        <h3 class="combo-card-title"><?php echo esc_html($combo['title']); ?></h3>
-                        <p class="combo-card-subtitle"><?php echo function_exists('wp_kses_post') ? wp_kses_post($combo['subtitle']) : $combo['subtitle']; ?></p>
+
+                    <!-- Circular Price Badge Top Right -->
+                    <div class="combo-ref-price-badge">
+                        <span class="price-label">PRICE</span>
+                        <span class="price-sale"><?php echo esc_html($combo['price']); ?></span>
+                        <span class="price-old"><?php echo esc_html($combo['old_price']); ?></span>
+                    </div>
+
+                    <!-- Card Body Content -->
+                    <div class="combo-ref-card-body">
+                        <div class="combo-ref-script"><?php echo esc_html($combo['script']); ?></div>
+                        <h3 class="combo-ref-title"><?php echo esc_html($combo['title']); ?></h3>
                         
-                        <div class="combo-pricing-wrap">
-                            <span class="combo-sale-price"><?php echo esc_html($combo['price']); ?></span>
-                            <span class="combo-old-price"><?php echo esc_html($combo['old_price']); ?></span>
+                        <div class="combo-ref-rating-pill">
+                            <span class="stars">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star-half-stroke"></i>
+                            </span>
+                            <span class="score"><?php echo esc_html($combo['rating']); ?></span>
                         </div>
 
-                        <a href="<?php echo esc_url($combo['link']); ?>" class="btn-combo-shop-now">
-                            <?php esc_html_e('SHOP NOW', 'kash-naturals'); ?>
+                        <p class="combo-ref-desc"><?php echo esc_html($combo['subtitle']); ?></p>
+
+                        <a href="<?php echo esc_url($combo['link']); ?>" class="combo-ref-btn">
+                            ORDER NOW
                         </a>
                     </div>
+
                 </div>
             <?php endforeach; ?>
         </div>
