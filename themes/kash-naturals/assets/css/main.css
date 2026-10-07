@@ -163,17 +163,26 @@ img {
 
 /* Site Header & Navigation - Ultra Transparent Glassmorphism */
 .site-header {
-    background: rgba(253, 251, 247, 0.3);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #f4f8f4;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-top: none;
-    border-bottom: 1px solid rgba(232, 227, 218, 0.4);
+    border-bottom: 1px solid rgba(44, 95, 62, 0.12);
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     margin-top: 0;
-    margin-bottom: -100px;
+    margin-bottom: 0;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-header.scrolled {
+    background: #f4f8f4 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid rgba(44, 95, 62, 0.15) !important;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08) !important;
 }
 
 .header-container {
@@ -3411,7 +3420,7 @@ img {
     font-size: 0.95rem;
     font-weight: 700;
     letter-spacing: 0.8px;
-    color: #ffffff;
+    color: #ed8e00 !important;
     margin: 0 0 20px 0;
     text-transform: uppercase;
 }
@@ -3475,8 +3484,9 @@ img {
 }
 
 .amazon-footer-logo {
-    height: 24px;
+    height: 28px;
     width: auto;
+    object-fit: contain;
     filter: brightness(0) invert(1);
 }
 
@@ -3493,42 +3503,181 @@ img {
     margin: 0;
 }
 
-/* Responsive Media Queries */
+/* Responsive Header, Mobile Navigation Menu & Footer Media Queries */
 @media (max-width: 992px) {
-    .hero-content-grid {
-        grid-template-columns: 1fr;
+    .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
     }
-    .story-grid {
-        grid-template-columns: 1fr;
+
+    .header-container {
+        height: 80px;
+        padding: 0 18px;
+        position: relative;
     }
-    .footer-grid {
-        grid-template-columns: 1fr 1fr;
+
+    .site-logo-img {
+        height: 55px;
     }
-    .hero-title {
-        font-size: 2.8rem;
+
+    .mobile-menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        color: #1c2b1f;
+        font-size: 1.6rem;
+        cursor: pointer;
+        padding: 6px;
+        z-index: 1001;
+    }
+
+    .main-navigation {
+        display: none;
+    }
+
+    .main-navigation.active-mobile {
+        display: block !important;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        width: 100%;
+        background-color: #0b381e;
+        padding: 20px 24px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+        border-bottom: 4px solid #ed8e00;
+        animation: mobileMenuSlideDown 0.25s ease-out;
+        box-sizing: border-box;
+    }
+
+    .main-navigation.active-mobile .nav-menu-list {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0 !important;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .main-navigation.active-mobile .nav-menu-list > li {
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        position: relative;
+    }
+
+    .main-navigation.active-mobile .nav-menu-list > li:last-child {
+        border-bottom: none;
+    }
+
+    .main-navigation.active-mobile .nav-menu-list a {
+        color: #ffffff !important;
+        padding: 14px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        width: 100%;
+        text-decoration: none;
+    }
+
+    .main-navigation.active-mobile .nav-menu-list a::after {
+        display: none;
+    }
+
+    .main-navigation.active-mobile .header-dropdown-menu {
+        position: static;
+        display: none;
+        width: 100%;
+        box-shadow: none;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 8px 16px;
+        margin: 4px 0 12px 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-sizing: border-box;
+    }
+
+    .main-navigation.active-mobile .nav-dropdown-item.open .header-dropdown-menu,
+    .main-navigation.active-mobile .nav-dropdown-item:hover .header-dropdown-menu {
+        display: block !important;
+    }
+
+    .main-navigation.active-mobile .header-dropdown-menu a {
+        color: #d8e5db !important;
+        padding: 10px 0;
+        font-size: 0.88rem;
+        text-transform: none;
+        font-weight: 500;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .main-navigation.active-mobile .header-dropdown-menu li:last-child a {
+        border-bottom: none;
+    }
+
+    .main-navigation.active-mobile .header-dropdown-menu a:hover {
+        color: #ed8e00 !important;
+    }
+
+    .footer-grid-5 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 35px 30px;
     }
 }
 
-@media (max-width: 768px) {
-    .main-navigation {
-        display: none; /* Toggled by JS mobile menu */
+@keyframes mobileMenuSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
     }
-    .mobile-menu-toggle {
-        display: block;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    .footer-grid {
+}
+
+@media (max-width: 576px) {
+    .header-container {
+        height: 72px;
+        padding: 0 16px;
+    }
+
+    .site-logo-img {
+        height: 48px;
+    }
+
+    .footer-grid-5 {
         grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
     }
-    .hero-stats {
-        flex-direction: column;
-        gap: 16px;
+
+    .footer-social-icons {
+        justify-content: center;
+    }
+
+    .footer-contact-list li {
+        justify-content: center;
+    }
+
+    .amazon-footer-btn {
+        justify-content: center;
     }
 }
 
 /* Home 4-Card Category Showcase Section - Exact Image Match */
 .home-category-showcase {
-    background-color: #fdfbf7;
-    padding: 60px 0 80px;
+    background-color: #F4F8F4;
+    padding: 65px 0 85px;
 }
 
 .category-cards-grid {
@@ -3684,100 +3833,82 @@ img {
 
 /* Brand USPs & Value Features Bar - Exact Image Match */
 .kash-usp-bar-section {
-    background-color: #fdfbf7;
-    border-top: 1px solid #e8e1d3;
-    border-bottom: 1px solid #e8e1d3;
-    padding: 42px 0;
+    background-color: #E8F3E9;
+    border-top: 1px solid rgba(44, 95, 62, 0.1);
+    border-bottom: 1px solid rgba(44, 95, 62, 0.1);
+    padding: 60px 0 65px;
+    position: relative;
 }
 
 .kash-usp-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    align-items: center;
+    gap: 40px;
+    align-items: start;
 }
 
 .kash-usp-item {
-    padding: 10px 24px;
-    text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid #e5dec9;
-    transition: transform 0.2s ease;
-}
-
-.kash-usp-item:last-child {
+    align-items: flex-start;
+    text-align: left;
+    padding: 0 10px;
     border-right: none;
+    transition: transform 0.3s ease;
 }
 
 .kash-usp-item:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
 }
 
 .kash-usp-icon {
-    font-size: 2.6rem;
-    color: #0a331a;
-    margin-bottom: 14px;
+    font-size: 2.2rem;
+    color: #2C5F3E;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    height: 52px;
-    width: 52px;
+    justify-content: flex-start;
+    height: 48px;
+    width: 48px;
+    transition: color 0.3s ease;
+}
+
+.kash-usp-item:hover .kash-usp-icon {
+    color: #d48b10;
 }
 
 .kash-usp-title {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 800;
-    font-size: 0.96rem;
-    color: #0a331a;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    margin: 0 0 8px 0;
-    line-height: 1.25;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #1C2B1F;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+    letter-spacing: -0.2px;
 }
 
 .kash-usp-desc {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.88rem;
-    color: #444444;
+    font-size: 0.9rem;
+    color: #5A6B5C;
     font-weight: 400;
     margin: 0;
-    line-height: 1.45;
-    max-width: 210px;
+    line-height: 1.55;
+    max-width: 270px;
 }
 
+/* Responsive Media Queries */
 @media (max-width: 992px) {
     .kash-usp-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 30px 0;
-    }
-    .kash-usp-item:nth-child(2) {
-        border-right: none;
-    }
-    .kash-usp-item {
-        border-bottom: 1px solid #e5dec9;
-        padding-bottom: 24px;
-    }
-    .kash-usp-item:nth-child(3),
-    .kash-usp-item:nth-child(4) {
-        border-bottom: none;
-        padding-top: 10px;
+        gap: 35px 30px;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 576px) {
     .kash-usp-grid {
         grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    .kash-usp-item {
-        border-right: none !important;
-        border-bottom: 1px solid #e5dec9 !important;
-        padding-bottom: 20px;
-    }
-    .kash-usp-item:last-child {
-        border-bottom: none !important;
+        gap: 30px;
     }
 }
 
@@ -3947,8 +4078,8 @@ img {
 
 /* Combo Offers Section - Exact Image Match Card View */
 .combo-offers-section-exact {
-    background-color: #fdfbf7;
-    padding: 60px 0 85px;
+    background: linear-gradient(135deg, #0C1F12 0%, #163620 50%, #0F2817 100%);
+    padding: 85px 0 95px;
 }
 
 .combo-header-exact {
@@ -6149,6 +6280,752 @@ body.modal-open {
 
     .story-ref-floating-bowls {
         display: none;
+    }
+}
+
+/* ==========================================================================
+   CUSTOMER FAVORITES CAROUSEL SECTION (Matching Reference UI + 3.5 Cards View)
+   ========================================================================== */
+.fav-carousel-section {
+    position: relative;
+    background: linear-gradient(180deg, #EEF6ED 0%, #E2EFE1 100%);
+    padding: 65px 0 75px;
+    border-top: 1px solid rgba(44, 95, 62, 0.08);
+    border-bottom: 1px solid rgba(44, 95, 62, 0.08);
+    overflow: hidden;
+}
+
+.fav-section-container {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 20px 24px;
+}
+
+/* Green Pill Badge Header */
+.fav-header-wrap {
+    margin-bottom: 35px;
+}
+
+.fav-title-pill {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #2C5F3E, #1A4229);
+    padding: 8px 36px 8px 10px;
+    border-radius: 60px;
+    box-shadow: 0 10px 25px rgba(44, 95, 62, 0.28);
+    margin-bottom: 12px;
+}
+
+.fav-pill-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #2C5F3E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.fav-pill-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+.fav-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    color: #4A6B53;
+    max-width: 540px;
+    margin: 0 auto;
+}
+
+/* Carousel Layout Outer */
+.fav-carousel-outer {
+    position: relative;
+    padding: 0 54px;
+}
+
+.fav-arrow-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #2C5F3E;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(44, 95, 62, 0.35);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 10;
+}
+
+.fav-arrow-prev {
+    left: 0;
+}
+
+.fav-arrow-next {
+    right: 0;
+}
+
+.fav-arrow-btn:hover {
+    background: #d48b10;
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.12);
+    box-shadow: 0 12px 28px rgba(212, 139, 16, 0.45);
+}
+
+/* Carousel Viewport & Track */
+.fav-carousel-viewport {
+    overflow: hidden;
+    width: 100%;
+    padding: 15px 5px 35px 5px;
+}
+
+.fav-carousel-track {
+    display: flex;
+    gap: 24px;
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+}
+
+/* Card Sizing: 3 Full Cards + 4th Half Card Visible (Desktop > 1100px) */
+.fav-card-item {
+    flex: 0 0 calc(28% - 6px);
+    max-width: calc(28% - 6px);
+    box-sizing: border-box;
+}
+
+.fav-card-inner {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 20px 18px;
+    border: 2px solid rgba(44, 95, 62, 0.14);
+    box-shadow: 0 12px 32px rgba(44, 95, 62, 0.07);
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.fav-card-inner:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 48px rgba(44, 95, 62, 0.18);
+    border-color: #2C5F3E;
+}
+
+.fav-rating-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #FFF8EB;
+    color: #D48B10;
+    border: 1px solid #F5E3C3;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    z-index: 2;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.fav-img-box {
+    width: 100%;
+    height: 200px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #F8FAF7 0%, #EFF6EF 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+    padding: 12px;
+}
+
+.fav-prod-img {
+    max-height: 170px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+}
+
+.fav-card-inner:hover .fav-prod-img {
+    transform: scale(1.08);
+}
+
+.fav-card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    justify-content: space-between;
+}
+
+.fav-prod-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1C2B1F;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+}
+
+.fav-prod-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2C5F3E;
+    margin-bottom: 16px;
+}
+
+.fav-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.fav-btn-view {
+    flex: 1;
+    background: #2C5F3E;
+    color: #ffffff !important;
+    border-radius: 50px;
+    padding: 10px 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(44, 95, 62, 0.2);
+}
+
+.fav-btn-view:hover {
+    background: #1A4229;
+    box-shadow: 0 6px 18px rgba(44, 95, 62, 0.35);
+    transform: translateY(-1px);
+}
+
+.fav-btn-quick-add {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #F0F7F1;
+    color: #2C5F3E;
+    border: 1px solid #CDE3D1;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.fav-btn-quick-add:hover {
+    background: #2C5F3E;
+    color: #ffffff;
+    border-color: #2C5F3E;
+    transform: scale(1.1);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1100px) {
+    .fav-card-item {
+        flex: 0 0 calc(42% - 8px);
+        max-width: calc(42% - 8px);
+    }
+}
+
+@media (max-width: 768px) {
+    .fav-carousel-outer {
+        padding: 0 35px;
+    }
+    .fav-card-item {
+        flex: 0 0 calc(78% - 8px);
+        max-width: calc(78% - 8px);
+    }
+    .fav-arrow-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+}
+
+/* ==========================================================================
+   CUSTOMER TESTIMONIALS SECTION (Matching Reference Ribbon Card UI)
+   ========================================================================== */
+.testimonials-ref-section {
+    background-color: #FAF7F2;
+    padding: 85px 0 100px;
+    position: relative;
+    overflow: hidden;
+}
+
+.testi-header-wrap {
+    margin-bottom: 55px;
+}
+
+.testi-sub-heading {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #d48b10;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.testi-main-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    color: #1C2B1F;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.3px;
+}
+
+.testi-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    color: #5A6B5C;
+    max-width: 580px;
+    margin: 0 auto;
+}
+
+.testi-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 36px;
+    align-items: stretch;
+}
+
+/* Card Wrapper with Ribbon Header Backing */
+.testi-card-wrapper {
+    position: relative;
+    padding-top: 36px;
+    margin-bottom: 30px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.testi-card-wrapper:hover {
+    transform: translateY(-10px);
+}
+
+/* Ribbon Backing Frame */
+.testi-ribbon-backing {
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    height: 110px;
+    border-radius: 20px 20px 0 0;
+    z-index: 1;
+}
+
+.ribbon-tail {
+    position: absolute;
+    bottom: -12px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.ribbon-tail-left {
+    left: 0;
+    border-width: 12px 12px 0 0;
+}
+
+.ribbon-tail-right {
+    right: 0;
+    border-width: 12px 0 0 12px;
+}
+
+/* 1. Theme Gold */
+.testi-theme-gold .testi-ribbon-backing {
+    background: linear-gradient(135deg, #E59A16, #D48B10);
+}
+.testi-theme-gold .ribbon-tail-left {
+    border-color: #A36705 transparent transparent transparent;
+}
+.testi-theme-gold .ribbon-tail-right {
+    border-color: #A36705 transparent transparent transparent;
+}
+.testi-theme-gold .testi-num-badge,
+.testi-theme-gold .testi-card-title {
+    color: #D48B10;
+}
+.testi-theme-gold .testi-circle-badge {
+    background: linear-gradient(135deg, #E59A16, #D48B10);
+    box-shadow: 0 8px 24px rgba(229, 154, 22, 0.4);
+}
+
+/* 2. Theme Emerald */
+.testi-theme-emerald .testi-ribbon-backing {
+    background: linear-gradient(135deg, #2C5F3E, #1A4229);
+}
+.testi-theme-emerald .ribbon-tail-left {
+    border-color: #112B1B transparent transparent transparent;
+}
+.testi-theme-emerald .ribbon-tail-right {
+    border-color: #112B1B transparent transparent transparent;
+}
+.testi-theme-emerald .testi-num-badge,
+.testi-theme-emerald .testi-card-title {
+    color: #2C5F3E;
+}
+.testi-theme-emerald .testi-circle-badge {
+    background: linear-gradient(135deg, #2C5F3E, #1A4229);
+    box-shadow: 0 8px 24px rgba(44, 95, 62, 0.4);
+}
+
+/* 3. Theme Coral */
+.testi-theme-coral .testi-ribbon-backing {
+    background: linear-gradient(135deg, #D95D39, #C84C28);
+}
+.testi-theme-coral .ribbon-tail-left {
+    border-color: #8C2E13 transparent transparent transparent;
+}
+.testi-theme-coral .ribbon-tail-right {
+    border-color: #8C2E13 transparent transparent transparent;
+}
+.testi-theme-coral .testi-num-badge,
+.testi-theme-coral .testi-card-title {
+    color: #C84C28;
+}
+.testi-theme-coral .testi-circle-badge {
+    background: linear-gradient(135deg, #D95D39, #C84C28);
+    box-shadow: 0 8px 24px rgba(217, 93, 57, 0.4);
+}
+
+/* Main White Card Floating Body */
+.testi-card-body {
+    position: relative;
+    z-index: 2;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 32px 28px 48px 28px;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+.testi-num-badge {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+}
+
+.testi-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0 0 12px 0;
+}
+
+.testi-stars {
+    color: #D48B10;
+    font-size: 1.15rem;
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+}
+
+.testi-quote-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: #4A5568;
+    margin-bottom: 24px;
+    flex: 1;
+    font-style: italic;
+}
+
+.testi-author-info {
+    margin-top: auto;
+}
+
+.testi-author-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1A202C;
+}
+
+.testi-author-location {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.82rem;
+    color: #718096;
+    margin-top: 3px;
+}
+
+/* Bottom Circular Icon Badge */
+.testi-circle-badge {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    border: 4px solid #ffffff;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 3;
+}
+
+.testi-card-wrapper:hover .testi-circle-badge {
+    transform: translateX(-50%) scale(1.12);
+}
+
+/* Responsive Grid Breakpoint */
+@media (max-width: 992px) {
+    .testi-cards-grid {
+        grid-template-columns: repeat(1, 1fr);
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        gap: 45px;
+    }
+}
+
+/* ==========================================================================
+   HORIZONTAL AMAZON STORE BANNER (Exact Match to Reference Screenshot)
+   ========================================================================== */
+.amz-horizontal-section {
+    background-color: #FAF7F2;
+    padding: 60px 0 80px;
+    position: relative;
+}
+
+.amz-ref-banner-card {
+    background: #C4E0C7;
+    border-radius: 36px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    min-height: 310px;
+    position: relative;
+    box-shadow: 0 16px 45px rgba(44, 95, 62, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Left Area: White Curved Arch (Matching Reference Shape) */
+.amz-banner-left-arch {
+    background: #ffffff;
+    flex: 0 0 52%;
+    max-width: 52%;
+    border-radius: 0 150px 150px 0;
+    padding: 42px 65px 42px 48px;
+    position: relative;
+    z-index: 5;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.amz-logo-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.amz-ref-logo {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.amz-prime-badge {
+    background: #E8F5E9;
+    color: #2C5F3E;
+    border: 1px solid #C8E6C9;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'Outfit', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.amz-ref-headline {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.65rem, 2.3vw, 2.15rem);
+    font-weight: 700;
+    color: #1C2B1F;
+    margin: 0 0 10px 0;
+    line-height: 1.25;
+}
+
+.amz-text-green {
+    color: #2C5F3E;
+    font-weight: 800;
+}
+
+.amz-ref-subtext {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    color: #5A6B5C;
+    margin-bottom: 20px;
+    max-width: 440px;
+    line-height: 1.5;
+}
+
+.amz-ref-cta {
+    margin-top: 4px;
+}
+
+.btn-amz-ref-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2C5F3E;
+    color: #ffffff !important;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none !important;
+    box-shadow: 0 8px 20px rgba(44, 95, 62, 0.28);
+    transition: all 0.3s ease;
+}
+
+.btn-amz-ref-pill:hover {
+    background: #1A4229;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(44, 95, 62, 0.4);
+    color: #ffffff !important;
+}
+
+/* Right Area: Sage Green Product Showcase */
+.amz-banner-right-showcase {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 35px 24px 45px;
+}
+
+.amz-showcase-grid {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    justify-content: center;
+}
+
+.amz-showcase-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.15);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    background: #ffffff;
+    border: 3px solid #ffffff;
+}
+
+.amz-card-main {
+    flex: 1.25;
+    height: 220px;
+}
+
+.amz-card-secondary {
+    flex: 0.95;
+    height: 220px;
+}
+
+.amz-showcase-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.amz-showcase-card:hover .amz-showcase-img {
+    transform: scale(1.06);
+}
+
+.amz-showcase-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.22);
+}
+
+.amz-img-label {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(17, 35, 23, 0.85);
+    backdrop-filter: blur(6px);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 992px) {
+    .amz-ref-banner-card {
+        flex-direction: column;
+        min-height: auto;
+    }
+    .amz-banner-left-arch {
+        flex: 1 0 100%;
+        max-width: 100%;
+        border-radius: 36px 36px 0 0;
+        padding: 40px 30px;
+        text-align: center;
+        align-items: center;
+    }
+    .amz-ref-subtext {
+        max-width: 100%;
+    }
+    .amz-banner-right-showcase {
+        padding: 30px;
+        min-height: 220px;
     }
 }
 

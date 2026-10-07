@@ -49,7 +49,7 @@ function kash_naturals_scripts() {
         'kash-main-script',
         get_template_directory_uri() . '/assets/js/main.js',
         array('jquery'),
-        '1.0.0',
+        time(),
         true
     );
 

@@ -81,9 +81,9 @@ if (!defined('ABSPATH')) {
                     <li><i class="fa-solid fa-location-dot"></i> Pan India Delivery</li>
                 </ul>
                 <div class="footer-amazon-badge">
-                    <a href="https://amazon.in" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">
+                    <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">
                         <span class="badge-subtext-white">Available on</span>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="amazon-footer-logo">
+                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/amazon-logo-png.png'); ?>" alt="Amazon" class="amazon-footer-logo">
                     </a>
                 </div>
             </div>
@@ -162,7 +162,7 @@ if (!defined('ABSPATH')) {
                         <label for="login-email">Email or Mobile Number</label>
                         <div class="input-icon-wrap">
                             <i class="fa-regular fa-envelope"></i>
-                            <input type="email" id="login-email" class="form-control-clean" placeholder="name@example.com" required value="bhavya@kashnaturals.com" />
+                            <input type="email" id="login-email" class="form-control-clean" placeholder="name@example.com" required value="bhavya@kashnaturals.com" autocomplete="username" />
                         </div>
                     </div>
 
@@ -170,7 +170,7 @@ if (!defined('ABSPATH')) {
                         <label for="login-password">Password</label>
                         <div class="input-icon-wrap">
                             <i class="fa-solid fa-lock"></i>
-                            <input type="password" id="login-password" class="form-control-clean" placeholder="••••••••" required value="password123" />
+                            <input type="password" id="login-password" class="form-control-clean" placeholder="••••••••" required value="password123" autocomplete="current-password" />
                         </div>
                     </div>
 
@@ -199,7 +199,7 @@ if (!defined('ABSPATH')) {
                         <label for="reg-name">Full Name</label>
                         <div class="input-icon-wrap">
                             <i class="fa-regular fa-user"></i>
-                            <input type="text" id="reg-name" class="form-control-clean" placeholder="Bhavya Sharma" required />
+                            <input type="text" id="reg-name" class="form-control-clean" placeholder="Bhavya Sharma" required autocomplete="name" />
                         </div>
                     </div>
 
@@ -207,7 +207,7 @@ if (!defined('ABSPATH')) {
                         <label for="reg-email">Email Address</label>
                         <div class="input-icon-wrap">
                             <i class="fa-regular fa-envelope"></i>
-                            <input type="email" id="reg-email" class="form-control-clean" placeholder="bhavya@example.com" required />
+                            <input type="email" id="reg-email" class="form-control-clean" placeholder="bhavya@example.com" required autocomplete="email" />
                         </div>
                     </div>
 
@@ -215,7 +215,7 @@ if (!defined('ABSPATH')) {
                         <label for="reg-phone">Phone Number</label>
                         <div class="input-icon-wrap">
                             <i class="fa-solid fa-phone"></i>
-                            <input type="tel" id="reg-phone" class="form-control-clean" placeholder="+91 98765 43210" required />
+                            <input type="tel" id="reg-phone" class="form-control-clean" placeholder="+91 98765 43210" required autocomplete="tel" />
                         </div>
                     </div>
 
@@ -223,7 +223,7 @@ if (!defined('ABSPATH')) {
                         <label for="reg-password">Password</label>
                         <div class="input-icon-wrap">
                             <i class="fa-solid fa-lock"></i>
-                            <input type="password" id="reg-password" class="form-control-clean" placeholder="Create strong password" required />
+                            <input type="password" id="reg-password" class="form-control-clean" placeholder="Create strong password" required autocomplete="new-password" />
                         </div>
                     </div>
 

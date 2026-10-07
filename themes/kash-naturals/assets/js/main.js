@@ -623,25 +623,53 @@ jQuery(document).ready(function ($) {
         openCartDrawer();
     };
 
-    // Global Click Listener for all "ADD TO CART" / "ORDER NOW" Buttons Across Site
-    $(document).on('click', '.btn-add-to-cart-outline, .btn-combo-add-cart, .btn-add-cart-exact, .combo-ref-btn, .btn-combo-shop-now', function (e) {
-        // Prevent default if link
-        if ($(this).attr('href') && $(this).attr('href').includes('javascript') === false && $(this).attr('href') !== '#') {
-            // Keep normal navigation if needed, or trigger cart
+    // Global Click Listener for all "ADD TO CART" / "ORDER NOW" / "+" Buttons Across Site
+    $(document).on('click', '.fav-btn-quick-add, .add-to-cart-btn, .btn-add-to-cart-outline, .btn-combo-add-cart, .btn-add-cart-exact, .combo-ref-btn, .btn-combo-shop-now', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const $btn = $(this);
+        
+        let prodId = $btn.data('product-id') || $btn.attr('data-product-id');
+        let prodName = $btn.data('product-name') || $btn.attr('data-product-name');
+        let prodPrice = $btn.data('product-price') || $btn.attr('data-product-price');
+        let prodImg = $btn.data('product-img') || $btn.attr('data-product-img');
+
+        if (!prodName) {
+            prodName = $btn.closest('.bestseller-card-exact, .shop-product-card-exact, .combo-card-exact, .combo-ref-card, .fav-card-item, .fav-card-inner').find('.bestseller-prod-title, .product-title-exact, .combo-card-title, .combo-ref-title, .fav-prod-title').text().trim();
         }
-        
-        // Find product ID or fallback to product matching
-        const prodName = $(this).closest('.bestseller-card-exact, .shop-product-card-exact, .combo-card-exact, .combo-ref-card').find('.bestseller-prod-title, .product-title-exact, .combo-card-title, .combo-ref-title').text().trim();
-        
-        let match = PRODUCTS_DB.find(p => p.name.toLowerCase() === prodName.toLowerCase());
-        if (!match) {
-            // Pick a random/default item fallback
-            match = PRODUCTS_DB[0];
+
+        let match = null;
+        if (prodId) {
+            match = PRODUCTS_DB.find(p => p.id == prodId);
+        }
+        if (!match && prodName) {
+            match = PRODUCTS_DB.find(p => p.name.toLowerCase().includes(prodName.toLowerCase()) || prodName.toLowerCase().includes(p.name.toLowerCase()));
         }
 
         if (match) {
-            e.preventDefault();
             addToCart(match.id);
+        } else if (prodName) {
+            const numericPrice = prodPrice ? parseInt(String(prodPrice).replace(/[^\d]/g, '')) || 299 : 299;
+            let cart = getCart();
+            const existingIndex = cart.findIndex(item => item.name.toLowerCase() === prodName.toLowerCase());
+
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += 1;
+            } else {
+                cart.push({
+                    id: Date.now(),
+                    name: prodName,
+                    price: numericPrice,
+                    image: prodImg || (themeUri + '/assets/images/product-royal-mukhwas.jpg'),
+                    qty: 1
+                });
+            }
+            saveCart(cart);
+            showToast(`Added "${prodName}" to your shopping bag!`);
+            openCartDrawer();
+        } else {
+            addToCart(1);
         }
     });
 
@@ -944,8 +972,77 @@ jQuery(document).ready(function ($) {
     });
 
     // Mobile Menu Trigger
-    $('#mobile-menu-trigger').on('click', function () {
+    $('#mobile-menu-trigger').on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         $('#site-navigation').toggleClass('active-mobile');
         $(this).find('i').toggleClass('fa-bars fa-xmark');
     });
+
+    // Mobile Submenu Dropdown Toggle
+    $(document).on('click', '.nav-dropdown-item > a', function (e) {
+        if ($(window).width() <= 992) {
+            e.preventDefault();
+            $(this).parent('.nav-dropdown-item').toggleClass('open');
+        }
+    });
+
+    // Close Mobile Menu on Outside Click
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#masthead').length) {
+            $('#site-navigation').removeClass('active-mobile');
+            $('#mobile-menu-trigger').find('i').removeClass('fa-xmark').addClass('fa-bars');
+        }
+    });
+
+    /* ==========================================================================
+       CUSTOMER FAVORITES CAROUSEL SLIDER CONTROLS
+       ========================================================================== */
+    const $favTrack = $('#favCarouselTrack');
+    const $favPrevBtn = $('#favCarouselPrev');
+    const $favNextBtn = $('#favCarouselNext');
+
+    if ($favTrack.length) {
+        let currentScrollPos = 0;
+
+        function getCardStepWidth() {
+            const $firstCard = $favTrack.find('.fav-card-item').first();
+            if (!$firstCard.length) return 300;
+            const cardWidth = $firstCard.outerWidth();
+            const gap = 24;
+            return cardWidth + gap;
+        }
+
+        $favNextBtn.on('click', function () {
+            const stepWidth = getCardStepWidth();
+            const maxScroll = Math.max(0, $favTrack[0].scrollWidth - $favTrack.parent().outerWidth());
+            
+            // If already at or near the end, loop back to start
+            if (Math.abs(currentScrollPos - maxScroll) < 10) {
+                currentScrollPos = 0;
+            } else {
+                currentScrollPos += stepWidth;
+                if (currentScrollPos > maxScroll - 15) {
+                    currentScrollPos = maxScroll; // Clamp to exact end so last card is 100% fully visible
+                }
+            }
+            $favTrack.css('transform', `translateX(-${currentScrollPos}px)`);
+        });
+
+        $favPrevBtn.on('click', function () {
+            const stepWidth = getCardStepWidth();
+            const maxScroll = Math.max(0, $favTrack[0].scrollWidth - $favTrack.parent().outerWidth());
+
+            // If already at start, loop to the maxScroll end
+            if (currentScrollPos <= 10) {
+                currentScrollPos = maxScroll;
+            } else {
+                currentScrollPos -= stepWidth;
+                if (currentScrollPos < 0) {
+                    currentScrollPos = 0;
+                }
+            }
+            $favTrack.css('transform', `translateX(-${currentScrollPos}px)`);
+        });
+    }
 });

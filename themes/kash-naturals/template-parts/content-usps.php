@@ -1,6 +1,7 @@
 <?php
 /**
- * Brand USPs & Value Features Bar Template Part (Exact Match to Reference Image)
+ * Brand USPs & Value Features Bar Template Part
+ * Exact match to reference design layout (Left-aligned clean minimalist icons & typography)
  *
  * @package KashNaturals
  */
@@ -8,47 +9,43 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+$usps = array(
+    array(
+        'icon'  => 'fa-solid fa-seedling',
+        'title' => '100% Natural Seeds',
+        'desc'  => 'Hand-selected sweet saunf & premium spices with zero artificial preservatives.',
+    ),
+    array(
+        'icon'  => 'fa-solid fa-fire-flame-curved',
+        'title' => 'Fresh Batch Roasting',
+        'desc'  => 'Roasted in small artisanal batches every week to lock in rich aroma & crisp taste.',
+    ),
+    array(
+        'icon'  => 'fa-solid fa-mortar-pestle',
+        'title' => 'Master Blended',
+        'desc'  => 'Crafted by heritage blenders following royal digestive recipes passed down generations.',
+    ),
+    array(
+        'icon'  => 'fa-solid fa-box-open',
+        'title' => 'Royal Digestive Care',
+        'desc'  => 'Freshly sealed in luxury glass jars & shipped safely right to your doorstep.',
+    ),
+);
 ?>
+
 <section class="kash-usp-bar-section">
     <div class="container">
         <div class="kash-usp-grid">
-
-            <!-- Item 1: Natural Goodness -->
-            <div class="kash-usp-item">
-                <div class="kash-usp-icon">
-                    <i class="fa-solid fa-leaf"></i>
+            <?php foreach ($usps as $item) : ?>
+                <div class="kash-usp-item">
+                    <div class="kash-usp-icon">
+                        <i class="<?php echo esc_attr($item['icon']); ?>"></i>
+                    </div>
+                    <h4 class="kash-usp-title"><?php echo esc_html($item['title']); ?></h4>
+                    <p class="kash-usp-desc"><?php echo esc_html($item['desc']); ?></p>
                 </div>
-                <h4 class="kash-usp-title"><?php esc_html_e('NATURAL GOODNESS', 'kash-naturals'); ?></h4>
-                <p class="kash-usp-desc"><?php esc_html_e('Made using carefully selected ingredients.', 'kash-naturals'); ?></p>
-            </div>
-
-            <!-- Item 2: Fresh Every Batch -->
-            <div class="kash-usp-item">
-                <div class="kash-usp-icon icon-shield">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h4 class="kash-usp-title"><?php esc_html_e('FRESH EVERY BATCH', 'kash-naturals'); ?></h4>
-                <p class="kash-usp-desc"><?php esc_html_e('Manufactured under hygienic conditions.', 'kash-naturals'); ?></p>
-            </div>
-
-            <!-- Item 3: Rich Taste -->
-            <div class="kash-usp-item">
-                <div class="kash-usp-icon icon-smile">
-                    <i class="fa-regular fa-face-smile"></i>
-                </div>
-                <h4 class="kash-usp-title"><?php esc_html_e('RICH TASTE', 'kash-naturals'); ?></h4>
-                <p class="kash-usp-desc"><?php esc_html_e('Unique flavors loved by customers.', 'kash-naturals'); ?></p>
-            </div>
-
-            <!-- Item 4: Fast Delivery -->
-            <div class="kash-usp-item">
-                <div class="kash-usp-icon">
-                    <i class="fa-solid fa-truck-fast"></i>
-                </div>
-                <h4 class="kash-usp-title"><?php esc_html_e('FAST DELIVERY', 'kash-naturals'); ?></h4>
-                <p class="kash-usp-desc"><?php esc_html_e('Shipping across India.', 'kash-naturals'); ?></p>
-            </div>
-
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
