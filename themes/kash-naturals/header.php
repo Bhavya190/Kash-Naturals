@@ -116,32 +116,20 @@ if (!defined('ABSPATH')) {
 
             <!-- Header Action Icons -->
             <div class="header-actions">
-                <button class="action-btn-clean search-trigger" id="search-modal-trigger" aria-label="<?php esc_attr_e('Search', 'kash-naturals'); ?>">
+                <button type="button" class="action-btn-clean search-trigger" id="search-modal-trigger" aria-label="<?php esc_attr_e('Search', 'kash-naturals'); ?>" title="Search Products">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
-                <a href="<?php echo esc_url(class_exists('WooCommerce') ? wc_get_page_permalink('myaccount') : '#'); ?>" class="action-btn-clean account-trigger" aria-label="<?php esc_attr_e('Account', 'kash-naturals'); ?>">
-                    <i class="fa-regular fa-user"></i>
-                </a>
-                <a href="<?php echo esc_url(class_exists('WooCommerce') ? wc_get_cart_url() : '#'); ?>" class="action-btn-clean cart-drawer-trigger" id="mini-cart-toggle" aria-label="<?php esc_attr_e('Cart', 'kash-naturals'); ?>">
+                <button type="button" class="action-btn-clean account-trigger" id="account-modal-trigger" aria-label="<?php esc_attr_e('Account', 'kash-naturals'); ?>" title="My Account">
+                    <i class="fa-regular fa-user" id="header-account-icon"></i>
+                    <span class="header-user-badge" id="header-user-badge" style="display: none;"></span>
+                </button>
+                <button type="button" class="action-btn-clean cart-drawer-trigger" id="mini-cart-toggle" aria-label="<?php esc_attr_e('Cart', 'kash-naturals'); ?>" title="Shopping Cart">
                     <i class="fa-solid fa-cart-shopping"></i>
-                    <span class="cart-count-badge-orange" id="mini-cart-count"><?php echo class_exists('WooCommerce') ? esc_html(WC()->cart->get_cart_contents_count()) : '0'; ?></span>
-                </a>
+                    <span class="cart-count-badge-orange" id="mini-cart-count">0</span>
+                </button>
             </div>
 
         </div>
     </header>
-
-    <!-- Search Overlay Modal -->
-    <div class="search-modal-overlay" id="search-modal">
-        <div class="search-modal-content">
-            <button class="close-search-btn" id="close-search">&times;</button>
-            <h3><?php esc_html_e('Search Artisan Chocolates', 'kash-naturals'); ?></h3>
-            <form role="search" method="get" class="search-form" action="<?php echo esc_url(home_url('/')); ?>">
-                <input type="search" class="search-field" placeholder="<?php esc_attr_e('Search dark chocolate, truffle gift boxes, vegan bars...', 'kash-naturals'); ?>" value="<?php echo function_exists('get_search_query') ? get_search_query() : ''; ?>" name="s" autofocus />
-                <input type="hidden" name="post_type" value="product" />
-                <button type="submit" class="search-submit-btn"><i class="fa-solid fa-arrow-right"></i></button>
-            </form>
-        </div>
-    </div>
 
     <main id="primary" class="site-main">
