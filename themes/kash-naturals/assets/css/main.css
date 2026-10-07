@@ -5911,4 +5911,246 @@ body.modal-open {
     }
 }
 
+/* =============================================================
+   OUR STORY SECTION - REFERENCE UI DESIGN
+   ============================================================= */
+.our-story-ref-section {
+    background-color: var(--color-bg-primary, #0c2014);
+    padding: 100px 0 80px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Light Pastel Sage Banner Container */
+.story-ref-card-banner {
+    background: #EBF4EA;
+    border-radius: 36px;
+    padding: 60px 240px;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* 1. Left & Right Overflowing Ceramic Dish Plates */
+.story-ref-plate {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 290px;
+    height: 290px;
+    z-index: 3;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.story-plate-left {
+    left: -70px;
+}
+
+.story-plate-right {
+    right: -70px;
+}
+
+.story-ref-card-banner:hover .story-plate-left {
+    transform: translateY(-50%) rotate(-4deg) scale(1.03);
+}
+
+.story-ref-card-banner:hover .story-plate-right {
+    transform: translateY(-50%) rotate(4deg) scale(1.03);
+}
+
+.plate-ring-shadow {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: transparent;
+    padding: 0;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.story-plate-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* 2. Floating Background Top Ingredient Bowls */
+.story-ref-floating-bowls {
+    position: absolute;
+    top: 25px;
+    right: 220px;
+    display: flex;
+    gap: 18px;
+    z-index: 2;
+}
+
+.mini-bowl {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+    transform: rotate(8deg);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.mini-bowl:hover {
+    transform: rotate(0deg) scale(1.08);
+}
+
+.mini-bowl-2 {
+    width: 85px;
+    height: 85px;
+    transform: rotate(-12deg);
+    margin-top: 14px;
+}
+
+.mini-bowl img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 3. Center Content Styling */
+.story-ref-center-content {
+    position: relative;
+    z-index: 4;
+    max-width: 580px;
+    margin: 0 auto;
+}
+
+/* Gold Emblem Icon */
+.story-gold-emblem {
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, #e59a16, #c47c05);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 14px auto;
+    box-shadow: 0 6px 18px rgba(229, 154, 22, 0.35);
+    border: 2px solid #ffffff;
+}
+
+/* Cursive Script Title */
+.story-script-heading {
+    font-family: 'Caveat', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: #2D4C2B;
+    line-height: 1;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
+}
+
+/* Main Heading */
+.story-main-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #1A341A;
+    line-height: 1.2;
+    margin-bottom: 14px;
+}
+
+/* Description Text */
+.story-body-paragraph {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14.5px;
+    color: #385536;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+
+/* Pill CTA Button */
+.story-pill-btn {
+    display: inline-block;
+    background-color: #2D4C2B;
+    color: #ffffff !important;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 13px 34px;
+    border-radius: 30px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    box-shadow: 0 8px 20px rgba(45, 76, 43, 0.3);
+    transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+    text-decoration: none;
+}
+
+.story-pill-btn:hover {
+    background-color: #1A341A;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(45, 76, 43, 0.45);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1100px) {
+    .story-ref-card-banner {
+        padding: 50px 180px;
+    }
+
+    .story-ref-plate {
+        width: 230px;
+        height: 230px;
+    }
+
+    .story-plate-left {
+        left: -50px;
+    }
+
+    .story-plate-right {
+        right: -50px;
+    }
+}
+
+@media (max-width: 900px) {
+    .story-ref-card-banner {
+        padding: 50px 30px;
+        flex-direction: column;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .story-ref-plate {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        transform: none !important;
+        margin: 0 auto 20px auto;
+        width: 200px;
+        height: 200px;
+    }
+
+    .story-plate-right {
+        display: none;
+    }
+
+    .story-ref-floating-bowls {
+        display: none;
+    }
+}
+
+
 

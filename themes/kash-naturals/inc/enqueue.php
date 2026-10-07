@@ -31,7 +31,7 @@ function kash_naturals_scripts() {
         'kash-main-style',
         get_template_directory_uri() . '/assets/css/main.css',
         array(),
-        '1.0.0'
+        time()
     );
 
     // WooCommerce Custom Overrides CSS if WooCommerce is active
