@@ -276,6 +276,15 @@ if ($uri !== '/' && file_exists($filePath) && !is_dir($filePath)) {
 $cleanUri = rtrim(strtolower($uri), '/');
 
 switch ($cleanUri) {
+    case '/favicon.ico':
+        $favPath = KASH_THEME_DIR . '/assets/images/Kash Natural Leaf Logo.png';
+        if (file_exists($favPath)) {
+            header('Content-Type: image/png');
+            readfile($favPath);
+            exit;
+        }
+        exit;
+
     case '':
     case '/index':
     case '/index.php':
@@ -309,6 +318,14 @@ switch ($cleanUri) {
         require KASH_THEME_DIR . '/page-contact.php';
         exit;
 
+    case '/combos':
+    case '/combo':
+    case '/combos.php':
+    case '/combos.html':
+        $GLOBALS['kash_page_title'] = 'Curated Combos & Gift Hampers';
+        require KASH_THEME_DIR . '/page-combos.php';
+        exit;
+
     case '/privacy-policy':
     case '/privacy-policy.php':
     case '/privacy-policy.html':
@@ -336,6 +353,14 @@ switch ($cleanUri) {
     case '/shipping-policy.html':
         $GLOBALS['kash_page_title'] = 'Shipping Policy';
         require KASH_THEME_DIR . '/page-shipping-policy.php';
+        exit;
+
+    case '/faqs':
+    case '/faq':
+    case '/faqs.php':
+    case '/faqs.html':
+        $GLOBALS['kash_page_title'] = 'Frequently Asked Questions';
+        require KASH_THEME_DIR . '/page-faqs.php';
         exit;
 
     default:
