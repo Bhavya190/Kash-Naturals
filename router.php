@@ -205,9 +205,21 @@ if (!function_exists('wc_get_cart_url')) { function wc_get_cart_url() { return '
 if (!function_exists('wc_get_checkout_url')) { function wc_get_checkout_url() { return '/checkout'; } }
 if (!function_exists('wc_get_product')) { function wc_get_product($id) { return false; } }
 if (!function_exists('wc_price')) { function wc_price($price) { return '₹' . number_format((float)$price, 2); } }
+if (!function_exists('get_woocommerce_currency_symbol')) { function get_woocommerce_currency_symbol($currency = '') { return '₹'; } }
 if (!function_exists('is_cart')) { function is_cart() { return false; } }
 if (!function_exists('is_checkout')) { function is_checkout() { return false; } }
 if (!function_exists('is_account_page')) { function is_account_page() { return false; } }
+if (!function_exists('woocommerce_page_title')) { function woocommerce_page_title() { echo 'Shop Collection'; } }
+if (!function_exists('is_active_sidebar')) { function is_active_sidebar($index) { return false; } }
+if (!function_exists('dynamic_sidebar')) { function dynamic_sidebar($index = 1) { return false; } }
+if (!function_exists('woocommerce_product_loop')) { function woocommerce_product_loop() { return false; } }
+if (!function_exists('woocommerce_result_count')) { function woocommerce_result_count() {} }
+if (!function_exists('woocommerce_catalog_ordering')) { function woocommerce_catalog_ordering() {} }
+if (!function_exists('woocommerce_product_loop_start')) { function woocommerce_product_loop_start() {} }
+if (!function_exists('woocommerce_product_loop_end')) { function woocommerce_product_loop_end() {} }
+if (!function_exists('woocommerce_pagination')) { function woocommerce_pagination() {} }
+if (!function_exists('wc_get_template_part')) { function wc_get_template_part($slug, $name = '') {} }
+if (!function_exists('wc_get_formatted_cart_item_data')) { function wc_get_formatted_cart_item_data($cart_item) { return ''; } }
 
 // Load Theme Functions
 if (file_exists(KASH_THEME_DIR . '/functions.php')) {
