@@ -5,6 +5,46 @@
  * without needing a full MySQL/WordPress database setup on local & Vercel serverless.
  */
 
+// 0. Static Asset MIME Type Interceptor (Guarantees Content-Type: text/css for stylesheets)
+$rawUri = $_SERVER['REQUEST_URI'] ?? $_SERVER['PATH_INFO'] ?? '/';
+$uri = parse_url($rawUri, PHP_URL_PATH);
+
+if (preg_match('/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/i', $uri)) {
+    $cleanRel = str_replace(array('/wp-content/themes/kash-naturals', '/themes/kash-naturals'), '', $uri);
+    $possibleAssetPaths = array(
+        __DIR__ . $uri,
+        __DIR__ . '/themes/kash-naturals' . $cleanRel,
+        __DIR__ . '/wp-content/themes/kash-naturals' . $cleanRel,
+        dirname(__DIR__) . '/themes/kash-naturals' . $cleanRel,
+        dirname(__DIR__) . '/wp-content/themes/kash-naturals' . $cleanRel
+    );
+
+    foreach ($possibleAssetPaths as $assetPath) {
+        if (file_exists($assetPath) && !is_dir($assetPath)) {
+            $ext = strtolower(pathinfo($assetPath, PATHINFO_EXTENSION));
+            $mimes = array(
+                'css'   => 'text/css; charset=UTF-8',
+                'js'    => 'application/javascript; charset=UTF-8',
+                'png'   => 'image/png',
+                'jpg'   => 'image/jpeg',
+                'jpeg'  => 'image/jpeg',
+                'gif'   => 'image/gif',
+                'svg'   => 'image/svg+xml',
+                'webp'  => 'image/webp',
+                'ico'   => 'image/png',
+                'woff'  => 'font/woff',
+                'woff2' => 'font/woff2',
+                'ttf'   => 'font/ttf',
+            );
+            $contentType = isset($mimes[$ext]) ? $mimes[$ext] : mime_content_type($assetPath);
+            header("Content-Type: {$contentType}");
+            header("Cache-Control: public, max-age=86400");
+            readfile($assetPath);
+            exit;
+        }
+    }
+}
+
 // 1. Define WordPress Environment Constants
 if (!defined('ABSPATH')) {
     define('ABSPATH', __DIR__ . '/');
@@ -175,28 +215,7 @@ if (file_exists(KASH_THEME_DIR . '/functions.php')) {
 }
 
 // 3. Handle Routing for Server
-$rawUri = $_SERVER['REQUEST_URI'] ?? $_SERVER['PATH_INFO'] ?? '/';
-$uri = parse_url($rawUri, PHP_URL_PATH);
 $filePath = __DIR__ . $uri;
-
-// Asset request fallback
-if (strpos($uri, '/assets/') === 0 || strpos($uri, '/themes/') === 0 || strpos($uri, '/wp-content/') === 0) {
-    $cleanAssetRelativePath = str_replace(array('/wp-content/themes/kash-naturals', '/themes/kash-naturals'), '', $uri);
-    $themeAssetPath = KASH_THEME_DIR . $cleanAssetRelativePath;
-    if (file_exists($themeAssetPath) && !is_dir($themeAssetPath)) {
-        $mime = mime_content_type($themeAssetPath);
-        if (substr($themeAssetPath, -4) === '.css') $mime = 'text/css';
-        if (substr($themeAssetPath, -3) === '.js') $mime = 'application/javascript';
-        header('Content-Type: ' . $mime);
-        readfile($themeAssetPath);
-        exit;
-    }
-}
-
-// Serve existing static files directly
-if ($uri !== '/' && file_exists($filePath) && !is_dir($filePath)) {
-    return false;
-}
 
 // Clean URL Mapping to Theme Templates
 $cleanUri = rtrim(strtolower($uri), '/');
@@ -250,6 +269,16 @@ switch ($cleanUri) {
     case '/combos.html':
         $GLOBALS['kash_page_title'] = 'Curated Combos & Gift Hampers';
         require KASH_THEME_DIR . '/page-combos.php';
+        exit;
+
+    case '/product':
+    case '/product-detail':
+    case '/single-product':
+    case '/product.php':
+        $productId = isset($_GET['id']) ? intval($_GET['id']) : 1;
+        $GLOBALS['kash_product_id'] = $productId;
+        $GLOBALS['kash_page_title'] = 'Product Detail';
+        require KASH_THEME_DIR . '/single-product.php';
         exit;
 
     case '/privacy-policy':

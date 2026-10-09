@@ -293,12 +293,16 @@ if ($current_category === 'all' || !isset($category_titles[$current_category])) 
             <?php foreach ($filtered_products as $prod) : ?>
                 <div class="shop-product-card-exact">
                     <span class="product-badge-tag"><?php echo esc_html($prod['badge']); ?></span>
-                    <div class="product-img-box-exact">
+                    <a href="<?php echo esc_url(home_url('/product?id=' . $prod['id'])); ?>" class="product-img-box-exact">
                         <img src="<?php echo esc_url($prod['image']); ?>" alt="<?php echo esc_attr($prod['name']); ?>" loading="lazy">
-                    </div>
+                    </a>
                     <div class="product-card-info">
                         <div class="product-cat-label"><?php echo esc_html($prod['category_name']); ?></div>
-                        <h3 class="product-title-exact"><?php echo esc_html($prod['name']); ?></h3>
+                        <h3 class="product-title-exact">
+                            <a href="<?php echo esc_url(home_url('/product?id=' . $prod['id'])); ?>" style="color: inherit; text-decoration: none;">
+                                <?php echo esc_html($prod['name']); ?>
+                            </a>
+                        </h3>
                         <p class="product-desc-short"><?php echo esc_html($prod['desc']); ?></p>
                         <div class="product-rating-stars">★★★★★ <span>(<?php echo esc_html($prod['rating']); ?>)</span></div>
                         <div class="product-price-row-exact">
@@ -306,7 +310,7 @@ if ($current_category === 'all' || !isset($category_titles[$current_category])) 
                                 <span class="current-price"><?php echo esc_html($prod['price']); ?></span>
                                 <span class="old-price"><?php echo esc_html($prod['regular_price']); ?></span>
                             </div>
-                            <button type="button" class="btn-add-cart-exact">
+                            <button type="button" class="btn-add-cart-exact" onclick="event.stopPropagation(); addToCartSingle(<?php echo $prod['id']; ?>)">
                                 <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
                             </button>
                         </div>
