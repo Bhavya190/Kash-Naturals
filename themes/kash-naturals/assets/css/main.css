@@ -224,7 +224,7 @@ img {
     padding: 0;
 }
 
-.main-navigation a {
+.main-navigation .nav-menu-list > li > a {
     color: #1c2b1f;
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
@@ -239,7 +239,7 @@ img {
     gap: 5px;
 }
 
-.main-navigation a::after {
+.main-navigation .nav-menu-list > li > a::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -247,13 +247,18 @@ img {
     width: 0;
     height: 2.5px;
     background: #e09622;
-    transition: width 0.2s ease;
+    transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.main-navigation a:hover::after,
-.main-navigation .current-menu-item > a::after,
-.main-navigation li.active > a::after {
+.main-navigation .nav-menu-list > li > a:hover::after,
+.main-navigation .nav-menu-list > li.current-menu-item > a::after,
+.main-navigation .nav-menu-list > li.current_page_item > a::after,
+.main-navigation .nav-menu-list > li.active > a::after {
     width: 100%;
+}
+
+.main-navigation .sub-menu a::after {
+    display: none !important;
 }
 
 .nav-chevron {
@@ -644,11 +649,13 @@ img {
     }
     .hero-left-content {
         max-width: 100%;
-        background: rgba(253, 251, 247, 0.75);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         padding: 24px;
-        border-radius: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     }
 }
 
@@ -6284,7 +6291,7 @@ body.modal-open {
 }
 
 /* ==========================================================================
-   CUSTOMER FAVORITES CAROUSEL SECTION (Matching Reference UI + 3.5 Cards View)
+   CUSTOMER FAVORITES CAROUSEL SECTION (4 Full + 1 Half Card Slider with Dots)
    ========================================================================== */
 .fav-carousel-section {
     position: relative;
@@ -6296,7 +6303,7 @@ body.modal-open {
 }
 
 .fav-section-container {
-    max-width: 1380px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 20px 24px;
 }
@@ -6350,71 +6357,49 @@ body.modal-open {
 /* Carousel Layout Outer */
 .fav-carousel-outer {
     position: relative;
-    padding: 0 54px;
+    padding: 0;
 }
 
+/* Next and Prev buttons hidden as requested */
 .fav-arrow-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #2C5F3E;
-    color: #ffffff;
-    border: 2px solid #ffffff;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(44, 95, 62, 0.35);
-    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    z-index: 10;
-}
-
-.fav-arrow-prev {
-    left: 0;
-}
-
-.fav-arrow-next {
-    right: 0;
-}
-
-.fav-arrow-btn:hover {
-    background: #d48b10;
-    color: #ffffff;
-    transform: translateY(-50%) scale(1.12);
-    box-shadow: 0 12px 28px rgba(212, 139, 16, 0.45);
+    display: none !important;
 }
 
 /* Carousel Viewport & Track */
 .fav-carousel-viewport {
     overflow: hidden;
     width: 100%;
-    padding: 15px 5px 35px 5px;
+    padding: 15px 4px 20px 4px;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.fav-carousel-viewport:active {
+    cursor: grabbing;
 }
 
 .fav-carousel-track {
     display: flex;
-    gap: 24px;
-    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    gap: 20px;
+    transition: transform 0.55s cubic-bezier(0.25, 1, 0.5, 1);
     will-change: transform;
 }
 
-/* Card Sizing: 3 Full Cards + 4th Half Card Visible (Desktop > 1100px) */
+/* Card Sizing: 4 Full Cards + 5th Half Card Visible (Desktop > 1200px) */
 .fav-card-item {
-    flex: 0 0 calc(28% - 6px);
-    max-width: calc(28% - 6px);
+    flex: 0 0 calc((100% - (4 * 20px)) / 4.5);
+    max-width: calc((100% - (4 * 20px)) / 4.5);
+    width: calc((100% - (4 * 20px)) / 4.5);
     box-sizing: border-box;
 }
 
 .fav-card-inner {
     background: #ffffff;
-    border-radius: 24px;
-    padding: 20px 18px;
-    border: 2px solid rgba(44, 95, 62, 0.14);
-    box-shadow: 0 12px 32px rgba(44, 95, 62, 0.07);
+    border-radius: 22px;
+    padding: 18px 16px;
+    border: 2px solid rgba(44, 95, 62, 0.12);
+    box-shadow: 0 10px 28px rgba(44, 95, 62, 0.06);
     transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
     position: relative;
     height: 100%;
@@ -6424,8 +6409,8 @@ body.modal-open {
 }
 
 .fav-card-inner:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 48px rgba(44, 95, 62, 0.18);
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(44, 95, 62, 0.16);
     border-color: #2C5F3E;
 }
 
@@ -6446,27 +6431,28 @@ body.modal-open {
 
 .fav-img-box {
     width: 100%;
-    height: 200px;
-    border-radius: 18px;
+    height: 185px;
+    border-radius: 16px;
     background: linear-gradient(180deg, #F8FAF7 0%, #EFF6EF 100%);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     position: relative;
-    padding: 12px;
+    padding: 10px;
 }
 
 .fav-prod-img {
-    max-height: 170px;
+    max-height: 155px;
     width: auto;
     object-fit: contain;
     transition: transform 0.4s ease;
+    pointer-events: none;
 }
 
 .fav-card-inner:hover .fav-prod-img {
-    transform: scale(1.08);
+    transform: scale(1.06);
 }
 
 .fav-card-body {
@@ -6480,7 +6466,7 @@ body.modal-open {
 
 .fav-prod-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #1C2B1F;
     margin: 0 0 6px 0;
@@ -6489,16 +6475,16 @@ body.modal-open {
 
 .fav-prod-price {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #2C5F3E;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .fav-card-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
 }
 
@@ -6507,16 +6493,17 @@ body.modal-open {
     background: #2C5F3E;
     color: #ffffff !important;
     border-radius: 50px;
-    padding: 10px 16px;
-    font-size: 0.88rem;
+    padding: 9px 12px;
+    font-size: 0.85rem;
     font-weight: 600;
     text-align: center;
     text-decoration: none !important;
+    white-space: nowrap;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     box-shadow: 0 4px 12px rgba(44, 95, 62, 0.2);
 }
 
@@ -6527,13 +6514,14 @@ body.modal-open {
 }
 
 .fav-btn-quick-add {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
     border-radius: 50%;
     background: #F0F7F1;
     color: #2C5F3E;
     border: 1px solid #CDE3D1;
-    font-size: 16px;
+    font-size: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -6545,29 +6533,89 @@ body.modal-open {
     background: #2C5F3E;
     color: #ffffff;
     border-color: #2C5F3E;
-    transform: scale(1.1);
+    transform: scale(1.08);
+}
+
+/* Bottom Navigation Pagination Dots */
+.fav-carousel-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+    padding: 6px 0;
+}
+
+.fav-dot {
+    position: relative;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 20px;
+    background: rgba(44, 95, 62, 0.22);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    outline: none;
+}
+
+.fav-dot:hover {
+    background: rgba(44, 95, 62, 0.55);
+    transform: scale(1.15);
+}
+
+.fav-dot.active {
+    width: 32px;
+    background: linear-gradient(135deg, #2C5F3E, #1A4229);
+    box-shadow: 0 4px 12px rgba(44, 95, 62, 0.35);
+}
+
+.fav-dot:focus-visible {
+    outline: 2px solid #2C5F3E;
+    outline-offset: 3px;
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
+    .fav-carousel-track {
+        gap: 18px;
+    }
     .fav-card-item {
-        flex: 0 0 calc(42% - 8px);
-        max-width: calc(42% - 8px);
+        flex: 0 0 calc((100% - (3 * 18px)) / 3.5);
+        max-width: calc((100% - (3 * 18px)) / 3.5);
+        width: calc((100% - (3 * 18px)) / 3.5);
     }
 }
 
-@media (max-width: 768px) {
-    .fav-carousel-outer {
-        padding: 0 35px;
+@media (max-width: 860px) {
+    .fav-carousel-track {
+        gap: 16px;
     }
     .fav-card-item {
-        flex: 0 0 calc(78% - 8px);
-        max-width: calc(78% - 8px);
+        flex: 0 0 calc((100% - (2 * 16px)) / 2.5);
+        max-width: calc((100% - (2 * 16px)) / 2.5);
+        width: calc((100% - (2 * 16px)) / 2.5);
     }
-    .fav-arrow-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 14px;
+}
+
+@media (max-width: 580px) {
+    .fav-section-container {
+        padding: 15px 16px;
+    }
+    .fav-carousel-track {
+        gap: 14px;
+    }
+    .fav-card-item {
+        flex: 0 0 calc((100% - 14px) / 1.3);
+        max-width: calc((100% - 14px) / 1.3);
+        width: calc((100% - 14px) / 1.3);
+    }
+    .fav-img-box {
+        height: 165px;
+    }
+    .fav-prod-title {
+        font-size: 1.05rem;
     }
 }
 
@@ -6822,7 +6870,7 @@ body.modal-open {
 }
 
 /* ==========================================================================
-   HORIZONTAL AMAZON STORE BANNER (Exact Match to Reference Screenshot)
+   HORIZONTAL AMAZON STORE BANNER (Fully Responsive Across All Screens)
    ========================================================================== */
 .amz-horizontal-section {
     background-color: #FAF7F2;
@@ -7004,6 +7052,199 @@ body.modal-open {
     font-family: 'Outfit', sans-serif;
     letter-spacing: 0.5px;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   AMAZON BANNER RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+/* Laptop / Small Desktop (992px - 1199px) */
+@media (max-width: 1199px) {
+    .amz-banner-left-arch {
+        flex: 0 0 54%;
+        max-width: 54%;
+        padding: 36px 45px 36px 36px;
+        border-radius: 0 110px 110px 0;
+    }
+
+    .amz-banner-right-showcase {
+        padding: 20px 24px 20px 30px;
+    }
+
+    .amz-card-main,
+    .amz-card-secondary {
+        height: 200px;
+    }
+}
+
+/* Tablets (768px - 991px) */
+@media (max-width: 991px) {
+    .amz-ref-banner-card {
+        min-height: 280px;
+    }
+
+    .amz-banner-left-arch {
+        flex: 0 0 56%;
+        max-width: 56%;
+        padding: 30px 32px 30px 28px;
+        border-radius: 0 90px 90px 0;
+    }
+
+    .amz-ref-headline {
+        font-size: 1.55rem;
+    }
+
+    .amz-ref-subtext {
+        font-size: 0.88rem;
+        margin-bottom: 16px;
+    }
+
+    .btn-amz-ref-pill {
+        padding: 10px 24px;
+        font-size: 0.88rem;
+    }
+
+    .amz-banner-right-showcase {
+        padding: 18px 20px;
+    }
+
+    .amz-showcase-grid {
+        gap: 12px;
+    }
+
+    .amz-card-main,
+    .amz-card-secondary {
+        height: 180px;
+    }
+
+    .amz-img-label {
+        font-size: 0.7rem;
+        padding: 3px 10px;
+        bottom: 8px;
+        left: 8px;
+    }
+}
+
+/* Mobile Devices (< 768px) */
+@media (max-width: 767px) {
+    .amz-horizontal-section {
+        padding: 40px 0 55px;
+    }
+
+    .amz-ref-banner-card {
+        flex-direction: column;
+        border-radius: 28px;
+        min-height: auto;
+    }
+
+    .amz-banner-left-arch {
+        flex: 0 0 100%;
+        max-width: 100%;
+        width: 100%;
+        border-radius: 28px 28px 36px 36px;
+        padding: 32px 24px 28px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+        text-align: center;
+        align-items: center;
+    }
+
+    .amz-logo-header {
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .amz-ref-logo {
+        height: 32px;
+    }
+
+    .amz-ref-headline {
+        font-size: 1.45rem;
+        margin-bottom: 8px;
+    }
+
+    .amz-ref-headline br {
+        display: none;
+    }
+
+    .amz-ref-subtext {
+        font-size: 0.88rem;
+        margin-bottom: 18px;
+        max-width: 100%;
+    }
+
+    .amz-ref-cta {
+        width: 100%;
+    }
+
+    .btn-amz-ref-pill {
+        width: 100%;
+        max-width: 280px;
+        padding: 12px 24px;
+        font-size: 0.9rem;
+    }
+
+    .amz-banner-right-showcase {
+        width: 100%;
+        padding: 24px 20px 28px;
+    }
+
+    .amz-showcase-grid {
+        gap: 14px;
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+    .amz-card-main,
+    .amz-card-secondary {
+        flex: 1;
+        height: 175px;
+        border-radius: 18px;
+    }
+}
+
+/* Small Mobile Screens (< 480px) */
+@media (max-width: 480px) {
+    .amz-banner-left-arch {
+        padding: 28px 18px 24px;
+        border-radius: 24px 24px 30px 30px;
+    }
+
+    .amz-ref-headline {
+        font-size: 1.3rem;
+    }
+
+    .amz-ref-subtext {
+        font-size: 0.84rem;
+        line-height: 1.45;
+    }
+
+    .btn-amz-ref-pill {
+        max-width: 100%;
+        font-size: 0.86rem;
+        padding: 11px 20px;
+    }
+
+    .amz-banner-right-showcase {
+        padding: 18px 14px 24px;
+    }
+
+    .amz-showcase-grid {
+        gap: 10px;
+    }
+
+    .amz-card-main,
+    .amz-card-secondary {
+        height: 155px;
+        border-radius: 16px;
+    }
+
+    .amz-img-label {
+        font-size: 0.65rem;
+        padding: 2px 8px;
+        bottom: 6px;
+        left: 6px;
+    }
 }
 
 /* ==========================================================================

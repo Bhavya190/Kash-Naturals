@@ -89,10 +89,30 @@ if (!defined('ABSPATH')) {
                         'menu_class'     => 'nav-menu-list',
                     ));
                 } else {
+                    $req_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+                    $req_path = trim(parse_url($req_uri, PHP_URL_PATH), '/');
+
+                    $is_home_active = false;
+                    $is_shop_active = false;
+                    $is_combos_active = false;
+                    $is_about_active = false;
+                    $is_contact_active = false;
+
+                    if (empty($req_path) || $req_path === 'index.php' || (function_exists('is_front_page') && is_front_page()) || !empty($GLOBALS['kash_is_front'])) {
+                        $is_home_active = true;
+                    } elseif (strpos($req_path, 'combos') !== false || strpos($req_path, 'combo') !== false || (function_exists('is_page') && is_page('combos'))) {
+                        $is_combos_active = true;
+                    } elseif (strpos($req_path, 'about') !== false || (function_exists('is_page') && is_page(array('about', 'about-us')))) {
+                        $is_about_active = true;
+                    } elseif (strpos($req_path, 'contact') !== false || (function_exists('is_page') && is_page(array('contact', 'contact-us')))) {
+                        $is_contact_active = true;
+                    } elseif (strpos($req_path, 'shop') !== false || strpos($req_path, 'product') !== false || (function_exists('is_shop') && is_shop()) || (function_exists('is_product') && is_product()) || !empty($GLOBALS['kash_is_shop'])) {
+                        $is_shop_active = true;
+                    }
                     ?>
                     <ul class="nav-menu-list">
-                        <li class="current-menu-item"><a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('HOME', 'kash-naturals'); ?></a></li>
-                        <li class="menu-item-has-children nav-dropdown-item">
+                        <li class="<?php echo $is_home_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('HOME', 'kash-naturals'); ?></a></li>
+                        <li class="menu-item-has-children nav-dropdown-item <?php echo $is_shop_active ? 'current-menu-item active' : ''; ?>">
                             <a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('SHOP', 'kash-naturals'); ?> <i class="fa-solid fa-chevron-down nav-chevron"></i></a>
                             <ul class="sub-menu header-dropdown-menu">
                                 <li><a href="<?php echo esc_url(home_url('/shop?category=mouth-fresheners')); ?>"><i class="fa-solid fa-leaf"></i> <?php esc_html_e('Mouth Fresheners', 'kash-naturals'); ?></a></li>
@@ -104,10 +124,10 @@ if (!defined('ABSPATH')) {
                             </ul>
                         </li>
 
-                        <li><a href="<?php echo esc_url(home_url('/combos/')); ?>"><?php esc_html_e('COMBOS', 'kash-naturals'); ?></a></li>
+                        <li class="<?php echo $is_combos_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/combos/')); ?>"><?php esc_html_e('COMBOS', 'kash-naturals'); ?></a></li>
 
-                        <li><a href="<?php echo esc_url(home_url('/about/')); ?>"><?php esc_html_e('ABOUT US', 'kash-naturals'); ?></a></li>
-                        <li><a href="<?php echo esc_url(home_url('/contact/')); ?>"><?php esc_html_e('CONTACT US', 'kash-naturals'); ?></a></li>
+                        <li class="<?php echo $is_about_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/about/')); ?>"><?php esc_html_e('ABOUT US', 'kash-naturals'); ?></a></li>
+                        <li class="<?php echo $is_contact_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/contact/')); ?>"><?php esc_html_e('CONTACT US', 'kash-naturals'); ?></a></li>
                     </ul>
                     <?php
                 }

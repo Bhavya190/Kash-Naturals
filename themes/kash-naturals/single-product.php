@@ -12,7 +12,42 @@ if (!defined('ABSPATH')) {
 get_header();
 
 $theme_uri = get_template_directory_uri();
-$product_id = isset($_GET['id']) ? intval($_GET['id']) : (isset($GLOBALS['kash_product_id']) ? intval($GLOBALS['kash_product_id']) : 1);
+
+// Slug-to-ID mapping
+$slug_map = array(
+    'royal-mukhwas'             => 2,
+    'shahi-royal-mukhwas'       => 2,
+    'calcutta-pan-mix'          => 1,
+    'royal-calcutta-paan'       => 1,
+    'sweet-saunf-mix'           => 3,
+    'kash-sweet-saunf'          => 3,
+    'chocolate-dragees'         => 5,
+    'belgian-dark-almond'       => 5,
+    'premium-kunafa-bar'        => 9,
+    'pistachio-kunafa-bar'      => 9,
+    'assorted-combo-pack'       => 14,
+    'family-celebration-pack'   => 14,
+    'celebration-mukhwas-box'   => 16,
+    'freshness-saunf-jar'       => 13,
+    'freshness-digestive-duo'   => 13,
+);
+
+$requested_slug = '';
+if (!empty($_GET['product'])) {
+    $requested_slug = strtolower(trim((string)$_GET['product']));
+} elseif (!empty($_GET['slug'])) {
+    $requested_slug = strtolower(trim((string)$_GET['slug']));
+}
+
+if (!empty($requested_slug) && isset($slug_map[$requested_slug])) {
+    $product_id = $slug_map[$requested_slug];
+} elseif (isset($_GET['id'])) {
+    $product_id = intval($_GET['id']);
+} elseif (isset($GLOBALS['kash_product_id'])) {
+    $product_id = intval($GLOBALS['kash_product_id']);
+} else {
+    $product_id = 1;
+}
 
 // Master Product Catalog with detailed specs, ingredients, & gallery images
 $products_catalog = array(
@@ -220,6 +255,74 @@ $products_catalog = array(
         ),
         'shelf_life'    => '9 Months',
         'storage'       => 'Store in cool dry conditions.'
+    ),
+
+    14 => array(
+        'id'            => 14,
+        'name'          => 'Family Festive Celebration Pack',
+        'category'      => 'gift-combos',
+        'category_name' => 'Gift Combos',
+        'price'         => 599,
+        'regular_price' => 799,
+        'rating'        => '4.9',
+        'reviews_count' => 92,
+        'badge'         => 'Best Value',
+        'weight'        => '4 Signature Jars (1kg Total)',
+        'sku'           => 'KASH-GC-002',
+        'stock'         => 'In Stock',
+        'main_image'    => $theme_uri . '/assets/images/combo-family.jpg',
+        'gallery'       => array(
+            $theme_uri . '/assets/images/combo-family.jpg',
+            $theme_uri . '/assets/images/gift-combos.jpg',
+            $theme_uri . '/assets/images/combo-celebration.jpg'
+        ),
+        'short_desc'    => 'Assortment of signature jars of mukhwas, paan, sweet saunf and chocolate dragees.',
+        'full_desc'     => 'Celebrate special occasions with our most beloved family hamper. Featuring Royal Calcutta Paan Mukhwas, Sweet Saunf Digestif, Belgian Dark Almond Dragees, and Shahi Royal Blend packed in airtight glass jars inside an ornamental festive gift pack.',
+        'ingredients'   => 'Natural fennel, betel leaves, almonds, dark cocoa, menthol, cardamom, gulkand, and silver vark.',
+        'nutrition'     => array(
+            'Energy'        => '430 kcal',
+            'Protein'       => '7.5 g',
+            'Carbohydrates' => '65.0 g',
+            'Total Sugar'   => '34.0 g',
+            'Dietary Fiber' => '12.0 g',
+            'Total Fat'     => '14.0 g'
+        ),
+        'shelf_life'    => '9 Months',
+        'storage'       => 'Keep stored in airtight containers away from direct heat.'
+    ),
+
+    16 => array(
+        'id'            => 16,
+        'name'          => 'Celebration Mukhwas Box',
+        'category'      => 'gift-combos',
+        'category_name' => 'Gift Combos',
+        'price'         => 499,
+        'regular_price' => 699,
+        'rating'        => '4.9',
+        'reviews_count' => 124,
+        'badge'         => 'Gift Favorite',
+        'weight'        => 'Luxury Gift Box (500g)',
+        'sku'           => 'KASH-GC-004',
+        'stock'         => 'In Stock',
+        'main_image'    => $theme_uri . '/assets/images/combo-celebration.jpg',
+        'gallery'       => array(
+            $theme_uri . '/assets/images/combo-celebration.jpg',
+            $theme_uri . '/assets/images/gift-combos.jpg',
+            $theme_uri . '/assets/images/combo-freshness.jpg'
+        ),
+        'short_desc'    => 'Artisanal celebration box featuring roasted dragees, paan mukhwas, and pistachio crunch bar.',
+        'full_desc'     => 'Handcrafted for festivals and joyous gatherings, the Celebration Mukhwas Box is an ensemble of gourmet treats. Beautifully styled with satin ribbon and gold foil details, making it the most memorable festive gift for your loved ones.',
+        'ingredients'   => 'Royal paan leaves, crunchy saunf, Belgian chocolate, roasted nuts, silver cardamom, natural extracts.',
+        'nutrition'     => array(
+            'Energy'        => '450 kcal',
+            'Protein'       => '8.0 g',
+            'Carbohydrates' => '62.0 g',
+            'Total Sugar'   => '31.0 g',
+            'Dietary Fiber' => '10.5 g',
+            'Total Fat'     => '18.0 g'
+        ),
+        'shelf_life'    => '9 Months',
+        'storage'       => 'Store in cool and dry place.'
     )
 );
 

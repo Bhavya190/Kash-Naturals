@@ -996,53 +996,248 @@ jQuery(document).ready(function ($) {
     });
 
     /* ==========================================================================
-       CUSTOMER FAVORITES CAROUSEL SLIDER CONTROLS
+       CUSTOMER FAVORITES CAROUSEL SLIDER CONTROLS (Auto-Next + Bottom Dots)
        ========================================================================== */
     const $favTrack = $('#favCarouselTrack');
+    const $favViewport = $('#favCarouselViewport');
+    const $favOuter = $('.fav-carousel-outer');
+    const $favPagination = $('#favCarouselPagination');
     const $favPrevBtn = $('#favCarouselPrev');
     const $favNextBtn = $('#favCarouselNext');
 
     if ($favTrack.length) {
-        let currentScrollPos = 0;
+        let currentIndex = 0;
+        let autoSlideTimer = null;
+        const AUTO_INTERVAL = 2500; // 2.5s per slide
 
         function getCardStepWidth() {
-            const $firstCard = $favTrack.find('.fav-card-item').first();
-            if (!$firstCard.length) return 300;
-            const cardWidth = $firstCard.outerWidth();
-            const gap = 24;
-            return cardWidth + gap;
+            const $cards = $favTrack.find('.fav-card-item');
+            if ($cards.length < 2) return $cards.outerWidth() || 280;
+            const firstLeft = $cards.eq(0).position().left;
+            const secondLeft = $cards.eq(1).position().left;
+            const step = Math.round(secondLeft - firstLeft);
+            return step > 0 ? step : Math.round($cards.eq(0).outerWidth() + 20);
         }
 
-        $favNextBtn.on('click', function () {
+        function getMaxScroll() {
+            const scrollW = $favTrack[0].scrollWidth;
+            const viewW = $favViewport.innerWidth() || $favTrack.parent().innerWidth();
+            return Math.max(0, scrollW - viewW);
+        }
+
+        function getTotalSteps() {
             const stepWidth = getCardStepWidth();
-            const maxScroll = Math.max(0, $favTrack[0].scrollWidth - $favTrack.parent().outerWidth());
-            
-            // If already at or near the end, loop back to start
-            if (Math.abs(currentScrollPos - maxScroll) < 10) {
-                currentScrollPos = 0;
-            } else {
-                currentScrollPos += stepWidth;
-                if (currentScrollPos > maxScroll - 15) {
-                    currentScrollPos = maxScroll; // Clamp to exact end so last card is 100% fully visible
-                }
+            const maxScroll = getMaxScroll();
+            if (stepWidth <= 0 || maxScroll <= 0) return 1;
+            return Math.ceil(maxScroll / stepWidth) + 1;
+        }
+
+        function buildPagination() {
+            if (!$favPagination.length) return;
+            const total = getTotalSteps();
+            $favPagination.empty();
+            for (let i = 0; i < total; i++) {
+                const $dot = $('<button>', {
+                    type: 'button',
+                    class: 'fav-dot' + (i === currentIndex ? ' active' : ''),
+                    'aria-label': 'Slide ' + (i + 1),
+                    'data-index': i
+                });
+                $favPagination.append($dot);
             }
-            $favTrack.css('transform', `translateX(-${currentScrollPos}px)`);
+        }
+
+        function goToStep(index) {
+            const total = getTotalSteps();
+            if (total <= 0) return;
+
+            // Cycle index smoothly
+            currentIndex = ((index % total) + total) % total;
+
+            const stepWidth = getCardStepWidth();
+            const maxScroll = getMaxScroll();
+            let targetScroll = currentIndex * stepWidth;
+            if (targetScroll > maxScroll) {
+                targetScroll = maxScroll;
+            }
+
+            $favTrack.css('transform', `translateX(-${targetScroll}px)`);
+
+            // Update active pagination dot
+            $favPagination.find('.fav-dot')
+                .removeClass('active')
+                .eq(currentIndex)
+                .addClass('active');
+        }
+
+        function nextSlide() {
+            goToStep(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            goToStep(currentIndex - 1);
+        }
+
+        function startAutoSlide() {
+            stopAutoSlide();
+            autoSlideTimer = setInterval(function () {
+                nextSlide();
+            }, AUTO_INTERVAL);
+        }
+
+        function stopAutoSlide() {
+            if (autoSlideTimer) {
+                clearInterval(autoSlideTimer);
+                autoSlideTimer = null;
+            }
+        }
+
+        function resetAutoSlide() {
+            stopAutoSlide();
+            startAutoSlide();
+        }
+
+        // Initialize Pagination & Position
+        buildPagination();
+        goToStep(0);
+        startAutoSlide();
+
+        // Pagination Dot Click
+        $favPagination.on('click', '.fav-dot', function (e) {
+            e.preventDefault();
+            const idx = parseInt($(this).data('index'), 10);
+            if (!isNaN(idx)) {
+                goToStep(idx);
+                resetAutoSlide();
+            }
         });
 
-        $favPrevBtn.on('click', function () {
-            const stepWidth = getCardStepWidth();
-            const maxScroll = Math.max(0, $favTrack[0].scrollWidth - $favTrack.parent().outerWidth());
+        // Side Buttons (Preserved for when unhidden)
+        $favNextBtn.on('click', function (e) {
+            e.preventDefault();
+            nextSlide();
+            resetAutoSlide();
+        });
 
-            // If already at start, loop to the maxScroll end
-            if (currentScrollPos <= 10) {
-                currentScrollPos = maxScroll;
+        $favPrevBtn.on('click', function (e) {
+            e.preventDefault();
+            prevSlide();
+            resetAutoSlide();
+        });
+
+        // Pause on Hover (Outer container + Pagination)
+        $favOuter.add($favPagination).on('mouseenter', function () {
+            stopAutoSlide();
+        }).on('mouseleave', function () {
+            startAutoSlide();
+        });
+
+        // Pause when tab is inactive / hidden
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopAutoSlide();
             } else {
-                currentScrollPos -= stepWidth;
-                if (currentScrollPos < 0) {
-                    currentScrollPos = 0;
+                startAutoSlide();
+            }
+        });
+
+        // Touch Swipe Support
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isSwiping = false;
+
+        $favViewport.on('touchstart', function (e) {
+            const touch = e.originalEvent.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            isSwiping = true;
+            stopAutoSlide();
+        });
+
+        $favViewport.on('touchend', function (e) {
+            if (!isSwiping) return;
+            isSwiping = false;
+            const touch = e.originalEvent.changedTouches[0];
+            const diffX = touch.clientX - touchStartX;
+            const diffY = touch.clientY - touchStartY;
+
+            if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX < 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
                 }
             }
-            $favTrack.css('transform', `translateX(-${currentScrollPos}px)`);
+            startAutoSlide();
+        });
+
+        // Responsive Resize Handler
+        let resizeTimeout;
+        $(window).on('resize', function () {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function () {
+                const prevTotal = $favPagination.find('.fav-dot').length;
+                const newTotal = getTotalSteps();
+                if (prevTotal !== newTotal) {
+                    buildPagination();
+                }
+                goToStep(currentIndex);
+            }, 150);
         });
     }
+
+    /* ==========================================================================
+       HEADER NAVIGATION ACTIVE STATE CONTROLLER
+       ========================================================================== */
+    function syncActiveNav() {
+        const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+        const search = window.location.search.toLowerCase();
+        const $topNavItems = $('.main-navigation .nav-menu-list > li');
+
+        $topNavItems.removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
+
+        function setActiveByDirectLink(matcher) {
+            $topNavItems.filter(function () {
+                const href = $(this).children('a').attr('href') || '';
+                return matcher(href.toLowerCase());
+            }).first().addClass('current-menu-item active');
+        }
+
+        if (path.indexOf('combos') !== -1 || path.indexOf('combo') !== -1) {
+            setActiveByDirectLink(function (href) { return href.indexOf('combo') !== -1; });
+        } else if (path.indexOf('about') !== -1) {
+            setActiveByDirectLink(function (href) { return href.indexOf('about') !== -1; });
+        } else if (path.indexOf('contact') !== -1) {
+            setActiveByDirectLink(function (href) { return href.indexOf('contact') !== -1; });
+        } else if (path.indexOf('shop') !== -1 || path.indexOf('product') !== -1 || search.indexOf('product=') !== -1) {
+            setActiveByDirectLink(function (href) { return href.indexOf('shop') !== -1; });
+        } else if (!path || path === '' || path === '/index' || path === '/index.php' || path === window.location.origin.toLowerCase()) {
+            $topNavItems.first().addClass('current-menu-item active');
+        }
+    }
+
+    syncActiveNav();
+
+    // Update active underline immediately on click
+    $('.main-navigation .nav-menu-list > li > a').on('click', function () {
+        const $li = $(this).parent('li');
+        $('.main-navigation .nav-menu-list > li').removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
+        $li.addClass('current-menu-item active');
+    });
+
+    // Submenu links click (e.g. Gift Combos inside dropdown)
+    $('.main-navigation .header-dropdown-menu a').on('click', function () {
+        const href = ($(this).attr('href') || '').toLowerCase();
+        const $topNavItems = $('.main-navigation .nav-menu-list > li');
+        $topNavItems.removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
+        if (href.indexOf('combo') !== -1) {
+            $topNavItems.filter(function () {
+                return ($(this).children('a').attr('href') || '').toLowerCase().indexOf('combo') !== -1;
+            }).first().addClass('current-menu-item active');
+        } else {
+            $topNavItems.filter(function () {
+                return ($(this).children('a').attr('href') || '').toLowerCase().indexOf('shop') !== -1;
+            }).first().addClass('current-menu-item active');
+        }
+    });
 });

@@ -15,60 +15,68 @@ $shop_url = home_url('/shop');
 
 $bestseller_products = array(
     array(
+        'id'    => 2,
         'title' => 'Royal Mukhwas',
         'price' => '₹250',
         'rating' => '4.9',
         'image' => $theme_uri . '/assets/images/product-royal-mukhwas.jpg',
-        'link'  => $shop_url . '?product=royal-mukhwas',
+        'link'  => home_url('/product?id=2'),
     ),
     array(
+        'id'    => 1,
         'title' => 'Calcutta Pan Mix',
         'price' => '₹250',
         'rating' => '5.0',
         'image' => $theme_uri . '/assets/images/product-calcutta-pan.jpg',
-        'link'  => $shop_url . '?product=calcutta-pan-mix',
+        'link'  => home_url('/product?id=1'),
     ),
     array(
+        'id'    => 3,
         'title' => 'Sweet Saunf Mix',
         'price' => '₹240',
         'rating' => '4.8',
         'image' => $theme_uri . '/assets/images/product-sweet-saunf.jpg',
-        'link'  => $shop_url . '?product=sweet-saunf-mix',
+        'link'  => home_url('/product?id=3'),
     ),
     array(
+        'id'    => 5,
         'title' => 'Chocolate Dragees',
         'price' => '₹320',
         'rating' => '4.9',
         'image' => $theme_uri . '/assets/images/chocolate-dragees.jpg',
-        'link'  => $shop_url . '?product=chocolate-dragees',
+        'link'  => home_url('/product?id=5'),
     ),
     array(
+        'id'    => 9,
         'title' => 'Premium Kunafa Bar',
         'price' => '₹349',
         'rating' => '5.0',
         'image' => $theme_uri . '/assets/images/kunafa-bars.jpg',
-        'link'  => $shop_url . '?product=premium-kunafa-bar',
+        'link'  => home_url('/product?id=9'),
     ),
     array(
+        'id'    => 14,
         'title' => 'Assorted Combo Pack',
         'price' => '₹599',
         'rating' => '4.9',
         'image' => $theme_uri . '/assets/images/gift-combos.jpg',
-        'link'  => $shop_url . '?product=assorted-combo-pack',
+        'link'  => home_url('/product?id=14'),
     ),
     array(
+        'id'    => 16,
         'title' => 'Celebration Mukhwas Box',
         'price' => '₹499',
         'rating' => '4.9',
         'image' => $theme_uri . '/assets/images/combo-celebration.jpg',
-        'link'  => $shop_url . '?product=celebration-mukhwas-box',
+        'link'  => home_url('/product?id=16'),
     ),
     array(
+        'id'    => 13,
         'title' => 'Freshness Saunf Jar',
         'price' => '₹299',
         'rating' => '4.8',
         'image' => $theme_uri . '/assets/images/combo-freshness.jpg',
-        'link'  => $shop_url . '?product=freshness-saunf-jar',
+        'link'  => home_url('/product?id=13'),
     ),
 );
 ?>
@@ -102,17 +110,21 @@ $bestseller_products = array(
                                 <div class="fav-rating-badge">
                                     <i class="fa-solid fa-star"></i> <?php echo esc_html($product['rating']); ?>
                                 </div>
-                                <div class="fav-img-box">
+                                <a href="<?php echo esc_url($product['link']); ?>" class="fav-img-box" aria-label="<?php echo esc_attr($product['title']); ?>">
                                     <img src="<?php echo esc_url($product['image']); ?>" alt="<?php echo esc_attr($product['title']); ?>" class="fav-prod-img" loading="lazy">
-                                </div>
+                                </a>
                                 <div class="fav-card-body">
-                                    <h3 class="fav-prod-title"><?php echo esc_html($product['title']); ?></h3>
+                                    <h3 class="fav-prod-title">
+                                        <a href="<?php echo esc_url($product['link']); ?>" style="color: inherit; text-decoration: none;">
+                                            <?php echo esc_html($product['title']); ?>
+                                        </a>
+                                    </h3>
                                     <div class="fav-prod-price"><?php echo esc_html($product['price']); ?></div>
                                     <div class="fav-card-actions">
                                         <a href="<?php echo esc_url($product['link']); ?>" class="fav-btn-view">
                                             <?php esc_html_e('View Product', 'kash-naturals'); ?> <i class="fa-solid fa-arrow-right"></i>
                                         </a>
-                                        <button type="button" class="fav-btn-quick-add add-to-cart-btn" data-product-id="<?php echo esc_attr($index + 1); ?>" data-product-name="<?php echo esc_attr($product['title']); ?>" data-product-price="<?php echo esc_attr($product['price']); ?>" data-product-img="<?php echo esc_url($product['image']); ?>" title="Add to Cart">
+                                        <button type="button" class="fav-btn-quick-add add-to-cart-btn" data-product-id="<?php echo esc_attr($product['id']); ?>" data-product-name="<?php echo esc_attr($product['title']); ?>" data-product-price="<?php echo esc_attr($product['price']); ?>" data-product-img="<?php echo esc_url($product['image']); ?>" title="Add to Cart">
                                             <i class="fa-solid fa-plus"></i>
                                         </button>
                                     </div>
@@ -129,6 +141,9 @@ $bestseller_products = array(
             </button>
 
         </div>
+
+        <!-- Bottom Navigation Pagination Dots -->
+        <div class="fav-carousel-pagination" id="favCarouselPagination" role="tablist" aria-label="<?php esc_attr_e('Customer Favorites Slider Pagination', 'kash-naturals'); ?>"></div>
 
     </div>
 </section>
