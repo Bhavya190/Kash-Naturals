@@ -206,6 +206,15 @@ function kash_naturals_render_product_data_panel() {
         ));
 
         woocommerce_wp_text_input(array(
+            'id'          => '_pack_size_1_label',
+            'label'       => __('1st Pack Size Label (Primary)', 'kash-naturals'),
+            'placeholder' => __('e.g. 200g Glass Jar (leave empty to use weight)', 'kash-naturals'),
+            'desc_tip'    => true,
+            'description' => __('Custom label for primary pack size pill. If left empty, uses product weight.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
             'id'          => '_pack_size_2_label',
             'label'       => __('2nd Pack Size Label', 'kash-naturals'),
             'placeholder' => '500g Value Jar',
@@ -245,6 +254,7 @@ function kash_naturals_save_custom_product_fields($post_id) {
         '_flavor_notes'         => 'text',
         '_cacao_percentage'     => 'text',
         '_cocoa_origin'         => 'text',
+        '_pack_size_1_label'    => 'text',
         '_pack_size_2_label'    => 'text',
         '_pack_size_2_price'    => 'text',
     );

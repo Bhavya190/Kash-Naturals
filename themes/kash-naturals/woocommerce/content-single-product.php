@@ -161,8 +161,26 @@ if ($product && is_a($product, 'WC_Product')) {
     }
 
     // Meta & Custom Attributes
-    $weight_unit = get_option('woocommerce_weight_unit', 'g');
-    $weight_str = $product->get_weight() ? ($product->get_weight() . ' ' . $weight_unit) : '200g Glass Jar';
+    $custom_pack_1 = get_post_meta($product_id, '_pack_size_1_label', true);
+    if (!empty($custom_pack_1)) {
+        $weight_str = $custom_pack_1;
+    } else {
+        $weight_unit = get_option('woocommerce_weight_unit', 'g');
+        $weight_val = $product->get_weight();
+        if ($weight_val) {
+            if ($weight_unit === 'g') {
+                $weight_str = $weight_val . 'g Glass Jar';
+            } elseif ($weight_unit === 'kg') {
+                $weight_str = $weight_val . 'kg Value Pack';
+            } elseif ($weight_unit === 'lbs' && floatval($weight_val) > 10) {
+                $weight_str = $weight_val . 'g Glass Jar';
+            } else {
+                $weight_str = $weight_val . ' ' . $weight_unit;
+            }
+        } else {
+            $weight_str = '200g Glass Jar';
+        }
+    }
     $sku_str = $product->get_sku() ?: ('KASH-' . $product_id);
 
     $custom_ing = get_post_meta($product_id, '_ingredients', true);
