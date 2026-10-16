@@ -13,72 +13,63 @@ if (!defined('ABSPATH')) {
 $theme_uri = get_template_directory_uri();
 $shop_url = home_url('/shop');
 
-$bestseller_products = array(
-    array(
-        'id'    => 2,
-        'title' => 'Royal Mukhwas',
-        'price' => '₹250',
-        'rating' => '4.9',
-        'image' => $theme_uri . '/assets/images/product-royal-mukhwas.jpg',
-        'link'  => home_url('/product?id=2'),
-    ),
-    array(
-        'id'    => 1,
-        'title' => 'Calcutta Pan Mix',
-        'price' => '₹250',
-        'rating' => '5.0',
-        'image' => $theme_uri . '/assets/images/product-calcutta-pan.jpg',
-        'link'  => home_url('/product?id=1'),
-    ),
-    array(
-        'id'    => 3,
-        'title' => 'Sweet Saunf Mix',
-        'price' => '₹240',
-        'rating' => '4.8',
-        'image' => $theme_uri . '/assets/images/product-sweet-saunf.jpg',
-        'link'  => home_url('/product?id=3'),
-    ),
-    array(
-        'id'    => 5,
-        'title' => 'Chocolate Dragees',
-        'price' => '₹320',
-        'rating' => '4.9',
-        'image' => $theme_uri . '/assets/images/chocolate-dragees.jpg',
-        'link'  => home_url('/product?id=5'),
-    ),
-    array(
-        'id'    => 9,
-        'title' => 'Premium Kunafa Bar',
-        'price' => '₹349',
-        'rating' => '5.0',
-        'image' => $theme_uri . '/assets/images/kunafa-bars.jpg',
-        'link'  => home_url('/product?id=9'),
-    ),
-    array(
-        'id'    => 14,
-        'title' => 'Assorted Combo Pack',
-        'price' => '₹599',
-        'rating' => '4.9',
-        'image' => $theme_uri . '/assets/images/gift-combos.jpg',
-        'link'  => home_url('/product?id=14'),
-    ),
-    array(
-        'id'    => 16,
-        'title' => 'Celebration Mukhwas Box',
-        'price' => '₹499',
-        'rating' => '4.9',
-        'image' => $theme_uri . '/assets/images/combo-celebration.jpg',
-        'link'  => home_url('/product?id=16'),
-    ),
-    array(
-        'id'    => 13,
-        'title' => 'Freshness Saunf Jar',
-        'price' => '₹299',
-        'rating' => '4.8',
-        'image' => $theme_uri . '/assets/images/combo-freshness.jpg',
-        'link'  => home_url('/product?id=13'),
-    ),
-);
+$bestseller_products = array();
+
+// Query Dynamic Products from WooCommerce
+if (class_exists('WooCommerce')) {
+    $wc_query = new WP_Query(array(
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        'posts_per_page' => 12,
+        'orderby'        => 'meta_value_num date',
+        'meta_key'       => 'total_sales',
+        'order'          => 'DESC',
+    ));
+
+    if (!$wc_query->have_posts()) {
+        $wc_query = new WP_Query(array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => 12,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ));
+    }
+
+    if ($wc_query->have_posts()) {
+        $currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹';
+        while ($wc_query->have_posts()) {
+            $wc_query->the_post();
+            $wc_prod = wc_get_product(get_the_ID());
+            if ($wc_prod && $wc_prod->is_visible()) {
+                $img_url = wp_get_attachment_image_url($wc_prod->get_image_id(), 'kash-product-card');
+                if (!$img_url) {
+                    $img_url = $theme_uri . '/assets/images/product-royal-mukhwas.jpg';
+                }
+                $avg_rating = $wc_prod->get_average_rating();
+                $rating_str = ($avg_rating > 0) ? number_format((float)$avg_rating, 1) : '5.0';
+
+                $price_val = $wc_prod->get_price();
+                $price_display = !empty($price_val) ? $currency_symbol . $price_val : $currency_symbol . '0';
+
+                $bestseller_products[] = array(
+                    'id'              => $wc_prod->get_id(),
+                    'title'           => $wc_prod->get_name(),
+                    'price'           => $price_display,
+                    'rating'          => $rating_str,
+                    'image'           => $img_url,
+                    'link'            => get_permalink($wc_prod->get_id()),
+                    'add_to_cart_url' => $wc_prod->add_to_cart_url(),
+                    'in_stock'        => $wc_prod->is_in_stock(),
+                    'stock_status'    => $wc_prod->get_stock_status(),
+                );
+            }
+        }
+        wp_reset_postdata();
+    }
+}
+
+// If no products available in WooCommerce, keep empty and display clean empty state notice
 ?>
 
 <section class="fav-carousel-section" id="customer-favorites">
@@ -93,57 +84,78 @@ $bestseller_products = array(
             <p class="fav-subtitle"><?php esc_html_e('Handpicked gourmet digestives & royal treats most loved by our customers', 'kash-naturals'); ?></p>
         </div>
 
-        <!-- Carousel Wrapper with Side Navigation Arrows -->
-        <div class="fav-carousel-outer">
-            
-            <!-- Left Prev Arrow Button -->
-            <button type="button" class="fav-arrow-btn fav-arrow-prev" id="favCarouselPrev" aria-label="Previous Slide">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
+        <?php if (!empty($bestseller_products)) : ?>
+            <!-- Carousel Wrapper with Side Navigation Arrows -->
+            <div class="fav-carousel-outer">
+                
+                <!-- Left Prev Arrow Button -->
+                <button type="button" class="fav-arrow-btn fav-arrow-prev" id="favCarouselPrev" aria-label="<?php esc_attr_e('Previous Slide', 'kash-naturals'); ?>">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
 
-            <!-- Carousel Viewport & Track -->
-            <div class="fav-carousel-viewport" id="favCarouselViewport">
-                <div class="fav-carousel-track" id="favCarouselTrack">
-                    <?php foreach ($bestseller_products as $index => $product) : ?>
-                        <div class="fav-card-item">
-                            <div class="fav-card-inner">
-                                <div class="fav-rating-badge">
-                                    <i class="fa-solid fa-star"></i> <?php echo esc_html($product['rating']); ?>
-                                </div>
-                                <a href="<?php echo esc_url($product['link']); ?>" class="fav-img-box" aria-label="<?php echo esc_attr($product['title']); ?>">
-                                    <img src="<?php echo esc_url($product['image']); ?>" alt="<?php echo esc_attr($product['title']); ?>" class="fav-prod-img" loading="lazy">
-                                </a>
-                                <div class="fav-card-body">
-                                    <h3 class="fav-prod-title">
-                                        <a href="<?php echo esc_url($product['link']); ?>" style="color: inherit; text-decoration: none;">
-                                            <?php echo esc_html($product['title']); ?>
-                                        </a>
-                                    </h3>
-                                    <div class="fav-prod-price"><?php echo esc_html($product['price']); ?></div>
-                                    <div class="fav-card-actions">
-                                        <a href="<?php echo esc_url($product['link']); ?>" class="fav-btn-view">
-                                            <?php esc_html_e('View Product', 'kash-naturals'); ?> <i class="fa-solid fa-arrow-right"></i>
-                                        </a>
-                                        <button type="button" class="fav-btn-quick-add add-to-cart-btn" data-product-id="<?php echo esc_attr($product['id']); ?>" data-product-name="<?php echo esc_attr($product['title']); ?>" data-product-price="<?php echo esc_attr($product['price']); ?>" data-product-img="<?php echo esc_url($product['image']); ?>" title="Add to Cart">
-                                            <i class="fa-solid fa-plus"></i>
-                                        </button>
+                <!-- Carousel Viewport & Track -->
+                <div class="fav-carousel-viewport" id="favCarouselViewport">
+                    <div class="fav-carousel-track" id="favCarouselTrack">
+                        <?php foreach ($bestseller_products as $index => $product) : 
+                            $is_prod_in_stock = isset($product['in_stock']) ? !empty($product['in_stock']) : true;
+                        ?>
+                            <div class="fav-card-item <?php echo !$is_prod_in_stock ? 'item-out-of-stock' : ''; ?>">
+                                <div class="fav-card-inner">
+                                    <?php if (!$is_prod_in_stock) : ?>
+                                        <div class="fav-stock-badge-oos"><i class="fa-solid fa-ban"></i> <?php esc_html_e('Out of Stock', 'kash-naturals'); ?></div>
+                                    <?php endif; ?>
+                                    <div class="fav-rating-badge">
+                                        <i class="fa-solid fa-star"></i> <?php echo esc_html($product['rating']); ?>
+                                    </div>
+                                    <a href="<?php echo esc_url($product['link']); ?>" class="fav-img-box" aria-label="<?php echo esc_attr($product['title']); ?>">
+                                        <img src="<?php echo esc_url($product['image']); ?>" alt="<?php echo esc_attr($product['title']); ?>" class="fav-prod-img" loading="lazy">
+                                    </a>
+                                    <div class="fav-card-body">
+                                        <h3 class="fav-prod-title">
+                                            <a href="<?php echo esc_url($product['link']); ?>" style="color: inherit; text-decoration: none;">
+                                                <?php echo esc_html($product['title']); ?>
+                                            </a>
+                                        </h3>
+                                        <div class="fav-prod-price"><?php echo esc_html($product['price']); ?></div>
+                                        <div class="fav-card-actions">
+                                            <a href="<?php echo esc_url($product['link']); ?>" class="fav-btn-view">
+                                                <?php esc_html_e('View Product', 'kash-naturals'); ?> <i class="fa-solid fa-arrow-right"></i>
+                                            </a>
+                                            <?php if ($is_prod_in_stock) : ?>
+                                                <button type="button" class="fav-btn-quick-add add-to-cart-btn add_to_cart_button ajax_add_to_cart" data-product-id="<?php echo esc_attr($product['id']); ?>" data-product_id="<?php echo esc_attr($product['id']); ?>" data-product-name="<?php echo esc_attr($product['title']); ?>" data-product-price="<?php echo esc_attr($product['price']); ?>" data-product-img="<?php echo esc_url($product['image']); ?>" title="<?php esc_attr_e('Add to Cart', 'kash-naturals'); ?>">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                </button>
+                                            <?php else : ?>
+                                                <button type="button" class="fav-btn-quick-add disabled" disabled title="<?php esc_attr_e('Out of stock', 'kash-naturals'); ?>">
+                                                    <i class="fa-solid fa-ban"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
+
+                <!-- Right Next Arrow Button -->
+                <button type="button" class="fav-arrow-btn fav-arrow-next" id="favCarouselNext" aria-label="<?php esc_attr_e('Next Slide', 'kash-naturals'); ?>">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
             </div>
 
-            <!-- Right Next Arrow Button -->
-            <button type="button" class="fav-arrow-btn fav-arrow-next" id="favCarouselNext" aria-label="Next Slide">
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-
-        </div>
-
-        <!-- Bottom Navigation Pagination Dots -->
-        <div class="fav-carousel-pagination" id="favCarouselPagination" role="tablist" aria-label="<?php esc_attr_e('Customer Favorites Slider Pagination', 'kash-naturals'); ?>"></div>
+            <!-- Bottom Navigation Pagination Dots -->
+            <div class="fav-carousel-pagination" id="favCarouselPagination" role="tablist" aria-label="<?php esc_attr_e('Customer Favorites Slider Pagination', 'kash-naturals'); ?>"></div>
+        <?php else : ?>
+            <div class="kash-empty-products-state text-center">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="empty-state-title"><?php esc_html_e('No Products Available', 'kash-naturals'); ?></h3>
+                <p class="empty-state-desc"><?php esc_html_e('We are preparing fresh batches. Please check back soon!', 'kash-naturals'); ?></p>
+            </div>
+        <?php endif; ?>
 
     </div>
 </section>

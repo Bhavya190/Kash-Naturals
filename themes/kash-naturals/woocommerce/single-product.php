@@ -10,15 +10,10 @@ if (!defined('ABSPATH')) {
 }
 
 get_header();
-?>
 
-<div class="container section-padding single-product-container">
-    <?php while (have_posts()) : the_post(); ?>
+while (have_posts()) :
+    the_post();
+    wc_get_template_part('content', 'single-product');
+endwhile;
 
-        <?php wc_get_template_part('content', 'single-product'); ?>
-
-    <?php endwhile; ?>
-</div>
-
-<?php
 get_footer();

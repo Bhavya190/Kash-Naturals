@@ -53,6 +53,64 @@ function kash_naturals_scripts() {
         true
     );
 
+    // Query dynamic published WooCommerce products for frontend JS live search & cart
+    $dynamic_products_js = array();
+    if (class_exists('WooCommerce')) {
+        $wc_p_query = new WP_Query(array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => 100,
+        ));
+        if ($wc_p_query->have_posts()) {
+            while ($wc_p_query->have_posts()) {
+                $wc_p_query->the_post();
+                $prod = wc_get_product(get_the_ID());
+                if ($prod && $prod->is_visible()) {
+                    $img_url = wp_get_attachment_image_url($prod->get_image_id(), 'kash-product-card');
+                    if (!$img_url && function_exists('wc_placeholder_img_src')) {
+                        $img_url = wc_placeholder_img_src();
+                    }
+                    $cats = get_the_terms($prod->get_id(), 'product_cat');
+                    $c_slug = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->slug : 'all';
+                    $c_name = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->name : 'Specialty';
+
+                    $dynamic_products_js[] = array(
+                        'id'            => $prod->get_id(),
+                        'name'          => $prod->get_name(),
+                        'category'      => $c_slug,
+                        'category_name' => $c_name,
+                        'price'         => floatval($prod->get_price()) ?: 0,
+                        'regular_price' => floatval($prod->get_regular_price()) ?: floatval($prod->get_price()),
+                        'image'         => $img_url ?: '',
+                        'badge'         => $prod->is_on_sale() ? 'Sale' : ($prod->is_featured() ? 'Featured' : ''),
+                        'rating'        => ($prod->get_average_rating() > 0) ? number_format((float)$prod->get_average_rating(), 1) : '5.0',
+                        'desc'          => wp_trim_words($prod->get_short_description() ?: get_the_excerpt(), 12, '...'),
+                        'link'          => get_permalink($prod->get_id()),
+                        'in_stock'      => $prod->is_in_stock(),
+                        'stock_status'  => $prod->get_stock_status(),
+                        'stock_quantity'=> $prod->managing_stock() ? $prod->get_stock_quantity() : null,
+                        'managing_stock'=> $prod->managing_stock(),
+                        'backorders'    => $prod->backorders_allowed(),
+                    );
+                }
+            }
+            wp_reset_postdata();
+        }
+    }
+
+    wp_localize_script('kash-main-script', 'kash_dynamic_data', array(
+        'products'        => $dynamic_products_js,
+        'products_count'  => count($dynamic_products_js),
+        'theme_uri'       => get_template_directory_uri(),
+        'shop_url'        => home_url('/shop'),
+        'cart_url'        => function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/cart'),
+        'checkout_url'    => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout'),
+        'ajax_url'        => admin_url('admin-ajax.php'),
+        'is_wc_active'    => class_exists('WooCommerce'),
+        'cart_nonce'      => wp_create_nonce('kash_cart_nonce'),
+        'currency_symbol' => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
+    ));
+
     // WooCommerce Custom JS
     if (class_exists('WooCommerce')) {
         wp_enqueue_script(
@@ -66,9 +124,9 @@ function kash_naturals_scripts() {
         // Pass AJAX URL and Cart Nonce to JS
         wp_localize_script('kash-woocommerce-script', 'kash_wc_params', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'cart_url' => wc_get_cart_url(),
-            'checkout_url' => wc_get_checkout_url(),
-            'currency_symbol' => get_woocommerce_currency_symbol(),
+            'cart_url' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
+            'checkout_url' => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
+            'currency_symbol' => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
         ));
     }
 

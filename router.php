@@ -140,6 +140,18 @@ if (!function_exists('wp_body_open')) { function wp_body_open() {} }
 if (!function_exists('wp_footer')) {
     function wp_footer() {
         echo '<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>' . "\n";
+        $dynamic_data = array(
+            'products' => array(),
+            'products_count' => 0,
+            'theme_uri' => KASH_THEME_URI,
+            'shop_url' => '/shop',
+            'cart_url' => '/cart',
+            'checkout_url' => '/checkout',
+            'ajax_url' => '/admin-ajax.php',
+            'is_wc_active' => false,
+            'currency_symbol' => '₹',
+        );
+        echo '<script>var kash_dynamic_data = ' . json_encode($dynamic_data) . ';</script>' . "\n";
         echo '<script src="' . KASH_THEME_URI . '/assets/js/main.js?v=' . time() . '"></script>' . "\n";
         echo '<script src="' . KASH_THEME_URI . '/assets/js/layout-loader.js"></script>' . "\n";
     }
@@ -217,20 +229,46 @@ if (!function_exists('woocommerce_result_count')) { function woocommerce_result_
 if (!function_exists('woocommerce_catalog_ordering')) { function woocommerce_catalog_ordering() {} }
 if (!function_exists('woocommerce_product_loop_start')) { function woocommerce_product_loop_start() {} }
 if (!function_exists('woocommerce_product_loop_end')) { function woocommerce_product_loop_end() {} }
-if (!function_exists('woocommerce_pagination')) { function woocommerce_pagination() {} }
 if (!function_exists('wc_get_template_part')) { function wc_get_template_part($slug, $name = '') {} }
 if (!function_exists('wc_get_formatted_cart_item_data')) { function wc_get_formatted_cart_item_data($cart_item) { return ''; } }
+if (!function_exists('wc_placeholder_img_src')) { function wc_placeholder_img_src($size = 'woocommerce_thumbnail') { return ''; } }
+if (!function_exists('get_the_ID')) { function get_the_ID() { return 0; } }
+if (!function_exists('get_post_type')) { function get_post_type($post = null) { return 'product'; } }
+if (!function_exists('get_posts')) { function get_posts($args = array()) { return array(); } }
+if (!function_exists('get_terms')) { function get_terms($args = array()) { return array(); } }
+if (!function_exists('get_term_by')) { function get_term_by($field, $value, $taxonomy) { return false; } }
+if (!function_exists('get_term_link')) { function get_term_link($term, $taxonomy = '') { return '/shop'; } }
+if (!function_exists('get_the_terms')) { function get_the_terms($post, $taxonomy) { return false; } }
+if (!function_exists('term_exists')) { function term_exists($term, $taxonomy = '', $parent = null) { return false; } }
+if (!function_exists('wp_strip_all_tags')) { function wp_strip_all_tags($text, $remove_breaks = false) { return strip_tags((string)$text); } }
+if (!function_exists('wp_trim_words')) { function wp_trim_words($text, $num_words = 55, $more = null) { return $text; } }
+if (!function_exists('post_password_required')) { function post_password_required($post = null) { return false; } }
+if (!function_exists('wpautop')) { function wpautop($pee, $br = true) { return '<p>' . nl2br($pee) . '</p>'; } }
+if (!function_exists('comments_open')) { function comments_open($post_id = null) { return true; } }
+if (!function_exists('comment_form')) { function comment_form($args = array(), $post_id = null) { echo '<div class="mock-comment-form"><textarea placeholder="Your review..." rows="4"></textarea><br><button class="btn-buy-now-green" style="margin-top:10px;">Submit Verified Review</button></div>'; } }
+if (!function_exists('the_ID')) { function the_ID() { echo 1; } }
+if (!function_exists('get_the_excerpt')) { function get_the_excerpt($post = null) { return ''; } }
+if (!function_exists('get_the_password_form')) { function get_the_password_form($post = 0) { return ''; } }
+if (!function_exists('human_time_diff')) { function human_time_diff($from, $to = 0) { return '2 days'; } }
+if (!function_exists('current_time')) { function current_time($type) { return time(); } }
+if (!function_exists('get_comments')) { function get_comments($args = array()) { return array(); } }
 
 // Load Theme Functions
 if (file_exists(KASH_THEME_DIR . '/functions.php')) {
     require_once KASH_THEME_DIR . '/functions.php';
 }
 
-// 3. Handle Routing for Server
-$filePath = __DIR__ . $uri;
-
 // Clean URL Mapping to Theme Templates
 $cleanUri = rtrim(strtolower($uri), '/');
+
+// Handle dynamic product detail permalinks like /product/kash-natural-raj-ratan...
+if (preg_match('#^/product/([^/]+)#', $cleanUri, $matches)) {
+    $GLOBALS['kash_product_slug'] = $matches[1];
+    $GLOBALS['kash_product_id'] = isset($_GET['id']) ? intval($_GET['id']) : 1;
+    $GLOBALS['kash_page_title'] = 'Product Detail';
+    require KASH_THEME_DIR . '/single-product.php';
+    exit;
+}
 
 switch ($cleanUri) {
     case '/favicon.ico':

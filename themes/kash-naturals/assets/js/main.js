@@ -8,204 +8,15 @@ jQuery(document).ready(function ($) {
     'use strict';
 
     /* ==========================================================================
-       1. GLOBAL PRODUCT CATALOG DATABASE (16 Artisan Items)
+       1. GLOBAL PRODUCT CATALOG DATABASE (Dynamic from WooCommerce)
        ========================================================================== */
-    const themeUri = (typeof KASH_THEME_URI !== 'undefined') ? KASH_THEME_URI : '/wp-content/themes/kash-naturals';
-    
-    const PRODUCTS_DB = [
-        {
-            id: 1,
-            name: 'Royal Calcutta Paan Mukhwas',
-            category: 'mouth-fresheners',
-            category_name: 'Mouth Fresheners',
-            price: 299,
-            regular_price: 399,
-            image: themeUri + '/assets/images/product-calcutta-pan.jpg',
-            badge: 'Bestseller',
-            rating: 5.0,
-            desc: 'Traditional betel leaf mukhwas with silver cardamom & sweet gulkand.'
-        },
-        {
-            id: 2,
-            name: 'Shahi Royal Mukhwas Blend',
-            category: 'mouth-fresheners',
-            category_name: 'Mouth Fresheners',
-            price: 349,
-            regular_price: 449,
-            image: themeUri + '/assets/images/product-royal-mukhwas.jpg',
-            badge: 'Heritage',
-            rating: 4.9,
-            desc: 'Royal digestive mix of roasted seeds, dry fruits, and aromatic spices.'
-        },
-        {
-            id: 3,
-            name: 'Kash Sweet Saunf Digestif',
-            category: 'mouth-fresheners',
-            category_name: 'Mouth Fresheners',
-            price: 249,
-            regular_price: 329,
-            image: themeUri + '/assets/images/product-sweet-saunf.jpg',
-            badge: '100% Natural',
-            rating: 4.8,
-            desc: 'Crisp candied aniseeds blended with menthol and silver pearls.'
-        },
-        {
-            id: 4,
-            name: 'Silver Coated Elaichi Paan',
-            category: 'mouth-fresheners',
-            category_name: 'Mouth Fresheners',
-            price: 399,
-            regular_price: 499,
-            image: themeUri + '/assets/images/jar-calcutta-pan.jpg',
-            badge: 'Luxury Paan',
-            rating: 5.0,
-            desc: 'Premium silver leaf wrapped cardamom and dry paan infusion.'
-        },
-        {
-            id: 5,
-            name: 'Belgian Dark Almond Dragees',
-            category: 'chocolate-dragees',
-            category_name: 'Chocolate Dragees',
-            price: 499,
-            regular_price: 649,
-            image: themeUri + '/assets/images/chocolate-dragees.jpg',
-            badge: 'Bestseller',
-            rating: 5.0,
-            desc: 'Slow-roasted almonds enrobed in 70% dark Belgian cocoa.'
-        },
-        {
-            id: 6,
-            name: 'Milk Chocolate Hazelnut Dragees',
-            category: 'chocolate-dragees',
-            category_name: 'Chocolate Dragees',
-            price: 549,
-            regular_price: 699,
-            image: themeUri + '/assets/images/jar-royal-mukhwas.jpg',
-            badge: 'Artisanal',
-            rating: 4.9,
-            desc: 'Whole Turkish hazelnuts dipped in smooth creamy milk chocolate.'
-        },
-        {
-            id: 7,
-            name: 'Cranberry Dark Chocolate Bites',
-            category: 'chocolate-dragees',
-            category_name: 'Chocolate Dragees',
-            price: 479,
-            regular_price: 599,
-            image: themeUri + '/assets/images/jar-sweet-saunf.jpg',
-            badge: 'New Arrival',
-            rating: 4.8,
-            desc: 'Tangy dried cranberries coated in rich dark chocolate.'
-        },
-        {
-            id: 8,
-            name: 'Gold Dusted Cashew Dragees',
-            category: 'chocolate-dragees',
-            category_name: 'Chocolate Dragees',
-            price: 599,
-            regular_price: 749,
-            image: themeUri + '/assets/images/mouth-fresheners.jpg',
-            badge: 'Festive Special',
-            rating: 5.0,
-            desc: 'Jumbo cashews wrapped in milk chocolate with gold shimmer.'
-        },
-        {
-            id: 9,
-            name: 'Pistachio Kunafa Bar (100g)',
-            category: 'kunafa-bars',
-            category_name: 'Kunafa Bars',
-            price: 599,
-            regular_price: 749,
-            image: themeUri + '/assets/images/kunafa-bars.jpg',
-            badge: 'Signature',
-            rating: 5.0,
-            desc: 'Crispy kataifi pastry & roasted pistachio cream wrapped in chocolate.'
-        },
-        {
-            id: 10,
-            name: 'Baklava Kunafa Milk Bar (100g)',
-            category: 'kunafa-bars',
-            category_name: 'Kunafa Bars',
-            price: 549,
-            regular_price: 699,
-            image: themeUri + '/assets/images/gift-combos.jpg',
-            badge: 'Middle Eastern',
-            rating: 4.9,
-            desc: 'Traditional Middle Eastern baklava crunch with milk chocolate.'
-        },
-        {
-            id: 11,
-            name: '70% Dark Kunafa Crunch Bar',
-            category: 'kunafa-bars',
-            category_name: 'Kunafa Bars',
-            price: 649,
-            regular_price: 799,
-            image: themeUri + '/assets/images/combo-celebration.jpg',
-            badge: 'Dark Special',
-            rating: 4.9,
-            desc: 'Rich dark cocoa paired with crispy roasted pistachio kunafa.'
-        },
-        {
-            id: 12,
-            name: 'Kunafa Trio Gift Bar Pack',
-            category: 'kunafa-bars',
-            category_name: 'Kunafa Bars',
-            price: 899,
-            regular_price: 1099,
-            image: themeUri + '/assets/images/combo-premium.jpg',
-            badge: 'Value Pack',
-            rating: 5.0,
-            desc: 'Set of 3 mini kunafa bars: Pistachio, Hazelnut & Almond Crunch.'
-        },
-        {
-            id: 13,
-            name: 'Freshness & Digestive Duo Pack',
-            category: 'gift-combos',
-            category_name: 'Gift Combos',
-            price: 499,
-            regular_price: 599,
-            image: themeUri + '/assets/images/combo-freshness.jpg',
-            badge: 'Popular',
-            rating: 4.9,
-            desc: 'Royal Paan Mukhwas (250g) + Shahi Sweet Saunf (250g) Gift Box.'
-        },
-        {
-            id: 14,
-            name: 'Family Festive Celebration Pack',
-            category: 'gift-combos',
-            category_name: 'Gift Combos',
-            price: 899,
-            regular_price: 1199,
-            image: themeUri + '/assets/images/combo-family.jpg',
-            badge: 'Best Value',
-            rating: 5.0,
-            desc: 'Assortment of 4 signature jars of mukhwas and dragees.'
-        },
-        {
-            id: 15,
-            name: 'Royal Connoisseur Treasure Box',
-            category: 'gift-combos',
-            category_name: 'Gift Combos',
-            price: 1299,
-            regular_price: 1799,
-            image: themeUri + '/assets/images/combo-premium.jpg',
-            badge: 'Luxury Edition',
-            rating: 5.0,
-            desc: 'Flagship luxury hamper with kunafa bars, dragees & silver paan.'
-        },
-        {
-            id: 16,
-            name: 'Artisanal Celebration Hamper',
-            category: 'gift-combos',
-            category_name: 'Gift Combos',
-            price: 1599,
-            regular_price: 2000,
-            image: themeUri + '/assets/images/combo-celebration.jpg',
-            badge: 'Gift Favorite',
-            rating: 4.8,
-            desc: 'Roasted hazelnut dragees, paan mukhwas & pistachio kunafa bar.'
-        }
-    ];
+    const themeUri = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.theme_uri)
+        ? kash_dynamic_data.theme_uri
+        : ((typeof KASH_THEME_URI !== 'undefined') ? KASH_THEME_URI : '/wp-content/themes/kash-naturals');
+
+    const PRODUCTS_DB = (typeof kash_dynamic_data !== 'undefined' && Array.isArray(kash_dynamic_data.products))
+        ? kash_dynamic_data.products
+        : [];
 
     /* ==========================================================================
        2. TOAST NOTIFICATION SYSTEM
@@ -285,6 +96,17 @@ jQuery(document).ready(function ($) {
 
     function renderSearchResults() {
         const query = $searchField.val().toLowerCase().trim();
+
+        if (PRODUCTS_DB.length === 0) {
+            $searchStatus.html('No products available in the store yet.');
+            $searchGrid.html(`
+                <div class="search-empty-state">
+                    <i class="fa-solid fa-box-open"></i>
+                    <p>No products available currently.</p>
+                </div>
+            `);
+            return;
+        }
         let matches = PRODUCTS_DB.filter(product => {
             const matchesCat = (currentSearchCat === 'all') || (product.category === currentSearchCat);
             const matchesQuery = !query || 
@@ -314,8 +136,9 @@ jQuery(document).ready(function ($) {
         }
 
         matches.forEach(prod => {
+            const isOos = (prod.in_stock === false || prod.stock_status === 'outofstock');
             const $item = $(`
-                <div class="search-item-card">
+                <div class="search-item-card ${isOos ? 'item-out-of-stock' : ''}">
                     <div class="search-item-img">
                         <img src="${prod.image}" alt="${prod.name}" />
                     </div>
@@ -324,18 +147,27 @@ jQuery(document).ready(function ($) {
                         <h4 class="search-item-title">${prod.name}</h4>
                         <div class="search-item-stars">★★★★★ (${prod.rating})</div>
                         <div class="search-item-price">₹${prod.price} <del>₹${prod.regular_price}</del></div>
+                        ${isOos ? '<div style="color:#ef4444; font-size:11px; font-weight:700; margin-top:3px;"><i class="fa-solid fa-ban"></i> Out of Stock</div>' : ''}
                     </div>
-                    <button type="button" class="btn-search-add-cart" data-id="${prod.id}">
-                        <i class="fa-solid fa-cart-plus"></i> ADD
-                    </button>
+                    ${isOos ? `
+                        <button type="button" class="btn-search-add-cart disabled" disabled style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); cursor:not-allowed;">
+                            <i class="fa-solid fa-ban"></i> Sold Out
+                        </button>
+                    ` : `
+                        <button type="button" class="btn-search-add-cart" data-id="${prod.id}">
+                            <i class="fa-solid fa-cart-plus"></i> ADD
+                        </button>
+                    `}
                 </div>
             `);
 
-            $item.find('.btn-search-add-cart').on('click', function () {
-                addToCart(prod.id);
-                $searchModal.removeClass('active');
-                $('body').removeClass('modal-open');
-            });
+            if (!isOos) {
+                $item.find('.btn-search-add-cart').on('click', function () {
+                    addToCart(prod.id);
+                    $searchModal.removeClass('active');
+                    $('body').removeClass('modal-open');
+                });
+            }
 
             $searchGrid.append($item);
         });
@@ -450,7 +282,44 @@ jQuery(document).ready(function ($) {
 
             // Render Wishlist items
             const $wishlistGrid = $('#wishlist-grid').empty();
-            const wishlistItems = PRODUCTS_DB.slice(0, 3);
+            let wishlist = [];
+            try {
+                wishlist = JSON.parse(localStorage.getItem('kash_wishlist') || '[]');
+            } catch (e) {
+                wishlist = [];
+            }
+            if (wishlist.length === 0) {
+                $wishlistGrid.html(`
+                    <div class="cart-empty-state text-center" style="grid-column: 1 / -1; padding: 30px;">
+                        <i class="fa-regular fa-heart"></i>
+                        <p>Your wishlist is currently empty.</p>
+                        <a href="/shop" class="btn-shop-now-empty">EXPLORE PRODUCTS</a>
+                    </div>
+                `);
+            } else {
+                wishlist.forEach(item => {
+                    const $wCard = $(`
+                        <div class="wishlist-item-card">
+                            <img src="${item.image}" alt="${item.name}" />
+                            <div class="w-info">
+                                <h4>${item.name}</h4>
+                                <div class="w-price">₹${item.price}</div>
+                            </div>
+                            <button type="button" class="btn-w-add" data-id="${item.id}">
+                                <i class="fa-solid fa-cart-plus"></i> Add
+                            </button>
+                        </div>
+                    `);
+                    $wCard.find('.btn-w-add').on('click', function() {
+                        addToCart(item.id);
+                        $accountModal.removeClass('active');
+                        $('body').removeClass('modal-open');
+                    });
+                    $wishlistGrid.append($wCard);
+                });
+            }
+            // Skip dummy items
+            const wishlistItems = [];
             wishlistItems.forEach(item => {
                 const $wCard = $(`
                     <div class="wishlist-item-card">
@@ -507,26 +376,16 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         const email = $('#login-email').val();
         const user = {
-            name: 'Bhavya Sharma',
+            name: email.split('@')[0],
             email: email,
-            orders: SAMPLE_ORDERS
+            orders: []
         };
         setUserSession(user);
-        showToast('Successfully signed in as Bhavya Sharma!');
+        showToast('Successfully signed in!');
         renderAccountModal();
     });
 
-    // 1-Click Quick Demo Login Button
-    $('#btn-quick-demo').on('click', function () {
-        const user = {
-            name: 'Bhavya Sharma',
-            email: 'bhavya@kashnaturals.com',
-            orders: SAMPLE_ORDERS
-        };
-        setUserSession(user);
-        showToast('Welcome Bhavya! Signed in via 1-Click Demo Login.');
-        renderAccountModal();
-    });
+// Quick demo login removed
 
     // Handle Register Submit
     $('#form-register').on('submit', function (e) {
@@ -559,11 +418,52 @@ jQuery(document).ready(function ($) {
     const $cartOverlay = $('#cart-drawer-overlay');
     let couponApplied = false;
 
-    // Get Cart from LocalStorage
+    // Get Cart with Strict Dynamic WooCommerce Synchronization
     function getCart() {
         try {
             const data = localStorage.getItem('kash_cart');
-            return data ? JSON.parse(data) : [];
+            let cart = data ? JSON.parse(data) : [];
+
+            // RULE 1: If there are NO products in the store (or store catalog is empty), cart MUST be completely empty.
+            if (!PRODUCTS_DB || PRODUCTS_DB.length === 0) {
+                if (cart.length > 0) {
+                    localStorage.removeItem('kash_cart');
+                }
+                return [];
+            }
+
+            // RULE 2: Purge any cart items that no longer exist in the store catalog,
+            // and dynamically refresh live price, stock status, and stock availability from WooCommerce.
+            let validCart = [];
+            let changed = false;
+
+            cart.forEach(item => {
+                const dbProduct = PRODUCTS_DB.find(p => p.id == item.id || (item.name && p.name.toLowerCase() === item.name.toLowerCase()));
+                if (dbProduct) {
+                    const isItemInStock = (dbProduct.in_stock !== false && dbProduct.stock_status !== 'outofstock');
+                    validCart.push({
+                        id: dbProduct.id,
+                        name: dbProduct.name,
+                        price: dbProduct.price,
+                        image: dbProduct.image || item.image,
+                        qty: item.qty > 0 ? item.qty : 1,
+                        in_stock: isItemInStock,
+                        stock_status: dbProduct.stock_status || (isItemInStock ? 'instock' : 'outofstock'),
+                        stock_quantity: dbProduct.stock_quantity,
+                        managing_stock: dbProduct.managing_stock,
+                        backorders: dbProduct.backorders
+                    });
+                } else {
+                    // Item was deleted or removed from WooCommerce -> purge it dynamically
+                    changed = true;
+                }
+            });
+
+            if (changed || validCart.length !== cart.length) {
+                localStorage.setItem('kash_cart', JSON.stringify(validCart));
+            }
+
+            return validCart;
         } catch (e) {
             return [];
         }
@@ -575,16 +475,70 @@ jQuery(document).ready(function ($) {
         renderCartDrawer();
     }
 
-    // Initial Cart Setup (Add 2 default items if empty on first visit for instant rich experience)
-    if (!localStorage.getItem('kash_cart')) {
-        const initialCart = [
-            { id: 1, name: 'Royal Calcutta Paan Mukhwas', price: 299, image: themeUri + '/assets/images/product-calcutta-pan.jpg', qty: 1 },
-            { id: 5, name: 'Belgian Dark Almond Dragees', price: 499, image: themeUri + '/assets/images/chocolate-dragees.jpg', qty: 1 }
-        ];
-        saveCart(initialCart);
-    } else {
-        updateCartCountBadge();
+    // Sync with WooCommerce native cart session if active
+    function syncWithWooCommerceCart() {
+        if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
+            $.ajax({
+                type: 'POST',
+                url: kash_dynamic_data.ajax_url,
+                data: { action: 'kash_get_cart' },
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.success && res.data && Array.isArray(res.data.items)) {
+                        const wcCart = res.data;
+                        if (wcCart.items.length > 0) {
+                            const syncedCart = wcCart.items.map(item => ({
+                                id: item.id,
+                                key: item.key,
+                                name: item.name,
+                                price: item.price,
+                                image: item.image,
+                                qty: item.qty,
+                                in_stock: (item.in_stock !== false && item.stock_status !== 'outofstock'),
+                                stock_status: item.stock_status,
+                                stock_quantity: item.stock_quantity
+                            }));
+                            localStorage.setItem('kash_cart', JSON.stringify(syncedCart));
+                            updateCartCountBadge();
+                            renderCartDrawer();
+                        } else if (PRODUCTS_DB.length > 0) {
+                            // WC cart empty, ensure local cart reflects this if WC is the source of truth
+                            const localCart = getCart();
+                            if (localCart.length > 0 && localCart.some(i => i.key)) {
+                                saveCart([]);
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
+    window.syncWithWooCommerceCart = syncWithWooCommerceCart;
+
+    function syncAddToCartWooCommerce(productId, quantity) {
+        if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
+            $.ajax({
+                type: 'POST',
+                url: kash_dynamic_data.ajax_url,
+                data: {
+                    action: 'kash_add_to_cart',
+                    product_id: productId,
+                    quantity: quantity
+                },
+                dataType: 'json',
+                success: function (res) {
+                    if (res && !res.success && res.data && res.data.message) {
+                        showToast(res.data.message, 'info');
+                    }
+                }
+            });
+        }
+    }
+
+    // Initial Cart Setup & Dynamic Catalog Verification
+    const initialCart = getCart();
+    updateCartCountBadge();
+    syncWithWooCommerceCart();
 
     function updateCartCountBadge() {
         const cart = getCart();
@@ -598,10 +552,49 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    // Global Add To Cart Function
+    // Global Add To Cart Function with Live Stock Checks
     window.addToCart = function (productId, quantity = 1) {
-        const product = PRODUCTS_DB.find(p => p.id == productId);
-        if (!product) return;
+        let product = (PRODUCTS_DB && PRODUCTS_DB.length) ? PRODUCTS_DB.find(p => p.id == productId) : null;
+        if (!product) {
+            const $btn = $(`.add-to-cart-btn[data-product-id="${productId}"], .add-to-cart-btn[data-product_id="${productId}"]`).first();
+            if ($btn.length && $btn.data('product-name')) {
+                product = {
+                    id: productId,
+                    name: $btn.data('product-name') || 'Artisanal Specialty',
+                    price: parseFloat($btn.data('product-price')) || 0,
+                    image: $btn.data('product-img') || '',
+                    in_stock: true,
+                    stock_status: 'instock',
+                    stock_quantity: null
+                };
+            }
+        }
+
+        if (!product) {
+            if (!PRODUCTS_DB || PRODUCTS_DB.length === 0) {
+                showToast('No products currently available in the shop.', 'info');
+            } else {
+                showToast('Product not found or currently unavailable.', 'info');
+            }
+            return;
+        }
+
+        // Live Stock Validation Check
+        if (product.in_stock === false || product.stock_status === 'outofstock') {
+            showToast(`Sorry, "${product.name}" is currently out of stock.`, 'info');
+            return;
+        }
+
+        // Check remaining stock quantity if managed
+        if (product.managing_stock && !product.backorders && typeof product.stock_quantity === 'number') {
+            let currentCart = getCart();
+            const existingItem = currentCart.find(i => i.id == productId);
+            const currentQty = existingItem ? existingItem.qty : 0;
+            if (currentQty + quantity > product.stock_quantity) {
+                showToast(`Only ${product.stock_quantity} item(s) available in stock for "${product.name}".`, 'info');
+                return;
+            }
+        }
 
         let cart = getCart();
         const existingIndex = cart.findIndex(item => item.id == productId);
@@ -614,13 +607,17 @@ jQuery(document).ready(function ($) {
                 name: product.name,
                 price: product.price,
                 image: product.image,
-                qty: quantity
+                qty: quantity,
+                in_stock: true,
+                stock_status: 'instock',
+                stock_quantity: product.stock_quantity
             });
         }
 
         saveCart(cart);
         showToast(`Added "${product.name}" to your shopping bag!`);
         openCartDrawer();
+        syncAddToCartWooCommerce(product.id, quantity);
     };
 
     // Global Click Listener for all "ADD TO CART" / "ORDER NOW" / "+" Buttons Across Site
@@ -629,13 +626,15 @@ jQuery(document).ready(function ($) {
         e.stopPropagation();
 
         const $btn = $(this);
+        if ($btn.hasClass('disabled') || $btn.prop('disabled')) {
+            showToast('This product is currently out of stock.', 'info');
+            return;
+        }
         
         let prodId = $btn.data('product-id') || $btn.attr('data-product-id');
         let prodName = $btn.data('product-name') || $btn.attr('data-product-name');
-        let prodPrice = $btn.data('product-price') || $btn.attr('data-product-price');
-        let prodImg = $btn.data('product-img') || $btn.attr('data-product-img');
 
-        if (!prodName) {
+        if (!prodId && !prodName) {
             prodName = $btn.closest('.bestseller-card-exact, .shop-product-card-exact, .combo-card-exact, .combo-ref-card, .fav-card-item, .fav-card-inner').find('.bestseller-prod-title, .product-title-exact, .combo-card-title, .combo-ref-title, .fav-prod-title').text().trim();
         }
 
@@ -648,28 +647,9 @@ jQuery(document).ready(function ($) {
         }
 
         if (match) {
-            addToCart(match.id);
-        } else if (prodName) {
-            const numericPrice = prodPrice ? parseInt(String(prodPrice).replace(/[^\d]/g, '')) || 299 : 299;
-            let cart = getCart();
-            const existingIndex = cart.findIndex(item => item.name.toLowerCase() === prodName.toLowerCase());
-
-            if (existingIndex > -1) {
-                cart[existingIndex].qty += 1;
-            } else {
-                cart.push({
-                    id: Date.now(),
-                    name: prodName,
-                    price: numericPrice,
-                    image: prodImg || (themeUri + '/assets/images/product-royal-mukhwas.jpg'),
-                    qty: 1
-                });
-            }
-            saveCart(cart);
-            showToast(`Added "${prodName}" to your shopping bag!`);
-            openCartDrawer();
+            addToCart(match.id, 1);
         } else {
-            addToCart(1);
+            showToast('Product is currently unavailable or out of stock.', 'info');
         }
     });
 
@@ -679,6 +659,7 @@ jQuery(document).ready(function ($) {
         $cartDrawer.addClass('active');
         $cartOverlay.addClass('active');
         $('body').addClass('modal-open');
+        syncWithWooCommerceCart();
     }
 
     function closeCartDrawer() {
@@ -696,48 +677,71 @@ jQuery(document).ready(function ($) {
         closeCartDrawer();
     });
 
-    // Render Cart Items & Summary Totals
+    // Render Cart Items & Summary Totals with Dynamic Stock Indicators
     function renderCartDrawer() {
         const cart = getCart();
         const $list = $('#cart-drawer-items-list').empty();
         const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
         $('#cart-drawer-count-badge').text(`${totalCount} Items`);
 
+        const shopUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.shop_url) ? kash_dynamic_data.shop_url : '/shop';
+
         if (cart.length === 0) {
             $list.html(`
                 <div class="cart-empty-state text-center">
                     <i class="fa-solid fa-basket-shopping"></i>
                     <p>Your shopping bag is currently empty.</p>
-                    <a href="/shop" class="btn-shop-now-empty" id="btn-empty-shop">START SHOPPING</a>
+                    <a href="${shopUrl}" class="btn-shop-now-empty" id="btn-empty-shop">START SHOPPING</a>
                 </div>
             `);
             $('#btn-empty-shop').on('click', function(e) {
                 e.preventDefault();
                 closeCartDrawer();
-                window.location.href = '/shop';
+                window.location.href = $(this).attr('href');
             });
+
+            $('#cart-drawer-stock-banner').remove();
+            $('#btn-open-checkout')
+                .removeClass('checkout-blocked')
+                .prop('disabled', false)
+                .html('PROCEED TO CHECKOUT <i class="fa-solid fa-lock"></i>');
+
             updateCartCalculations(0);
             return;
         }
 
         let subtotal = 0;
+        let hasOutOfStock = false;
 
         cart.forEach((item, index) => {
+            const isOutOfStock = (item.in_stock === false || item.stock_status === 'outofstock');
+            if (isOutOfStock) {
+                hasOutOfStock = true;
+            }
+
             const itemTotal = item.price * item.qty;
             subtotal += itemTotal;
 
             const $cartItem = $(`
-                <div class="cart-drawer-item">
-                    <img src="${item.image}" alt="${item.name}" class="cart-item-thumb" />
+                <div class="cart-drawer-item ${isOutOfStock ? 'item-out-of-stock' : ''}">
+                    <div class="cart-item-thumb-wrap">
+                        <img src="${item.image}" alt="${item.name}" class="cart-item-thumb" />
+                        ${isOutOfStock ? '<span class="cart-thumb-oos-overlay">OUT OF STOCK</span>' : ''}
+                    </div>
                     <div class="cart-item-details">
+                        ${isOutOfStock ? '<div class="cart-item-oos-badge"><i class="fa-solid fa-triangle-exclamation"></i> Unavailable (Out of Stock)</div>' : ''}
                         <h4 class="cart-item-title">${item.name}</h4>
                         <div class="cart-item-price">₹${item.price}</div>
                         <div class="cart-item-qty-row">
-                            <div class="qty-stepper">
-                                <button type="button" class="btn-qty-minus" data-index="${index}">-</button>
-                                <span class="qty-val">${item.qty}</span>
-                                <button type="button" class="btn-qty-plus" data-index="${index}">+</button>
-                            </div>
+                            ${isOutOfStock ? `
+                                <span class="cart-item-oos-note">Unavailable in stock. Remove item to checkout.</span>
+                            ` : `
+                                <div class="qty-stepper">
+                                    <button type="button" class="btn-qty-minus" data-index="${index}">-</button>
+                                    <span class="qty-val">${item.qty}</span>
+                                    <button type="button" class="btn-qty-plus" data-index="${index}">+</button>
+                                </div>
+                            `}
                             <span class="cart-item-subtotal">₹${itemTotal}</span>
                         </div>
                     </div>
@@ -747,6 +751,33 @@ jQuery(document).ready(function ($) {
 
             $list.append($cartItem);
         });
+
+        // Handle Out of Stock Warning Banner & Checkout Button Lock
+        $('#cart-drawer-stock-banner').remove();
+        const $checkoutBtn = $('#btn-open-checkout');
+
+        if (hasOutOfStock) {
+            const $banner = $(`
+                <div class="cart-stock-warning-banner" id="cart-drawer-stock-banner">
+                    <div>
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span><strong>Product Unavailable:</strong> Some items in your bag are currently out of stock. Remove them to proceed to checkout.</span>
+                    </div>
+                    <button type="button" class="btn-remove-oos-items" id="btn-remove-all-oos">Remove Unavailable</button>
+                </div>
+            `);
+            $('.cart-summary-totals').before($banner);
+
+            $checkoutBtn
+                .addClass('checkout-blocked')
+                .prop('disabled', true)
+                .html('<i class="fa-solid fa-ban"></i> CANNOT CHECKOUT (REMOVE OUT OF STOCK ITEMS)');
+        } else {
+            $checkoutBtn
+                .removeClass('checkout-blocked')
+                .prop('disabled', false)
+                .html('PROCEED TO CHECKOUT <i class="fa-solid fa-lock"></i>');
+        }
 
         updateCartCalculations(subtotal);
     }
@@ -786,15 +817,46 @@ jQuery(document).ready(function ($) {
         $('#cart-total-val').text(`₹${finalTotal}`);
     }
 
-    // Quantity Stepper Handlers
+    // Remove All Out-of-Stock Items Action
+    $(document).on('click', '#btn-remove-all-oos', function (e) {
+        e.preventDefault();
+        let cart = getCart();
+        const validItems = cart.filter(item => item.in_stock !== false && item.stock_status !== 'outofstock');
+        saveCart(validItems);
+        showToast('Removed unavailable items from your bag.');
+
+        if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) {
+            $.post(kash_dynamic_data.ajax_url, { action: 'kash_remove_out_of_stock' });
+        }
+    });
+
+    // Quantity Stepper Handlers with Stock Limit Checking
     $(document).off('click', '.btn-qty-plus').on('click', '.btn-qty-plus', function (e) {
         e.preventDefault();
         e.stopPropagation();
         const index = $(this).data('index');
         let cart = getCart();
         if (cart[index]) {
+            const item = cart[index];
+            const product = PRODUCTS_DB.find(p => p.id == item.id);
+            if (product && product.managing_stock && !product.backorders && typeof product.stock_quantity === 'number') {
+                if (item.qty + 1 > product.stock_quantity) {
+                    showToast(`Only ${product.stock_quantity} item(s) left in stock.`, 'info');
+                    return;
+                }
+            }
+
             cart[index].qty = parseInt(cart[index].qty, 10) + 1;
             saveCart(cart);
+
+            if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) {
+                $.post(kash_dynamic_data.ajax_url, {
+                    action: 'kash_update_cart_qty',
+                    product_id: item.id,
+                    item_key: item.key || '',
+                    quantity: cart[index].qty
+                });
+            }
         }
     });
 
@@ -804,12 +866,31 @@ jQuery(document).ready(function ($) {
         const index = $(this).data('index');
         let cart = getCart();
         if (cart[index]) {
+            const item = cart[index];
             if (cart[index].qty > 1) {
                 cart[index].qty = parseInt(cart[index].qty, 10) - 1;
+                saveCart(cart);
+                if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) {
+                    $.post(kash_dynamic_data.ajax_url, {
+                        action: 'kash_update_cart_qty',
+                        product_id: item.id,
+                        item_key: item.key || '',
+                        quantity: cart[index].qty
+                    });
+                }
             } else {
+                const removedName = cart[index].name;
                 cart.splice(index, 1);
+                saveCart(cart);
+                showToast(`Removed "${removedName}" from bag.`);
+                if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) {
+                    $.post(kash_dynamic_data.ajax_url, {
+                        action: 'kash_remove_cart_item',
+                        product_id: item.id,
+                        item_key: item.key || ''
+                    });
+                }
             }
-            saveCart(cart);
         }
     });
 
@@ -819,10 +900,19 @@ jQuery(document).ready(function ($) {
         const index = $(this).data('index');
         let cart = getCart();
         if (cart[index]) {
-            const removedName = cart[index].name;
+            const item = cart[index];
+            const removedName = item.name;
             cart.splice(index, 1);
             saveCart(cart);
             showToast(`Removed "${removedName}" from bag.`);
+
+            if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) {
+                $.post(kash_dynamic_data.ajax_url, {
+                    action: 'kash_remove_cart_item',
+                    product_id: item.id,
+                    item_key: item.key || ''
+                });
+            }
         }
     });
 
@@ -854,12 +944,26 @@ jQuery(document).ready(function ($) {
     const $checkoutModal = $('#checkout-modal');
     const $successModal = $('#order-success-modal');
 
-    $('#btn-open-checkout').on('click', function () {
+    $('#btn-open-checkout').on('click', function (e) {
+        e.preventDefault();
         const cart = getCart();
         if (cart.length === 0) {
             showToast('Your cart is empty! Add items first.', 'info');
             return;
         }
+
+        const hasOos = cart.some(item => item.in_stock === false || item.stock_status === 'outofstock');
+        if (hasOos) {
+            showToast('Please remove out of stock items before proceeding.', 'info');
+            return;
+        }
+
+        // If WooCommerce is active, proceed directly to WooCommerce Checkout
+        if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.checkout_url) {
+            window.location.href = kash_dynamic_data.checkout_url;
+            return;
+        }
+
         closeCartDrawer();
         renderCheckoutSummary();
         $checkoutModal.addClass('active');

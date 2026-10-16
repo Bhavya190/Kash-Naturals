@@ -71,6 +71,20 @@ endif;
 add_action('after_setup_theme', 'kash_naturals_setup');
 
 /**
+ * Ensure Custom Logo markup is strictly constrained and responsive across all viewports
+ */
+function kash_naturals_custom_logo_markup($html) {
+    if (!empty($html)) {
+        if (strpos($html, 'class="') !== false) {
+            $html = str_replace('class="custom-logo', 'class="custom-logo site-logo-img', $html);
+        }
+        $html = preg_replace('/<img (.*?)>/i', '<img $1 style="max-height: 55px; width: auto; max-width: 200px; object-fit: contain;">', $html);
+    }
+    return $html;
+}
+add_filter('get_custom_logo', 'kash_naturals_custom_logo_markup');
+
+/**
  * Set the content width in pixels, based on the theme's design and stylesheet.
  */
 function kash_naturals_content_width() {

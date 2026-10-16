@@ -68,12 +68,12 @@ if (!defined('ABSPATH')) {
             </button>
 
             <!-- Brand Logo -->
-            <div class="site-branding">
+            <div class="site-branding header-branding-box">
                 <?php if (has_custom_logo()) : ?>
                     <?php the_custom_logo(); ?>
                 <?php else : ?>
-                    <a href="<?php echo esc_url(home_url('/')); ?>" class="brand-image-logo">
-                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.png'); ?>" alt="<?php bloginfo('name'); ?>" class="site-logo-img">
+                    <a href="<?php echo esc_url(home_url('/')); ?>" class="brand-image-logo" rel="home">
+                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.png'); ?>" alt="<?php bloginfo('name'); ?>" class="site-logo-img" width="180" height="55" style="max-height: 55px; width: auto; object-fit: contain;">
                     </a>
                 <?php endif; ?>
             </div>
@@ -115,11 +115,27 @@ if (!defined('ABSPATH')) {
                         <li class="menu-item-has-children nav-dropdown-item <?php echo $is_shop_active ? 'current-menu-item active' : ''; ?>">
                             <a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('SHOP', 'kash-naturals'); ?> <i class="fa-solid fa-chevron-down nav-chevron"></i></a>
                             <ul class="sub-menu header-dropdown-menu">
-                                <li><a href="<?php echo esc_url(home_url('/shop?category=mouth-fresheners')); ?>"><i class="fa-solid fa-leaf"></i> <?php esc_html_e('Mouth Fresheners', 'kash-naturals'); ?></a></li>
-                                <li><a href="<?php echo esc_url(home_url('/shop?category=chocolate-dragees')); ?>"><i class="fa-solid fa-cookie-bite"></i> <?php esc_html_e('Chocolate Dragees', 'kash-naturals'); ?></a></li>
-                                <li><a href="<?php echo esc_url(home_url('/shop?category=kunafa-bars')); ?>"><i class="fa-solid fa-layer-group"></i> <?php esc_html_e('Kunafa Bars', 'kash-naturals'); ?></a></li>
-                                <li><a href="<?php echo esc_url(home_url('/combos')); ?>"><i class="fa-solid fa-gift"></i> <?php esc_html_e('Gift Combos', 'kash-naturals'); ?></a></li>
-                                <li class="dropdown-divider-line"></li>
+                                <?php
+                                $header_cats = array();
+                                if (class_exists('WooCommerce')) {
+                                    $header_terms = get_terms(array(
+                                        'taxonomy'   => 'product_cat',
+                                        'hide_empty' => false,
+                                        'parent'     => 0,
+                                        'exclude'    => array(get_option('default_product_cat')),
+                                        'number'     => 6,
+                                    ));
+                                    if (!empty($header_terms) && !is_wp_error($header_terms)) {
+                                        $header_cats = $header_terms;
+                                    }
+                                }
+                                ?>
+                                <?php if (!empty($header_cats)) : ?>
+                                    <?php foreach ($header_cats as $hcat) : ?>
+                                        <li><a href="<?php echo esc_url(get_term_link($hcat)); ?>"><i class="fa-solid fa-leaf"></i> <?php echo esc_html($hcat->name); ?></a></li>
+                                    <?php endforeach; ?>
+                                    <li class="dropdown-divider-line"></li>
+                                <?php endif; ?>
                                 <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><i class="fa-solid fa-border-all"></i> <?php esc_html_e('All Products', 'kash-naturals'); ?></a></li>
                             </ul>
                         </li>

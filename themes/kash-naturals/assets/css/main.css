@@ -210,14 +210,54 @@ img {
     padding: 0 24px;
 }
 
+.site-header .site-branding,
+.site-branding.header-branding-box,
+.site-branding {
+    display: flex !important;
+    align-items: center !important;
+    height: 65px !important;
+    max-height: 65px !important;
+    max-width: 220px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+}
+
+.site-header .site-branding a,
+.site-branding a,
+.site-header .custom-logo-link,
+.custom-logo-link,
+.site-header .brand-image-logo,
+.brand-image-logo {
+    display: inline-flex !important;
+    align-items: center !important;
+    max-height: 60px !important;
+    max-width: 210px !important;
+    overflow: hidden !important;
+    text-decoration: none !important;
+}
+
+.site-header .site-branding img,
+.site-branding img,
+.site-header .custom-logo,
+.custom-logo,
+.site-header .custom-logo-link img,
+.custom-logo-link img,
+.site-header .brand-image-logo img,
+.brand-image-logo img,
+.site-header .site-logo-img,
 .site-logo-img {
-    height: 75px;
-    width: auto;
-    display: block;
-    object-fit: contain;
+    height: 55px !important;
+    max-height: 55px !important;
+    width: auto !important;
+    max-width: 200px !important;
+    display: block !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+    padding: 0 !important;
     transition: transform 0.2s ease;
 }
 
+.custom-logo:hover,
 .site-logo-img:hover {
     transform: scale(1.02);
 }
@@ -3539,8 +3579,14 @@ img {
         position: relative;
     }
 
+    .site-branding img,
+    .custom-logo,
+    .custom-logo-link img,
+    .brand-image-logo img,
     .site-logo-img {
-        height: 55px;
+        height: 55px !important;
+        max-height: 55px !important;
+        max-width: 180px !important;
     }
 
     .mobile-menu-toggle {
@@ -3673,8 +3719,14 @@ img {
         padding: 0 16px;
     }
 
+    .site-branding img,
+    .custom-logo,
+    .custom-logo-link img,
+    .brand-image-logo img,
     .site-logo-img {
-        height: 48px;
+        height: 48px !important;
+        max-height: 48px !important;
+        max-width: 150px !important;
     }
 
     .footer-grid-5 {
@@ -5808,6 +5860,148 @@ body.modal-open {
     cursor: pointer;
 }
 
+/* Cart Out-of-Stock & Stock Sync Badges */
+.cart-drawer-item.item-out-of-stock {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+}
+
+.cart-item-thumb-wrap {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
+}
+
+.cart-thumb-oos-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(185, 28, 28, 0.92);
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: center;
+    padding: 2px 0;
+    border-radius: 0 0 12px 12px;
+    letter-spacing: 0.5px;
+}
+
+.cart-item-oos-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.cart-item-oos-note {
+    font-size: 11px;
+    color: #fca5a5;
+    font-style: italic;
+}
+
+.cart-stock-warning-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fecaca;
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    line-height: 1.35;
+}
+
+.cart-stock-warning-banner i {
+    font-size: 16px;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.btn-remove-oos-items {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.btn-remove-oos-items:hover {
+    background: #dc2626;
+}
+
+.btn-checkout-drawer.checkout-blocked {
+    background: #374151 !important;
+    color: #9ca3af !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    opacity: 0.75;
+    transform: none !important;
+}
+
+/* Shop Loop & Cards Out-of-Stock Styles */
+.shop-product-card-exact.card-out-of-stock .product-img-box-exact img {
+    filter: grayscale(40%) opacity(0.85);
+}
+
+.product-badge-tag.badge-out-of-stock {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+}
+
+.btn-add-cart-exact.btn-out-of-stock,
+.fav-btn-quick-add.disabled {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}
+
+.fav-stock-badge-oos {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    z-index: 2;
+}
+
+.wc-stock-badge-cart.out-of-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    margin-top: 6px;
+}
+
 /* ----------------------------------
    5. CHECKOUT MODAL & ORDER SUCCESS
    ---------------------------------- */
@@ -7575,6 +7769,10 @@ body.modal-open {
     color: #2e7d32;
 }
 
+.stock-status-badge.out-of-stock {
+    color: #ef4444;
+}
+
 /* Price Box */
 .product-price-display-box {
     display: flex;
@@ -8922,10 +9120,50 @@ body.modal-open {
         flex-direction: column;
     }
 
-    .btn-check-pincode {
-        width: 100%;
-    }
 }
 
+/* ==========================================================================
+   DYNAMIC EMPTY STATE STYLES (Clean & Luxury Minimalist)
+   ========================================================================== */
+.kash-empty-products-state {
+    padding: 60px 20px;
+    margin: 20px auto;
+    max-width: 620px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(218, 165, 32, 0.25);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+}
 
+.kash-empty-products-state .empty-state-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(218, 165, 32, 0.08);
+    color: #e5b045;
+    font-size: 2rem;
+    box-shadow: 0 0 20px rgba(218, 165, 32, 0.15);
+}
 
+.kash-empty-products-state .empty-state-title {
+    font-family: var(--font-heading, 'Playfair Display', serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #f7eedd;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.kash-empty-products-state .empty-state-desc {
+    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-size: 0.95rem;
+    color: rgba(247, 238, 221, 0.65);
+    line-height: 1.6;
+    margin: 0 auto;
+    max-width: 440px;
+}

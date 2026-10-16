@@ -86,6 +86,13 @@ do_action('woocommerce_before_cart'); ?>
                                 // Meta data.
                                 echo wc_get_formatted_cart_item_data($cart_item); // PHPCS: XSS ok.
 
+                                // Out of stock / Unavailable notice
+                                if (!$_product->is_in_stock() || $_product->get_stock_status() === 'outofstock') {
+                                    echo '<div class="wc-stock-badge-cart out-of-stock"><i class="fa-solid fa-triangle-exclamation"></i> ' . esc_html__('Currently Unavailable (Out of Stock)', 'woocommerce') . '</div>';
+                                } elseif (!$_product->has_enough_stock($cart_item['quantity'])) {
+                                    echo '<div class="wc-stock-badge-cart out-of-stock"><i class="fa-solid fa-circle-exclamation"></i> ' . sprintf(esc_html__('Insufficient stock (Only %d left)', 'woocommerce'), $_product->get_stock_quantity()) . '</div>';
+                                }
+
                                 // Backorder notification.
                                 if ($_product->backorders_require_notification() && $_product->is_on_backorder($cart_item['quantity'])) {
                                     echo wp_kses_post(apply_filters('woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__('Available on backorder', 'woocommerce') . '</p>', $product_id));

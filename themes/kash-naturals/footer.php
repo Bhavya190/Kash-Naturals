@@ -123,16 +123,26 @@ if (!defined('ABSPATH')) {
 
             <!-- Category Quick Filter Pills -->
             <div class="search-cat-pills" id="search-cat-pills">
-                <button type="button" class="search-pill active" data-cat="all">All Items</button>
-                <button type="button" class="search-pill" data-cat="mouth-fresheners">Mouth Fresheners</button>
-                <button type="button" class="search-pill" data-cat="chocolate-dragees">Chocolate Dragees</button>
-                <button type="button" class="search-pill" data-cat="kunafa-bars">Kunafa Bars</button>
-                <button type="button" class="search-pill" data-cat="gift-combos">Gift Combos</button>
+                <button type="button" class="search-pill active" data-cat="all"><?php esc_html_e('All Items', 'kash-naturals'); ?></button>
+                <?php
+                if (class_exists('WooCommerce')) {
+                    $search_terms = get_terms(array(
+                        'taxonomy'   => 'product_cat',
+                        'hide_empty' => false,
+                        'exclude'    => array(get_option('default_product_cat')),
+                    ));
+                    if (!empty($search_terms) && !is_wp_error($search_terms)) {
+                        foreach ($search_terms as $sterm) {
+                            echo '<button type="button" class="search-pill" data-cat="' . esc_attr($sterm->slug) . '">' . esc_html($sterm->name) . '</button>';
+                        }
+                    }
+                }
+                ?>
             </div>
 
             <!-- Live Search Results Grid -->
             <div class="search-results-container" id="search-results-container">
-                <div class="search-status-label" id="search-status-label">Explore our 16+ artisanal mouth fresheners &amp; chocolates...</div>
+                <div class="search-status-label" id="search-status-label"><?php esc_html_e('Explore our collection...', 'kash-naturals'); ?></div>
                 <div class="search-results-grid" id="search-results-grid">
                     <!-- Populated dynamically via JS -->
                 </div>
@@ -144,70 +154,64 @@ if (!defined('ABSPATH')) {
     <!-- 2. MY ACCOUNT MODAL -->
     <div class="account-modal-overlay" id="account-modal">
         <div class="account-modal-container">
-            <button class="close-modal-btn" id="close-account" aria-label="Close Account">&times;</button>
+            <button class="close-modal-btn" id="close-account" aria-label="<?php esc_attr_e('Close Account', 'kash-naturals'); ?>">&times;</button>
 
             <!-- AUTH STATE (Login / Register) -->
             <div class="account-view" id="account-auth-view">
                 <div class="account-auth-tabs">
-                    <button type="button" class="auth-tab-btn active" id="tab-login-btn">Sign In</button>
-                    <button type="button" class="auth-tab-btn" id="tab-register-btn">Create Account</button>
+                    <button type="button" class="auth-tab-btn active" id="tab-login-btn"><?php esc_html_e('Sign In', 'kash-naturals'); ?></button>
+                    <button type="button" class="auth-tab-btn" id="tab-register-btn"><?php esc_html_e('Create Account', 'kash-naturals'); ?></button>
                 </div>
 
                 <!-- Sign In Form -->
                 <form id="form-login" class="account-form active">
-                    <h3 class="auth-title">Welcome Back to Kash Natural</h3>
-                    <p class="auth-sub">Access your orders, wishlist, and exclusive rewards.</p>
+                    <h3 class="auth-title"><?php esc_html_e('Welcome Back to Kash Natural', 'kash-naturals'); ?></h3>
+                    <p class="auth-sub"><?php esc_html_e('Access your orders, wishlist, and exclusive rewards.', 'kash-naturals'); ?></p>
 
                     <div class="form-group-clean">
-                        <label for="login-email">Email or Mobile Number</label>
+                        <label for="login-email"><?php esc_html_e('Email or Mobile Number', 'kash-naturals'); ?></label>
                         <div class="input-icon-wrap">
                             <i class="fa-regular fa-envelope"></i>
-                            <input type="email" id="login-email" class="form-control-clean" placeholder="name@example.com" required value="bhavya@kashnaturals.com" autocomplete="username" />
+                            <input type="email" id="login-email" class="form-control-clean" placeholder="name@example.com" required autocomplete="username" />
                         </div>
                     </div>
 
                     <div class="form-group-clean">
-                        <label for="login-password">Password</label>
+                        <label for="login-password"><?php esc_html_e('Password', 'kash-naturals'); ?></label>
                         <div class="input-icon-wrap">
                             <i class="fa-solid fa-lock"></i>
-                            <input type="password" id="login-password" class="form-control-clean" placeholder="••••••••" required value="password123" autocomplete="current-password" />
+                            <input type="password" id="login-password" class="form-control-clean" placeholder="••••••••" required autocomplete="current-password" />
                         </div>
                     </div>
 
                     <div class="form-flex-row">
-                        <label class="remember-label"><input type="checkbox" checked /> Remember Me</label>
-                        <a href="#" class="forgot-link" onclick="alert('Password reset link sent to your registered email!'); return false;">Forgot Password?</a>
+                        <label class="remember-label"><input type="checkbox" checked /> <?php esc_html_e('Remember Me', 'kash-naturals'); ?></label>
+                        <a href="#" class="forgot-link" onclick="alert('Password reset link sent to your registered email!'); return false;"><?php esc_html_e('Forgot Password?', 'kash-naturals'); ?></a>
                     </div>
 
                     <button type="submit" class="btn-account-submit">
-                        SIGN IN <i class="fa-solid fa-arrow-right"></i>
+                        <?php esc_html_e('SIGN IN', 'kash-naturals'); ?> <i class="fa-solid fa-arrow-right"></i>
                     </button>
-
-                    <div class="quick-demo-login-box">
-                        <button type="button" class="btn-quick-demo-login" id="btn-quick-demo">
-                            <i class="fa-solid fa-bolt"></i> Quick 1-Click Demo Login
-                        </button>
-                    </div>
                 </form>
 
                 <!-- Register Form -->
                 <form id="form-register" class="account-form" style="display:none;">
-                    <h3 class="auth-title">Create Your Kash Account</h3>
-                    <p class="auth-sub">Join Kash Royal Club for 10% off your first order.</p>
+                    <h3 class="auth-title"><?php esc_html_e('Create Your Kash Account', 'kash-naturals'); ?></h3>
+                    <p class="auth-sub"><?php esc_html_e('Join Kash Royal Club for 10% off your first order.', 'kash-naturals'); ?></p>
 
                     <div class="form-group-clean">
-                        <label for="reg-name">Full Name</label>
+                        <label for="reg-name"><?php esc_html_e('Full Name', 'kash-naturals'); ?></label>
                         <div class="input-icon-wrap">
                             <i class="fa-regular fa-user"></i>
-                            <input type="text" id="reg-name" class="form-control-clean" placeholder="Bhavya Sharma" required autocomplete="name" />
+                            <input type="text" id="reg-name" class="form-control-clean" placeholder="<?php esc_attr_e('Your Full Name', 'kash-naturals'); ?>" required autocomplete="name" />
                         </div>
                     </div>
 
                     <div class="form-group-clean">
-                        <label for="reg-email">Email Address</label>
+                        <label for="reg-email"><?php esc_html_e('Email Address', 'kash-naturals'); ?></label>
                         <div class="input-icon-wrap">
                             <i class="fa-regular fa-envelope"></i>
-                            <input type="email" id="reg-email" class="form-control-clean" placeholder="bhavya@example.com" required autocomplete="email" />
+                            <input type="email" id="reg-email" class="form-control-clean" placeholder="name@example.com" required autocomplete="email" />
                         </div>
                     </div>
 
@@ -300,7 +304,7 @@ if (!defined('ABSPATH')) {
 
         <!-- Free Shipping Threshold Progress Bar -->
         <div class="free-shipping-bar-wrap">
-            <div class="shipping-bar-text" id="shipping-bar-text">Add ₹300 more for FREE shipping!</div>
+            <div class="shipping-bar-text" id="shipping-bar-text">Add <strong>₹999</strong> more to unlock <strong>FREE Shipping</strong>!</div>
             <div class="shipping-progress-track">
                 <div class="shipping-progress-fill" id="shipping-progress-fill" style="width: 0%;"></div>
             </div>

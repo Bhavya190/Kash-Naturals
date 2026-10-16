@@ -32,20 +32,24 @@ function kash_naturals_customize_register($wp_customize) {
         'default'           => '#0a331a',
         'sanitize_callback' => 'sanitize_hex_color',
     ));
-    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'kash_noticebar_bg', array(
-        'label'    => __('Background Color', 'kash-naturals'),
-        'section'  => 'kash_noticebar_options',
-    )));
+    if (class_exists('WP_Customize_Color_Control')) {
+        $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'kash_noticebar_bg', array(
+            'label'    => __('Background Color', 'kash-naturals'),
+            'section'  => 'kash_noticebar_options',
+        )));
+    }
 
     // Notice Bar Text & Icon Color
     $wp_customize->add_setting('kash_noticebar_color', array(
         'default'           => '#ffffff',
         'sanitize_callback' => 'sanitize_hex_color',
     ));
-    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'kash_noticebar_color', array(
-        'label'    => __('Text & Icon Color', 'kash-naturals'),
-        'section'  => 'kash_noticebar_options',
-    )));
+    if (class_exists('WP_Customize_Color_Control')) {
+        $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'kash_noticebar_color', array(
+            'label'    => __('Text & Icon Color', 'kash-naturals'),
+            'section'  => 'kash_noticebar_options',
+        )));
+    }
 
     // Default Items Data
     $default_items = array(
