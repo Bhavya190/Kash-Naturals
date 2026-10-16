@@ -730,8 +730,8 @@ jQuery(document).ready(function ($) {
                     </div>
                     <div class="cart-item-details">
                         ${isOutOfStock ? '<div class="cart-item-oos-badge"><i class="fa-solid fa-triangle-exclamation"></i> Unavailable (Out of Stock)</div>' : ''}
-                        <h4 class="cart-item-title">${item.name}</h4>
-                        <div class="cart-item-price">₹${item.price}</div>
+                        <h4 class="cart-item-title" style="color: #ffffff !important; font-weight: 700;">${item.name}</h4>
+                        <div class="cart-item-price" style="color: #f3b137 !important; font-weight: 700;">₹${item.price}</div>
                         <div class="cart-item-qty-row">
                             ${isOutOfStock ? `
                                 <span class="cart-item-oos-note">Unavailable in stock. Remove item to checkout.</span>
@@ -742,7 +742,7 @@ jQuery(document).ready(function ($) {
                                     <button type="button" class="btn-qty-plus" data-index="${index}">+</button>
                                 </div>
                             `}
-                            <span class="cart-item-subtotal">₹${itemTotal}</span>
+                            <span class="cart-item-subtotal" style="color: #f3b137 !important; font-weight: 800;">₹${itemTotal}</span>
                         </div>
                     </div>
                     <button type="button" class="btn-remove-item" data-index="${index}" title="Remove Item">&times;</button>

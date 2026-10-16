@@ -156,9 +156,27 @@ table.shop_table td {
     color: var(--color-text-secondary);
 }
 
-.cart-item-title {
+table.shop_table .cart-item-title {
     color: var(--color-text-primary);
     font-weight: 600;
+}
+
+/* Kash Naturals Cart Drawer Item Styling */
+.cart-drawer-item .cart-item-title,
+#cart-drawer-items-list .cart-item-title,
+.cart-item-title {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.cart-drawer-item .cart-item-price,
+#cart-drawer-items-list .cart-item-price,
+.cart-drawer-item .cart-item-subtotal,
+#cart-drawer-items-list .cart-item-subtotal,
+.cart-item-price,
+.cart-item-subtotal {
+    color: #f3b137 !important;
+    font-weight: 700 !important;
 }
 
 /* Checkout Form Grid */
