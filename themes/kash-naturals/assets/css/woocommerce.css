@@ -368,3 +368,18 @@ table.shop_table td {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(44, 95, 62, 0.35) !important;
 }
+
+/* Amazon Banner Logo Constraint for WooCommerce Archives */
+.woocommerce .amz-ref-logo,
+.woocommerce-page .amz-ref-logo,
+.amz-logo-header img.amz-ref-logo,
+img.amz-ref-logo {
+    width: 32px !important;
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    border-radius: 6px !important;
+}

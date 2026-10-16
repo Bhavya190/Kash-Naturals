@@ -29,7 +29,7 @@ $combo_img   = $theme_uri . '/assets/images/combo-premium.jpg';
                 
                 <!-- Amazon Logo Header -->
                 <div class="amz-logo-header">
-                    <img src="<?php echo esc_url($amazon_logo); ?>" alt="Amazon Prime" class="amz-ref-logo">
+                    <img src="<?php echo esc_url($amazon_logo); ?>" alt="Amazon Prime" class="amz-ref-logo" width="32" height="32" style="width: 32px !important; height: 32px !important; max-width: 32px !important; max-height: 32px !important; object-fit: contain; border-radius: 6px;">
                     <span class="amz-prime-badge"><i class="fa-brands fa-amazon"></i> prime</span>
                 </div>
 

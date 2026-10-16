@@ -3179,6 +3179,8 @@ img {
 .shop-filter-right-controls {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
     gap: 16px;
     flex-wrap: wrap;
 }
@@ -7144,11 +7146,19 @@ body.modal-open {
     margin-bottom: 14px;
 }
 
-.amz-ref-logo {
-    height: 36px;
-    width: auto;
-    object-fit: contain;
-    display: block;
+.amz-ref-logo,
+.woocommerce-page .amz-ref-logo,
+.woocommerce .amz-ref-logo,
+.amz-logo-header img.amz-ref-logo,
+img.amz-ref-logo {
+    width: 32px !important;
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    border-radius: 6px !important;
 }
 
 .amz-prime-badge {
