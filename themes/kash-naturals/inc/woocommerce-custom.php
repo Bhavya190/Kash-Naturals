@@ -20,7 +20,7 @@ function kash_naturals_woocommerce_header_add_to_cart_fragment($fragments) {
     ob_start();
     $count = WC()->cart->get_cart_contents_count();
     ?>
-    <span class="cart-count-badge" id="mini-cart-count"><?php echo esc_html($count); ?></span>
+    <span class="cart-count-badge-orange cart-count-badge" id="mini-cart-count"><?php echo esc_html($count); ?></span>
     <?php
     $fragments['span#mini-cart-count'] = ob_get_clean();
 

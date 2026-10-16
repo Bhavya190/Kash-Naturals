@@ -159,9 +159,15 @@ if (!defined('ABSPATH')) {
                     <i class="fa-regular fa-user" id="header-account-icon"></i>
                     <span class="header-user-badge" id="header-user-badge" style="display: none;"></span>
                 </button>
-                <button type="button" class="action-btn-clean cart-drawer-trigger" id="mini-cart-toggle" aria-label="<?php esc_attr_e('Cart', 'kash-naturals'); ?>" title="Shopping Cart">
+                <?php
+                $initial_cart_count = 0;
+                if (function_exists('WC') && WC() && isset(WC()->cart) && is_object(WC()->cart)) {
+                    $initial_cart_count = WC()->cart->get_cart_contents_count();
+                }
+                ?>
+                <button type="button" class="action-btn-clean cart-drawer-trigger" id="mini-cart-toggle" aria-label="<?php esc_attr_e('Cart', 'kash-naturals'); ?>" title="<?php esc_attr_e('Shopping Cart', 'kash-naturals'); ?>">
                     <i class="fa-solid fa-cart-shopping"></i>
-                    <span class="cart-count-badge-orange" id="mini-cart-count">0</span>
+                    <span class="cart-count-badge-orange cart-count-badge" id="mini-cart-count"><?php echo esc_html($initial_cart_count); ?></span>
                 </button>
             </div>
 
