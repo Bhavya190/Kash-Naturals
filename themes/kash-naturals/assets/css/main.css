@@ -3127,10 +3127,7 @@ img {
 }
 
 .filter-pills-exact {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    display: none !important;
 }
 
 .filter-pill-btn {

@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 /**
  * Define Theme Constants
  */
-define('KASH_NATURALS_VERSION', '1.0.3');
+define('KASH_NATURALS_VERSION', '1.0.4');
 define('KASH_NATURALS_DIR', get_template_directory());
 define('KASH_NATURALS_URI', get_template_directory_uri());
 

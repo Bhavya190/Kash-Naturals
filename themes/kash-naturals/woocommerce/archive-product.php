@@ -205,7 +205,7 @@ $filtered_products = $dynamic_products;
         
         <!-- Category Filter Tabs Bar & Sorting -->
         <div class="shop-filter-bar-exact">
-            <?php /* Category pills temporarily hidden as requested
+            <?php if (false) : // Category pills temporarily hidden as requested ?>
             <div class="filter-pills-exact">
                 <a href="<?php echo esc_url($shop_base_url); ?>" class="filter-pill-btn <?php echo ($current_category === 'all') ? 'active' : ''; ?>">
                     <i class="fa-solid fa-border-all"></i> <?php esc_html_e('All Products', 'kash-naturals'); ?>
@@ -219,7 +219,7 @@ $filtered_products = $dynamic_products;
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-            */ ?>
+            <?php endif; // End category pills temporarily hidden ?>
             
             <div class="shop-filter-right-controls">
                 <div class="filter-count-label">
