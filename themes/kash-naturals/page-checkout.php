@@ -102,8 +102,9 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                 // High-Fidelity Standalone Preview for Local Dev & Testing
                 ?>
                 <div class="wp-block-woocommerce-checkout alignwide wc-block-checkout is-large">
-                    <div class="wc-block-checkout__form">
-                        <div class="wc-block-checkout__main">
+                    <div class="wc-block-components-sidebar-layout">
+                        <div class="wc-block-components-main">
+                            <form class="wc-block-checkout__form">
 
                             <!-- Step 1: Contact Information -->
                             <div class="wc-block-components-checkout-step wc-block-components-checkout-step--contact-information">
@@ -229,10 +230,11 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                 </div>
                             </div>
 
+                            </form>
                         </div>
 
                         <!-- Sidebar: Order Summary -->
-                        <div class="wc-block-checkout__sidebar">
+                        <div class="wc-block-components-sidebar wc-block-checkout__sidebar">
                             <div class="wc-block-components-order-summary">
                                 <h2 class="wc-block-components-order-summary__header"><?php esc_html_e('Order summary', 'kash-naturals'); ?></h2>
 
