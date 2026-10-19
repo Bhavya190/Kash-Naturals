@@ -21,7 +21,9 @@ if (!defined('ABSPATH')) {
             <!-- Col 1: Brand Info -->
             <div class="footer-col brand-col">
                 <div class="footer-logo">
-                    <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.png'); ?>" alt="<?php bloginfo('name'); ?>" class="footer-logo-img-white">
+                    <a href="<?php echo esc_url(home_url('/')); ?>" aria-label="<?php bloginfo('name'); ?>">
+                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.png'); ?>" alt="<?php bloginfo('name'); ?>" class="footer-logo-img-white" width="160" height="48" style="max-height: 48px !important; max-width: 160px !important; height: auto !important; width: auto !important; object-fit: contain !important; display: inline-block !important;">
+                    </a>
                 </div>
                 <p class="brand-desc-text">
                     Premium Mouth Fresheners,<br>
@@ -83,7 +85,7 @@ if (!defined('ABSPATH')) {
                 <div class="footer-amazon-badge">
                     <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">
                         <span class="badge-subtext-white">Available on</span>
-                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/amazon-logo-png.png'); ?>" alt="Amazon" class="amazon-footer-logo">
+                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/amazon-logo-png.png'); ?>" alt="Amazon" class="amazon-footer-logo" width="90" height="24" style="max-height: 24px !important; max-width: 90px !important; height: auto !important; width: auto !important; object-fit: contain !important; display: inline-block !important;">
                     </a>
                 </div>
             </div>
