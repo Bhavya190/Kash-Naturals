@@ -130,6 +130,7 @@ if (!function_exists('wp_head')) {
         echo '<link rel="icon" type="image/png" href="' . KASH_THEME_URI . '/assets/images/Kash Natural Leaf Logo.png">' . "\n";
         echo '<link rel="shortcut icon" type="image/png" href="' . KASH_THEME_URI . '/assets/images/Kash Natural Leaf Logo.png">' . "\n";
         echo '<link rel="stylesheet" href="' . KASH_THEME_URI . '/assets/css/main.css?v=' . time() . '">' . "\n";
+        echo '<link rel="stylesheet" href="' . KASH_THEME_URI . '/assets/css/woocommerce.css?v=' . time() . '">' . "\n";
         echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">' . "\n";
         echo '<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">' . "\n";
     }
@@ -251,6 +252,10 @@ if (!function_exists('get_the_excerpt')) { function get_the_excerpt($post = null
 if (!function_exists('get_the_password_form')) { function get_the_password_form($post = 0) { return ''; } }
 if (!function_exists('human_time_diff')) { function human_time_diff($from, $to = 0) { return '2 days'; } }
 if (!function_exists('current_time')) { function current_time($type) { return time(); } }
+if (!function_exists('have_posts')) { function have_posts() { return false; } }
+if (!function_exists('the_post')) { function the_post() {} }
+if (!function_exists('the_content')) { function the_content() {} }
+if (!function_exists('do_shortcode')) { function do_shortcode($content) { return $content; } }
 if (!function_exists('get_comments')) { function get_comments($args = array()) { return array(); } }
 
 // Load Theme Functions
@@ -329,6 +334,14 @@ switch ($cleanUri) {
         $GLOBALS['kash_product_id'] = $productId;
         $GLOBALS['kash_page_title'] = 'Product Detail';
         require KASH_THEME_DIR . '/single-product.php';
+        exit;
+
+    case '/checkout':
+    case '/checkout.php':
+    case '/checkout.html':
+        $GLOBALS['kash_is_checkout'] = true;
+        $GLOBALS['kash_page_title'] = 'Checkout | Kash Naturals';
+        require KASH_THEME_DIR . '/page-checkout.php';
         exit;
 
     case '/privacy-policy':

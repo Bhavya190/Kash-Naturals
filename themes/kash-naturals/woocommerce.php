@@ -20,6 +20,8 @@ if (is_singular('product')) {
         }
     endwhile;
     get_footer();
+} elseif (function_exists('is_checkout') && is_checkout()) {
+    require get_template_directory() . '/page-checkout.php';
 } else {
     // All WooCommerce archives: Shop, Categories, Collections, Tags
     require get_template_directory() . '/woocommerce/archive-product.php';

@@ -19,12 +19,6 @@ if (!$checkout->is_registration_enabled() && $checkout->is_registration_required
 ?>
 
 <div class="kash-checkout-page-wrapper">
-    <div class="checkout-header text-center">
-        <h1 class="page-title"><i class="fa-solid fa-lock"></i> Secure Checkout</h1>
-        <p class="checkout-subtitle">All orders are shipped in cold-insulated eco-friendly packaging.</p>
-        <div class="gold-divider"></div>
-    </div>
-
     <form name="checkout" method="post" class="checkout woocommerce-checkout" action="<?php echo esc_url(wc_get_checkout_url()); ?>" enctype="multipart/form-data">
 
         <?php if ($checkout->get_checkout_fields()) : ?>
@@ -34,14 +28,21 @@ if (!$checkout->is_registration_enabled() && $checkout->is_registration_required
             <div class="col2-set checkout-grid" id="customer_details">
                 <div class="col-1 billing-shipping-column">
                     <div class="checkout-box-card">
+                        <div class="checkout-card-header">
+                            <span class="step-badge">1</span>
+                            <h3><?php esc_html_e('Contact & Delivery Details', 'kash-naturals'); ?></h3>
+                        </div>
                         <?php do_action('woocommerce_checkout_billing'); ?>
                         <?php do_action('woocommerce_checkout_shipping'); ?>
                     </div>
                 </div>
 
                 <div class="col-2 order-summary-column">
-                    <div class="checkout-box-card summary-card">
-                        <h3 id="order_review_heading"><i class="fa-solid fa-receipt"></i> <?php esc_html_e('Your Order Summary', 'woocommerce'); ?></h3>
+                    <div class="checkout-box-card summary-card sticky-summary">
+                        <div class="checkout-card-header">
+                            <span class="step-badge">2</span>
+                            <h3 id="order_review_heading"><?php esc_html_e('Your Order Summary', 'kash-naturals'); ?></h3>
+                        </div>
 
                         <?php do_action('woocommerce_checkout_before_order_review'); ?>
 
@@ -50,6 +51,12 @@ if (!$checkout->is_registration_enabled() && $checkout->is_registration_required
                         </div>
 
                         <?php do_action('woocommerce_checkout_after_order_review'); ?>
+
+                        <!-- Trust seals inside summary card -->
+                        <div class="summary-trust-seals">
+                            <div class="seal-item"><i class="fa-solid fa-lock"></i> <span>256-Bit SSL Encrypted Checkout</span></div>
+                            <div class="seal-item"><i class="fa-solid fa-shield-halved"></i> <span>Kash Naturals Purity Guarantee</span></div>
+                        </div>
                     </div>
                 </div>
             </div>

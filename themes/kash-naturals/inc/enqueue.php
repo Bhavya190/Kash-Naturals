@@ -34,15 +34,15 @@ function kash_naturals_scripts() {
         time()
     );
 
-    // WooCommerce Custom Overrides CSS if WooCommerce is active
-    if (class_exists('WooCommerce')) {
-        wp_enqueue_style(
-            'kash-woocommerce-style',
-            get_template_directory_uri() . '/assets/css/woocommerce.css',
-            array('kash-main-style'),
-            '1.0.0'
-        );
-    }
+    // WooCommerce Custom Overrides CSS (for shop, products, cart drawer, checkout)
+    $woo_css_file = get_template_directory() . '/assets/css/woocommerce.css';
+    $woo_css_ver = file_exists($woo_css_file) ? filemtime($woo_css_file) : (defined('KASH_NATURALS_VERSION') ? KASH_NATURALS_VERSION : time());
+    wp_enqueue_style(
+        'kash-woocommerce-style',
+        get_template_directory_uri() . '/assets/css/woocommerce.css',
+        array('kash-main-style'),
+        $woo_css_ver
+    );
 
     // Main Theme JS
     wp_enqueue_script(
