@@ -646,70 +646,342 @@ button#place_order:hover {
     margin-bottom: 20px !important;
 }
 
-/* Items in Summary */
+/* =============================================================
+   ORDER SUMMARY ITEMS & METADATA FORMATTING (WOOCOMMERCE BLOCKS)
+   ============================================================= */
+
+/* Main item row container */
 .wc-block-components-order-summary-item {
-    padding: 16px 0 !important;
-    border-bottom: 1px solid #f6f2ec !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important; /* CRITICAL: prevents vertical stretching across tall descriptions */
+    gap: 16px !important;
+    padding: 18px 0 !important;
+    border-bottom: 1px solid #f2ede4 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
 }
 
+/* Image wrapper - FIXED SQUARE DIMENSIONS & NO SHRINKING */
 .wc-block-components-order-summary-item__image {
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    border: 1px solid #eee7dd !important;
+    flex: 0 0 72px !important;
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 14px !important;
+    overflow: visible !important; /* allows quantity badge to sit comfortably on top-right corner */
+    border: 1.5px solid #eee7dd !important;
+    background: #faf8f5 !important;
+    position: relative !important;
+    align-self: flex-start !important; /* Never stretch vertically */
+    box-sizing: border-box !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
 }
 
+/* Product thumbnail image inside wrapper */
+.wc-block-components-order-summary-item__image img {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 12px !important;
+    display: block !important;
+}
+
+/* Quantity badge pinned on top-right of thumbnail */
 .wc-block-components-order-summary-item__quantity {
+    position: absolute !important;
+    top: -7px !important;
+    right: -7px !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
     background: #0f3820 !important;
     color: #ffffff !important;
     font-family: 'Outfit', sans-serif !important;
     font-weight: 700 !important;
     font-size: 11px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 6px rgba(15, 56, 32, 0.3) !important;
+    z-index: 5 !important;
+    line-height: 1 !important;
+    border: 1.5px solid #ffffff !important;
 }
 
-.wc-block-components-order-summary-item__description .wc-block-components-product-name {
+/* Description & Product Info column */
+.wc-block-components-order-summary-item__description {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+/* Product title */
+.wc-block-components-order-summary-item__description .wc-block-components-product-name,
+.wc-block-components-order-summary-item .wc-block-components-product-name {
     font-family: 'Outfit', sans-serif !important;
     font-weight: 700 !important;
     color: #0f3820 !important;
-    font-size: 0.94rem !important;
+    font-size: 0.95rem !important;
     line-height: 1.35 !important;
+    display: block !important;
+    margin: 0 0 4px 0 !important;
+    text-decoration: none !important;
 }
 
-.wc-block-components-order-summary-item__price {
+/* Product price line & savings */
+.wc-block-components-order-summary-item__price,
+.wc-block-components-order-summary-item .wc-block-components-product-price {
     font-family: 'Outfit', sans-serif !important;
     font-weight: 700 !important;
-    color: #c68b27 !important;
+    color: #0f3820 !important;
     font-size: 0.96rem !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 2px 0 !important;
 }
 
-/* Product Metadata Chips in Order Summary */
-.wc-block-components-product-metadata,
-.wc-block-components-order-summary-item__description .wc-block-components-product-metadata {
+.wc-block-components-order-summary-item del,
+.wc-block-components-order-summary-item .wc-block-components-product-price del {
+    color: #888888 !important;
+    font-size: 0.85rem !important;
+    font-weight: 400 !important;
+    text-decoration: line-through !important;
+}
+
+.wc-block-components-order-summary-item ins,
+.wc-block-components-order-summary-item .wc-block-components-product-price ins {
+    color: #c68b27 !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+
+/* Savings badge */
+.wc-block-components-order-summary-item .wc-block-components-product-sale-badge,
+.wc-block-components-order-summary-item .wc-block-components-sale-badge,
+.wc-block-components-order-summary-item [class*="sale-badge"] {
+    background: #eef7f1 !important;
+    color: #1e7e45 !important;
+    border: 1px solid #d2ead8 !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+    border-radius: 5px !important;
+    display: inline-block !important;
+    line-height: 1.3 !important;
+}
+
+/* -------------------------------------------------------------
+   SUPPRESS RAW SPECIFICATION/DESCRIPTION DUMP IN ORDER SUMMARY
+   ------------------------------------------------------------- */
+.wc-block-components-order-summary .wc-block-components-product-metadata__description,
+.wc-block-components-order-summary-item .wc-block-components-product-metadata__description,
+.wc-block-components-order-summary-item__description .wc-block-components-product-metadata__description,
+.wc-block-components-product-metadata__description,
+.wc-block-components-order-summary-item__description > p:not(.wc-block-components-product-name),
+.wc-block-components-order-summary-item__description dl {
+    display: none !important;
+}
+
+/* Format actual variation attributes (e.g. Size, Weight) as elegant compact chips */
+.wc-block-components-order-summary-item .wc-block-components-product-metadata,
+.wc-block-components-order-summary-item .wc-block-components-product-details,
+.wc-block-components-order-summary-item .wc-block-components-product-metadata__variation-data {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 6px !important;
-    margin-top: 8px !important;
-    font-size: 0.76rem !important;
-    color: #666666 !important;
+    margin-top: 4px !important;
+    padding: 0 !important;
+    list-style: none !important;
 }
 
-.wc-block-components-product-metadata__item {
-    display: inline-block !important;
+.wc-block-components-order-summary-item .wc-block-components-product-metadata__item,
+.wc-block-components-order-summary-item .wc-block-components-product-details__term {
+    display: inline-flex !important;
+    align-items: center !important;
     background: #faf7f2 !important;
     border: 1px solid #ede5d8 !important;
-    padding: 3px 8px !important;
+    padding: 2px 8px !important;
     border-radius: 6px !important;
     font-size: 0.74rem !important;
     color: #555555 !important;
     white-space: nowrap !important;
+    line-height: 1.4 !important;
 }
 
-/* Coupon block */
+/* =============================================================
+   COUPON ACCORDION & APPLY BUTTON (PREMIUM LUXURY STYLING)
+   ============================================================= */
+
+/* Coupon Container & Toggle */
+.wc-block-components-totals-coupon,
+.wp-block-woocommerce-checkout-order-summary-coupon-form-block {
+    margin: 16px 0 !important;
+    padding: 14px 0 !important;
+    border-top: 1px solid #f2ede4 !important;
+    border-bottom: 1px solid #f2ede4 !important;
+}
+
+.wc-block-components-totals-coupon .wc-block-components-panel__button,
+.wc-block-components-totals-coupon summary,
 .wc-block-components-totals-coupon-link {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
     color: #0f3820 !important;
-    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 4px 0 !important;
+    width: 100% !important;
+    transition: color 0.2s ease !important;
+}
+
+.wc-block-components-totals-coupon .wc-block-components-panel__button:hover,
+.wc-block-components-totals-coupon summary:hover,
+.wc-block-components-totals-coupon-link:hover {
+    color: #c68b27 !important;
+}
+
+.wc-block-components-totals-coupon .wc-block-components-panel__button svg {
+    fill: currentColor !important;
+    transition: transform 0.25s ease !important;
+}
+
+/* Coupon Form Horizontal Alignment on Big Screens & All Viewports */
+.wc-block-components-totals-coupon__form,
+.wc-block-components-totals-coupon-form,
+.wc-block-components-totals-coupon form,
+.wp-block-woocommerce-checkout-order-summary-coupon-form-block form {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    margin-top: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Coupon Input Field */
+.wc-block-components-totals-coupon__input,
+.wc-block-components-totals-coupon-form .wc-block-components-text-input {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+.wc-block-components-totals-coupon__input input,
+#wc-block-components-totals-coupon__input-coupon,
+.wc-block-components-totals-coupon input[type="text"],
+.wc-block-components-totals-coupon-form input[type="text"] {
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    padding: 0 16px !important;
+    background: #fdfbf7 !important;
+    border: 1.5px solid #dcd3c5 !important;
+    border-radius: 12px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    color: #0f3820 !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    transition: all 0.25s ease !important;
+}
+
+.wc-block-components-totals-coupon__input input:focus,
+#wc-block-components-totals-coupon__input-coupon:focus,
+.wc-block-components-totals-coupon input[type="text"]:focus {
+    border-color: #0f3820 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(15, 56, 32, 0.12) !important;
+}
+
+/* Coupon "Apply" Button - Perfect Alignment on Big Screens & Luxury Brand Styling */
+.wc-block-components-totals-coupon__button,
+.wc-block-components-totals-coupon-form button,
+.wc-block-components-totals-coupon form button,
+.wc-block-components-totals-coupon button[type="submit"],
+.wp-block-woocommerce-checkout-order-summary-coupon-form-block button[type="submit"],
+.wp-block-woocommerce-checkout-order-summary-coupon-form-block .wc-block-components-totals-coupon__button,
+.wc-block-components-totals-coupon button:not(.wc-block-components-panel__button) {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 110px !important;
+    max-width: 160px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    padding: 0 28px !important;
+    background: linear-gradient(135deg, #0f3820 0%, #17502e 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-family: 'Outfit', sans-serif !important;
     font-size: 0.92rem !important;
-    text-decoration: underline !important;
-    text-underline-offset: 3px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 14px rgba(15, 56, 32, 0.2) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+.wc-block-components-totals-coupon__button:hover,
+.wc-block-components-totals-coupon-form button:hover,
+.wc-block-components-totals-coupon form button:hover,
+.wc-block-components-totals-coupon button[type="submit"]:hover,
+.wp-block-woocommerce-checkout-order-summary-coupon-form-block button[type="submit"]:hover,
+.wc-block-components-totals-coupon button:not(.wc-block-components-panel__button):hover {
+    background: linear-gradient(135deg, #17502e 0%, #092614 100%) !important;
+    color: #f7e7ce !important;
+    box-shadow: 0 6px 20px rgba(15, 56, 32, 0.35) !important;
+    transform: translateY(-1px) !important;
+}
+
+.wc-block-components-totals-coupon__button:active,
+.wc-block-components-totals-coupon button[type="submit"]:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(15, 56, 32, 0.2) !important;
+}
+
+/* Coupon Button Disabled State (e.g. empty input) */
+.wc-block-components-totals-coupon__button:disabled,
+.wc-block-components-totals-coupon form button:disabled,
+.wc-block-components-totals-coupon button[type="submit"]:disabled {
+    background: #0f3820 !important;
+    opacity: 0.65 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    border-radius: 12px !important;
 }
 
 /* Totals Area */

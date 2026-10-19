@@ -238,37 +238,40 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                             <div class="wc-block-components-order-summary">
                                 <h2 class="wc-block-components-order-summary__header"><?php esc_html_e('Order summary', 'kash-naturals'); ?></h2>
 
-                                <div class="wc-block-components-order-summary-item" style="display: flex; gap: 16px; align-items: flex-start;">
-                                    <div style="position: relative; flex-shrink: 0;">
-                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/jar-royal-mukhwas.jpg'); ?>" alt="Kash Natural Raj Ratan" style="width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 1.5px solid #eee7dd;">
-                                        <span class="wc-block-components-order-summary-item__quantity" style="position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">1</span>
+                                <div class="wc-block-components-order-summary-item">
+                                    <div class="wc-block-components-order-summary-item__image">
+                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/jar-royal-mukhwas.jpg'); ?>" alt="Kash Natural Raj Ratan">
+                                        <span class="wc-block-components-order-summary-item__quantity">1</span>
                                     </div>
-                                    <div class="wc-block-components-order-summary-item__description" style="flex: 1;">
-                                        <span class="wc-block-components-product-name" style="display: block; margin-bottom: 4px;">
+                                    <div class="wc-block-components-order-summary-item__description">
+                                        <span class="wc-block-components-product-name">
                                             <?php esc_html_e('Kash Natural Raj Ratan - Sweet & Salty Mukhwas - Traditional Indian Mouth Freshener, 200g', 'kash-naturals'); ?>
                                         </span>
-                                        <div class="wc-block-components-order-summary-item__price" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                            <del style="color: #999; font-weight: normal; font-size: 0.85rem;">₹199.00</del>
-                                            <span style="color: #c68b27; font-weight: 700; font-size: 1.05rem;">₹179.00</span>
-                                            <span class="wc-block-components-sale-badge" style="background: #eef7f1; color: #1e7e45; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;"><?php esc_html_e('Save ₹20', 'kash-naturals'); ?></span>
+                                        <div class="wc-block-components-order-summary-item__price">
+                                            <del>₹300.00</del>
+                                            <ins>₹179.00</ins>
+                                            <span class="wc-block-components-sale-badge"><?php esc_html_e('Save ₹121.00', 'kash-naturals'); ?></span>
                                         </div>
-                                        <div class="wc-block-components-product-metadata" style="display: flex; flex-wrap: wrap; gap: 4px;">
-                                            <span class="wc-block-components-product-metadata__item" style="background: #fbf8f3; border: 1px solid #ede3d3; padding: 2px 7px; border-radius: 6px; font-size: 0.72rem; color: #666;">200 Grams</span>
-                                            <span class="wc-block-components-product-metadata__item" style="background: #fbf8f3; border: 1px solid #ede3d3; padding: 2px 7px; border-radius: 6px; font-size: 0.72rem; color: #666;">Flavour: Sweet &amp; Salty</span>
-                                            <span class="wc-block-components-product-metadata__item" style="background: #fbf8f3; border: 1px solid #ede3d3; padding: 2px 7px; border-radius: 6px; font-size: 0.72rem; color: #1e7e45; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Vegetarian</span>
+                                        <div class="wc-block-components-product-metadata">
+                                            <span class="wc-block-components-product-metadata__item">200 Grams</span>
+                                            <span class="wc-block-components-product-metadata__item">Flavour: Sweet &amp; Salty</span>
+                                            <span class="wc-block-components-product-metadata__item" style="color: #1e7e45; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Vegetarian</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Add a coupon toggle -->
-                                <div style="padding: 16px 0; border-bottom: 1px solid #f2ede4;">
+                                <div class="wc-block-components-totals-coupon">
                                     <details style="cursor: pointer;">
-                                        <summary class="wc-block-components-totals-coupon-link" style="font-size: 0.88rem; color: #0f3820; font-weight: 600;">
-                                            <i class="fa-solid fa-ticket" style="color: #c68b27; margin-right: 6px;"></i> <?php esc_html_e('Have a coupon code?', 'kash-naturals'); ?>
+                                        <summary class="wc-block-components-panel__button wc-block-components-totals-coupon-link">
+                                            <span><i class="fa-solid fa-ticket" style="color: #c68b27; margin-right: 6px;"></i> <?php esc_html_e('Add coupons', 'kash-naturals'); ?></span>
+                                            <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: #888;"></i>
                                         </summary>
-                                        <div style="display: flex; gap: 8px; margin-top: 10px;">
-                                            <input type="text" placeholder="<?php esc_attr_e('Coupon code', 'kash-naturals'); ?>" style="flex: 1; padding: 10px 14px; border: 1.5px solid #e2d8c9; border-radius: 10px; font-size: 0.88rem;">
-                                            <button type="button" style="background: #0f3820; color: #ffffff; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer;"><?php esc_html_e('Apply', 'kash-naturals'); ?></button>
+                                        <div class="wc-block-components-totals-coupon__form">
+                                            <div class="wc-block-components-totals-coupon__input">
+                                                <input type="text" placeholder="<?php esc_attr_e('Enter code', 'kash-naturals'); ?>">
+                                            </div>
+                                            <button type="button" class="wc-block-components-totals-coupon__button"><?php esc_html_e('Apply', 'kash-naturals'); ?></button>
                                         </div>
                                     </details>
                                 </div>
