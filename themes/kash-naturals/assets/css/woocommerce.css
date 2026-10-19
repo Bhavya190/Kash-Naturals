@@ -331,20 +331,33 @@ table.shop_table .cart-item-title {
     margin: 0 auto !important;
 }
 
-/* 2-Column Desktop Grid for WooCommerce Checkout Blocks */
+/* 2-Column Desktop Grid for WooCommerce Checkout Blocks (Order Summary on LEFT, Form on RIGHT) */
 .wc-block-components-sidebar-layout,
 .wc-block-checkout.is-large .wc-block-components-sidebar-layout,
 .wp-block-woocommerce-checkout.is-large .wc-block-components-sidebar-layout {
     display: grid !important;
-    grid-template-columns: 1fr 420px !important;
-    gap: 36px !important;
+    grid-template-columns: 520px 1fr !important;
+    gap: 40px !important;
     align-items: start !important;
     width: 100% !important;
 }
 
-/* Left Column: Customer Details & Payment */
+/* Left Column: Order Summary (Sidebar) */
+.wc-block-components-sidebar,
+.wc-block-checkout__sidebar {
+    grid-column: 1 !important;
+    order: 1 !important;
+    width: 100% !important;
+    position: sticky !important;
+    top: 90px !important;
+    align-self: flex-start !important;
+}
+
+/* Right Column: Customer Details, Address & Payment */
 .wc-block-components-main,
 .wc-block-checkout__main {
+    grid-column: 2 !important;
+    order: 2 !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
@@ -723,33 +736,51 @@ button#place_order:hover {
     display: flex !important;
     flex-direction: column !important;
     gap: 4px !important;
+    padding-right: 12px !important;
 }
 
-/* Product title */
+/* Product title - NO AWKWARD WORD SPLITTING */
 .wc-block-components-order-summary-item__description .wc-block-components-product-name,
-.wc-block-components-order-summary-item .wc-block-components-product-name {
+.wc-block-components-order-summary-item .wc-block-components-product-name,
+.wc-block-components-order-summary-item__product-name {
     font-family: 'Outfit', sans-serif !important;
     font-weight: 700 !important;
     color: #0f3820 !important;
     font-size: 0.95rem !important;
-    line-height: 1.35 !important;
+    line-height: 1.4 !important;
     display: block !important;
-    margin: 0 0 4px 0 !important;
+    margin: 0 0 2px 0 !important;
     text-decoration: none !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    word-wrap: normal !important;
+    hyphens: none !important;
 }
 
-/* Product price line & savings */
+/* Right-Side Item Subtotal / Price Column (Clean, transparent, no giant box) */
+.wc-block-components-order-summary-item__total-price,
+.wc-block-components-order-summary-item div[class*="sale-badge"] {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    margin-left: auto !important;
+    flex: 0 0 auto !important;
+    text-align: right !important;
+}
+
+/* Product price typography */
+.wc-block-components-order-summary-item__total-price span,
 .wc-block-components-order-summary-item__price,
 .wc-block-components-order-summary-item .wc-block-components-product-price {
     font-family: 'Outfit', sans-serif !important;
     font-weight: 700 !important;
     color: #0f3820 !important;
-    font-size: 0.96rem !important;
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    margin: 2px 0 !important;
+    font-size: 0.98rem !important;
 }
 
 .wc-block-components-order-summary-item del,
@@ -758,6 +789,7 @@ button#place_order:hover {
     font-size: 0.85rem !important;
     font-weight: 400 !important;
     text-decoration: line-through !important;
+    margin-right: 4px !important;
 }
 
 .wc-block-components-order-summary-item ins,
@@ -767,20 +799,45 @@ button#place_order:hover {
     text-decoration: none !important;
 }
 
-/* Savings badge */
-.wc-block-components-order-summary-item .wc-block-components-product-sale-badge,
-.wc-block-components-order-summary-item .wc-block-components-sale-badge,
-.wc-block-components-order-summary-item [class*="sale-badge"] {
+/* Target ONLY the actual text badge (span), preventing parent container box-styling */
+.wc-block-components-order-summary-item span.wc-block-components-sale-badge,
+.wc-block-components-order-summary-item span[class*="sale-badge"] {
     background: #eef7f1 !important;
     color: #1e7e45 !important;
     border: 1px solid #d2ead8 !important;
     font-family: 'Outfit', sans-serif !important;
     font-size: 0.72rem !important;
     font-weight: 700 !important;
-    padding: 2px 8px !important;
-    border-radius: 5px !important;
+    padding: 2px 7px !important;
+    border-radius: 4px !important;
     display: inline-block !important;
     line-height: 1.3 !important;
+    margin-top: 3px !important;
+    white-space: nowrap !important;
+}
+
+/* Smooth scrollable container when 3+ products are in order summary */
+.wc-block-components-order-summary-item-list,
+.wc-block-components-order-summary__items,
+.wc-block-components-order-summary__content {
+    max-height: 480px !important;
+    overflow-y: auto !important;
+    padding-right: 6px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #dcd3c5 transparent !important;
+}
+
+.wc-block-components-order-summary-item-list::-webkit-scrollbar,
+.wc-block-components-order-summary__items::-webkit-scrollbar,
+.wc-block-components-order-summary__content::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+.wc-block-components-order-summary-item-list::-webkit-scrollbar-thumb,
+.wc-block-components-order-summary__items::-webkit-scrollbar-thumb,
+.wc-block-components-order-summary__content::-webkit-scrollbar-thumb {
+    background: #dcd3c5 !important;
+    border-radius: 10px !important;
 }
 
 /* -------------------------------------------------------------
@@ -1022,8 +1079,8 @@ button#place_order:hover {
 
 .checkout-grid {
     display: grid !important;
-    grid-template-columns: 1fr 430px !important;
-    gap: 36px !important;
+    grid-template-columns: 520px 1fr !important;
+    gap: 40px !important;
     align-items: start !important;
 }
 
@@ -1042,11 +1099,18 @@ button#place_order:hover {
 }
 
 .checkout-box-card.summary-card.sticky-summary {
+    grid-column: 1 !important;
+    order: 1 !important;
     position: sticky !important;
     top: 90px !important;
     border-radius: 24px !important;
     border: 1.5px solid #eee7dd !important;
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.04) !important;
+}
+
+.checkout-main-form-col {
+    grid-column: 2 !important;
+    order: 2 !important;
 }
 
 .checkout-card-header {
@@ -1296,7 +1360,16 @@ table.woocommerce-checkout-review-order-table .order-total td {
     .wc-block-checkout__sidebar,
     .checkout-box-card.summary-card.sticky-summary {
         position: static !important;
-        margin-top: 24px !important;
+        margin-top: 0 !important;
+        margin-bottom: 24px !important;
+        width: 100% !important;
+        order: 1 !important;
+    }
+
+    .wc-block-components-main,
+    .wc-block-checkout__main,
+    .checkout-main-form-col {
+        order: 2 !important;
         width: 100% !important;
     }
 

@@ -704,7 +704,7 @@ jQuery(document).ready(function ($) {
             $('#btn-open-checkout')
                 .removeClass('checkout-blocked')
                 .prop('disabled', false)
-                .html('PROCEED TO CHECKOUT <i class="fa-solid fa-lock"></i>');
+                .html('PROCEED TO CHECKOUT');
 
             updateCartCalculations(0);
             return;
@@ -776,7 +776,7 @@ jQuery(document).ready(function ($) {
             $checkoutBtn
                 .removeClass('checkout-blocked')
                 .prop('disabled', false)
-                .html('PROCEED TO CHECKOUT <i class="fa-solid fa-lock"></i>');
+                .html('PROCEED TO CHECKOUT');
         }
 
         updateCartCalculations(subtotal);

@@ -349,7 +349,7 @@ if (!defined('ABSPATH')) {
 
             <!-- Action Buttons -->
             <button type="button" class="btn-checkout-drawer" id="btn-open-checkout">
-                PROCEED TO CHECKOUT <i class="fa-solid fa-lock"></i>
+                PROCEED TO CHECKOUT
             </button>
             <button type="button" class="btn-continue-shopping" id="btn-close-cart-continue">
                 CONTINUE SHOPPING

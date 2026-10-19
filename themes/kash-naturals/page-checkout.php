@@ -103,6 +103,77 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                 ?>
                 <div class="wp-block-woocommerce-checkout alignwide wc-block-checkout is-large">
                     <div class="wc-block-components-sidebar-layout">
+                        <!-- Left Column: Order Summary (Swapped for optimal width & focus) -->
+                        <div class="wc-block-components-sidebar wc-block-checkout__sidebar">
+                            <div class="wc-block-components-order-summary">
+                                <h2 class="wc-block-components-order-summary__header"><?php esc_html_e('Order summary', 'kash-naturals'); ?></h2>
+
+                                <div class="wc-block-components-order-summary-item">
+                                    <div class="wc-block-components-order-summary-item__image">
+                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/jar-royal-mukhwas.jpg'); ?>" alt="Kash Natural Raj Ratan">
+                                        <span class="wc-block-components-order-summary-item__quantity">1</span>
+                                    </div>
+                                    <div class="wc-block-components-order-summary-item__description">
+                                        <span class="wc-block-components-product-name">
+                                            <?php esc_html_e('Kash Natural Raj Ratan - Sweet & Salty Mukhwas - Traditional Indian Mouth Freshener, 200g', 'kash-naturals'); ?>
+                                        </span>
+                                        <div class="wc-block-components-order-summary-item__price">
+                                            <del>₹300.00</del>
+                                            <ins>₹179.00</ins>
+                                            <span class="wc-block-components-sale-badge"><?php esc_html_e('Save ₹121.00', 'kash-naturals'); ?></span>
+                                        </div>
+                                        <div class="wc-block-components-product-metadata">
+                                            <span class="wc-block-components-product-metadata__item">200 Grams</span>
+                                            <span class="wc-block-components-product-metadata__item">Flavour: Sweet &amp; Salty</span>
+                                            <span class="wc-block-components-product-metadata__item" style="color: #1e7e45; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Vegetarian</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Add a coupon toggle -->
+                                <div class="wc-block-components-totals-coupon">
+                                    <details style="cursor: pointer;">
+                                        <summary class="wc-block-components-panel__button wc-block-components-totals-coupon-link">
+                                            <span><i class="fa-solid fa-ticket" style="color: #c68b27; margin-right: 6px;"></i> <?php esc_html_e('Add coupons', 'kash-naturals'); ?></span>
+                                            <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: #888;"></i>
+                                        </summary>
+                                        <div class="wc-block-components-totals-coupon__form">
+                                            <div class="wc-block-components-totals-coupon__input">
+                                                <input type="text" placeholder="<?php esc_attr_e('Enter code', 'kash-naturals'); ?>">
+                                            </div>
+                                            <button type="button" class="wc-block-components-totals-coupon__button"><?php esc_html_e('Apply', 'kash-naturals'); ?></button>
+                                        </div>
+                                    </details>
+                                </div>
+
+                                <!-- Totals breakdown -->
+                                <div class="wc-block-components-totals-wrapper">
+                                    <div class="wc-block-components-totals-item" style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; color: #555;">
+                                        <span><?php esc_html_e('Subtotal', 'kash-naturals'); ?></span>
+                                        <span style="font-weight: 600; color: #222;">₹179.00</span>
+                                    </div>
+                                    <div class="wc-block-components-totals-item" style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; color: #555;">
+                                        <span><?php esc_html_e('Pan-India Priority Shipping', 'kash-naturals'); ?></span>
+                                        <span style="font-weight: 700; color: #27ae60;"><?php esc_html_e('FREE', 'kash-naturals'); ?></span>
+                                    </div>
+                                    <div class="wc-block-components-totals-footer-item" style="display: flex; justify-content: space-between; align-items: baseline; border-top: 2px dashed #e2d8c9; margin-top: 16px; padding-top: 18px;">
+                                        <div>
+                                            <span style="display: block; font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: #0f3820;"><?php esc_html_e('Total', 'kash-naturals'); ?></span>
+                                            <span style="font-size: 0.75rem; color: #777;"><?php esc_html_e('Inclusive of all applicable taxes', 'kash-naturals'); ?></span>
+                                        </div>
+                                        <span class="wc-block-components-totals-item__value" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 800; color: #c68b27;">₹179.00</span>
+                                    </div>
+                                </div>
+
+                                <div class="summary-trust-seals" style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed #e2d8c9; display: flex; flex-direction: column; gap: 8px;">
+                                    <div class="seal-item" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #666;"><i class="fa-solid fa-lock" style="color: #27ae60;"></i> <span><?php esc_html_e('256-Bit SSL Encrypted Checkout', 'kash-naturals'); ?></span></div>
+                                    <div class="seal-item" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #666;"><i class="fa-solid fa-leaf" style="color: #27ae60;"></i> <span><?php esc_html_e('100% Pure Natural Ingredients', 'kash-naturals'); ?></span></div>
+                                    <div class="seal-item" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #666;"><i class="fa-solid fa-shield-halved" style="color: #27ae60;"></i> <span><?php esc_html_e('Kash Naturals Authentic Quality Guaranteed', 'kash-naturals'); ?></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Customer Details, Address & Payment -->
                         <div class="wc-block-components-main">
                             <form class="wc-block-checkout__form">
 
@@ -231,76 +302,6 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                             </div>
 
                             </form>
-                        </div>
-
-                        <!-- Sidebar: Order Summary -->
-                        <div class="wc-block-components-sidebar wc-block-checkout__sidebar">
-                            <div class="wc-block-components-order-summary">
-                                <h2 class="wc-block-components-order-summary__header"><?php esc_html_e('Order summary', 'kash-naturals'); ?></h2>
-
-                                <div class="wc-block-components-order-summary-item">
-                                    <div class="wc-block-components-order-summary-item__image">
-                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/jar-royal-mukhwas.jpg'); ?>" alt="Kash Natural Raj Ratan">
-                                        <span class="wc-block-components-order-summary-item__quantity">1</span>
-                                    </div>
-                                    <div class="wc-block-components-order-summary-item__description">
-                                        <span class="wc-block-components-product-name">
-                                            <?php esc_html_e('Kash Natural Raj Ratan - Sweet & Salty Mukhwas - Traditional Indian Mouth Freshener, 200g', 'kash-naturals'); ?>
-                                        </span>
-                                        <div class="wc-block-components-order-summary-item__price">
-                                            <del>₹300.00</del>
-                                            <ins>₹179.00</ins>
-                                            <span class="wc-block-components-sale-badge"><?php esc_html_e('Save ₹121.00', 'kash-naturals'); ?></span>
-                                        </div>
-                                        <div class="wc-block-components-product-metadata">
-                                            <span class="wc-block-components-product-metadata__item">200 Grams</span>
-                                            <span class="wc-block-components-product-metadata__item">Flavour: Sweet &amp; Salty</span>
-                                            <span class="wc-block-components-product-metadata__item" style="color: #1e7e45; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Vegetarian</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Add a coupon toggle -->
-                                <div class="wc-block-components-totals-coupon">
-                                    <details style="cursor: pointer;">
-                                        <summary class="wc-block-components-panel__button wc-block-components-totals-coupon-link">
-                                            <span><i class="fa-solid fa-ticket" style="color: #c68b27; margin-right: 6px;"></i> <?php esc_html_e('Add coupons', 'kash-naturals'); ?></span>
-                                            <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: #888;"></i>
-                                        </summary>
-                                        <div class="wc-block-components-totals-coupon__form">
-                                            <div class="wc-block-components-totals-coupon__input">
-                                                <input type="text" placeholder="<?php esc_attr_e('Enter code', 'kash-naturals'); ?>">
-                                            </div>
-                                            <button type="button" class="wc-block-components-totals-coupon__button"><?php esc_html_e('Apply', 'kash-naturals'); ?></button>
-                                        </div>
-                                    </details>
-                                </div>
-
-                                <!-- Totals breakdown -->
-                                <div class="wc-block-components-totals-wrapper">
-                                    <div class="wc-block-components-totals-item" style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; color: #555;">
-                                        <span><?php esc_html_e('Subtotal', 'kash-naturals'); ?></span>
-                                        <span style="font-weight: 600; color: #222;">₹179.00</span>
-                                    </div>
-                                    <div class="wc-block-components-totals-item" style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; color: #555;">
-                                        <span><?php esc_html_e('Pan-India Priority Shipping', 'kash-naturals'); ?></span>
-                                        <span style="font-weight: 700; color: #27ae60;"><?php esc_html_e('FREE', 'kash-naturals'); ?></span>
-                                    </div>
-                                    <div class="wc-block-components-totals-footer-item" style="display: flex; justify-content: space-between; align-items: baseline; border-top: 2px dashed #e2d8c9; margin-top: 16px; padding-top: 18px;">
-                                        <div>
-                                            <span style="display: block; font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: #0f3820;"><?php esc_html_e('Total', 'kash-naturals'); ?></span>
-                                            <span style="font-size: 0.75rem; color: #777;"><?php esc_html_e('Inclusive of all applicable taxes', 'kash-naturals'); ?></span>
-                                        </div>
-                                        <span class="wc-block-components-totals-item__value" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 800; color: #c68b27;">₹179.00</span>
-                                    </div>
-                                </div>
-
-                                <div class="summary-trust-seals" style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed #e2d8c9; display: flex; flex-direction: column; gap: 8px;">
-                                    <div class="seal-item" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #666;"><i class="fa-solid fa-lock" style="color: #27ae60;"></i> <span><?php esc_html_e('256-Bit SSL Encrypted Checkout', 'kash-naturals'); ?></span></div>
-                                    <div class="seal-item" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #666;"><i class="fa-solid fa-leaf" style="color: #27ae60;"></i> <span><?php esc_html_e('100% Pure Natural Ingredients', 'kash-naturals'); ?></span></div>
-                                    <div class="seal-item" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #666;"><i class="fa-solid fa-shield-halved" style="color: #27ae60;"></i> <span><?php esc_html_e('Kash Naturals Authentic Quality Guaranteed', 'kash-naturals'); ?></span></div>
-                                </div>
-                            </div>
                         </div>
 
                     </div>
