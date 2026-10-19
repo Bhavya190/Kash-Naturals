@@ -3362,16 +3362,27 @@ img {
     transform: translateY(-2px);
 }
 
-/* Responsive Shop Grid */
+/* Responsive Shop Grid & Collection Page */
 @media (max-width: 1199px) {
     .shop-grid-exact {
         grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
     }
 }
 
 @media (max-width: 991px) {
+    .shop-page-header {
+        padding: 45px 0 35px 0;
+    }
+    .shop-header-title {
+        font-size: 2.3rem;
+    }
+    .shop-main-section {
+        padding: 45px 0 65px 0;
+    }
     .shop-grid-exact {
         grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
     .header-dropdown-menu {
         position: static;
@@ -3386,16 +3397,193 @@ img {
     }
 }
 
-@media (max-width: 576px) {
-    .shop-grid-exact {
-        grid-template-columns: 1fr;
+@media (max-width: 768px) {
+    .shop-page-header {
+        padding: 36px 0 28px 0;
+    }
+    .shop-header-subtitle {
+        font-size: 0.78rem;
+        letter-spacing: 2px;
     }
     .shop-header-title {
         font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    .shop-breadcrumb {
+        font-size: 0.85rem;
+    }
+    .shop-main-section {
+        padding: 35px 0 50px 0;
     }
     .shop-filter-bar-exact {
+        margin-bottom: 24px;
+        gap: 14px;
+    }
+    .shop-filter-right-controls {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .filter-count-label {
+        font-size: 0.85rem;
+    }
+    .shop-sort-select {
+        font-size: 0.84rem;
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 640px) {
+    .shop-grid-exact {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+        margin: 0 auto;
+        gap: 20px;
+        width: 100%;
+    }
+    .shop-product-card-exact {
+        border-radius: 16px;
+        width: 100%;
+        min-width: 0;
+    }
+    .product-img-box-exact {
+        height: 230px;
+    }
+    .product-card-info {
+        padding: 18px 16px;
+    }
+    .product-title-exact {
+        font-size: 1.18rem;
+        line-height: 1.35;
+        margin-bottom: 6px;
+    }
+    .product-desc-short {
+        font-size: 0.84rem;
+        line-height: 1.45;
+        margin-bottom: 12px;
+    }
+    .product-price-row-exact {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding-top: 12px;
+    }
+    .price-wrap {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+    .current-price {
+        font-size: 1.35rem;
+    }
+    .old-price {
+        font-size: 0.85rem;
+    }
+    .btn-add-cart-exact {
+        padding: 9px 14px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+        min-height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .shop-page-header {
+        padding: 28px 0 22px 0;
+    }
+    .shop-header-subtitle {
+        font-size: 0.72rem;
+        letter-spacing: 1.2px;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+    .shop-header-title {
+        font-size: clamp(1.45rem, 6.5vw, 1.85rem);
+        margin-bottom: 8px;
+        line-height: 1.25;
+    }
+    .shop-breadcrumb {
+        font-size: 0.8rem;
+    }
+    .shop-main-section {
+        padding: 24px 0 40px 0;
+    }
+    .shop-grid-exact {
+        max-width: 100%;
+        gap: 16px;
+    }
+    .product-img-box-exact {
+        height: 210px;
+    }
+    .product-card-info {
+        padding: 16px 14px;
+    }
+    .shop-filter-right-controls {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 8px;
+    }
+    .shop-sort-select {
+        flex: 1;
+        max-width: 65%;
+        height: 38px;
+        padding: 6px 10px;
+        font-size: 0.82rem;
+    }
+    .filter-count-label {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .shop-page-header {
+        padding: 22px 0 18px 0;
+    }
+    .shop-header-subtitle {
+        font-size: 0.68rem;
+        letter-spacing: 0.8px;
+    }
+    .shop-header-title {
+        font-size: 1.35rem;
+    }
+    .shop-main-section {
+        padding: 18px 0 30px 0;
+    }
+    .product-img-box-exact {
+        height: 185px;
+    }
+    .product-card-info {
+        padding: 14px 12px;
+    }
+    .product-title-exact {
+        font-size: 1.05rem;
+    }
+    .product-price-row-exact {
+        gap: 8px;
+    }
+    .current-price {
+        font-size: 1.25rem;
+    }
+    .btn-add-cart-exact {
+        width: 100%;
+        justify-content: center;
+        height: 42px;
+        margin-top: 4px;
+    }
+    .shop-filter-right-controls {
         flex-direction: column;
         align-items: flex-start;
+        gap: 8px;
+    }
+    .shop-sort-select {
+        width: 100%;
+        max-width: 100%;
     }
 }
 
@@ -8732,32 +8920,38 @@ img.amz-ref-logo {
     }
 
     .single-product-details-section {
-        padding: 18px 0 50px;
+        padding: 18px 0 45px;
     }
 
     .product-breadcrumb-nav {
         font-size: 0.8rem;
         gap: 5px 8px;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
+        line-height: 1.4;
     }
 
     .product-showcase-grid {
-        gap: 24px;
-        margin-bottom: 35px;
+        gap: 22px;
+        margin-bottom: 30px;
     }
 
     .main-image-display-card {
         border-radius: 20px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
+        border-width: 1.5px;
     }
 
     .main-img-container {
-        height: 290px;
+        height: clamp(270px, 75vw, 340px);
         border-radius: 18px;
     }
 
     .main-img-container img {
         border-radius: 18px;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
     }
 
     .product-badge-pill-luxury {
@@ -8766,6 +8960,7 @@ img.amz-ref-logo {
         font-size: 0.72rem;
         padding: 4px 10px;
         border-radius: 14px;
+        max-width: calc(100% - 90px);
     }
 
     .product-discount-tag {
@@ -8777,13 +8972,14 @@ img.amz-ref-logo {
     }
 
     .gallery-thumbs-strip {
-        gap: 10px;
-        margin-bottom: 18px;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 4px;
     }
 
     .thumb-btn {
-        width: 64px;
-        height: 64px;
+        width: 62px;
+        height: 62px;
         border-radius: 12px;
     }
 
@@ -8802,16 +8998,33 @@ img.amz-ref-logo {
         font-size: 0.95rem;
     }
 
+    .product-meta-header {
+        margin-bottom: 8px;
+        gap: 8px;
+    }
+
+    .product-cat-tag-pill {
+        font-size: 0.74rem;
+        padding: 4px 12px;
+    }
+
+    .product-sku-code {
+        font-size: 0.76rem;
+    }
+
     .product-title-main {
-        font-size: 1.6rem;
+        font-size: clamp(1.4rem, 5.5vw, 1.75rem);
         margin-bottom: 10px;
         line-height: 1.25;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: none;
     }
 
     .product-rating-stock-row {
         gap: 8px 12px;
         padding-bottom: 12px;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
     }
 
     .stars-gold {
@@ -8830,32 +9043,43 @@ img.amz-ref-logo {
     .product-price-display-box {
         gap: 10px;
         margin-bottom: 14px;
+        align-items: baseline;
     }
 
     .current-price-val {
         font-size: 1.85rem;
+        font-weight: 800;
     }
 
     .regular-price-val {
         font-size: 1.15rem;
     }
 
+    .price-tax-note {
+        font-size: 0.78rem;
+        width: 100%;
+        margin-top: 2px;
+    }
+
     .product-editorial-desc {
-        font-size: 0.92rem;
+        font-size: 0.9rem;
         line-height: 1.6;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }
 
     .product-option-selector {
-        margin-bottom: 22px;
+        margin-bottom: 20px;
     }
 
     .size-pills-wrap {
         gap: 10px;
+        width: 100%;
     }
 
     .size-pill-btn {
-        padding: 10px 10px;
+        flex: 1;
+        min-width: 0;
+        padding: 10px 8px;
         border-radius: 12px;
     }
 
@@ -8872,13 +9096,15 @@ img.amz-ref-logo {
         display: grid;
         grid-template-columns: 116px 1fr;
         gap: 10px;
-        margin-bottom: 24px;
+        margin-bottom: 22px;
+        width: 100%;
     }
 
     .quantity-counter-box {
         width: 100%;
         height: 48px;
         padding: 2px 4px;
+        border-radius: 25px;
     }
 
     .qty-btn {
@@ -8894,41 +9120,53 @@ img.amz-ref-logo {
 
     .btn-add-to-cart-gold {
         height: 48px;
-        font-size: 0.9rem;
-        padding: 0 12px;
+        font-size: 0.88rem;
+        padding: 0 10px;
         gap: 6px;
+        border-radius: 25px;
+        width: 100%;
     }
 
     .btn-buy-now-green {
         grid-column: 1 / 3;
         height: 48px;
-        font-size: 0.94rem;
+        font-size: 0.92rem;
+        border-radius: 25px;
+        width: 100%;
     }
 
     .pincode-checker-card {
-        padding: 15px 16px;
+        padding: 14px 16px;
         border-radius: 15px;
         margin-bottom: 20px;
     }
 
     .pincode-input-row {
         gap: 8px;
+        display: flex;
+        width: 100%;
     }
 
     .pincode-input-row input {
+        flex: 1;
+        min-width: 0;
         padding: 9px 12px;
         font-size: 0.88rem;
+        border-radius: 10px;
     }
 
     .btn-check-pincode {
         padding: 9px 16px;
         font-size: 0.88rem;
+        border-radius: 10px;
+        white-space: nowrap;
     }
 
     .product-highlights-box {
-        padding: 16px 14px;
+        padding: 15px 14px;
         border-radius: 15px;
         gap: 12px;
+        margin-bottom: 28px;
     }
 
     .highlight-item {
@@ -8937,6 +9175,7 @@ img.amz-ref-logo {
 
     .highlight-item i {
         font-size: 1.05rem;
+        margin-top: 2px;
     }
 
     .highlight-item strong {
@@ -8954,14 +9193,19 @@ img.amz-ref-logo {
     }
 
     .tabs-header-nav {
-        gap: 10px;
+        gap: 8px;
         padding-bottom: 8px;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
     }
 
     .tab-btn {
-        font-size: 0.86rem;
+        font-size: 0.84rem;
         padding: 6px 10px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .tab-btn.active::after {
@@ -8981,21 +9225,26 @@ img.amz-ref-logo {
     }
 
     .story-icon-box {
-        padding: 16px 14px;
+        padding: 14px 12px;
         border-radius: 14px;
     }
 
     .story-icon-box i {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         margin-bottom: 8px;
     }
 
     .story-icon-box h4 {
-        font-size: 0.98rem;
+        font-size: 0.95rem;
     }
 
     .story-icon-box p {
-        font-size: 0.84rem;
+        font-size: 0.82rem;
+    }
+
+    .ing-card, .nutri-table-card {
+        padding: 16px 14px;
+        border-radius: 14px;
     }
 
     .ing-card h3, .nutri-table-card h3 {
@@ -9004,7 +9253,7 @@ img.amz-ref-logo {
     }
 
     .ing-text {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         line-height: 1.6;
     }
 
@@ -9014,36 +9263,36 @@ img.amz-ref-logo {
     }
 
     .nutri-table th, .nutri-table td {
-        padding: 9px 10px;
-        font-size: 0.84rem;
+        padding: 8px 10px;
+        font-size: 0.82rem;
     }
 
     .storage-row {
-        padding: 15px 14px;
+        padding: 14px 12px;
         gap: 12px;
         border-radius: 14px;
     }
 
     .storage-row i {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
 
     .storage-row h4 {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .storage-row p {
-        font-size: 0.86rem;
+        font-size: 0.84rem;
     }
 
     .reviews-summary-row {
-        padding: 18px 16px;
-        gap: 16px;
+        padding: 16px 14px;
+        gap: 14px;
         border-radius: 16px;
     }
 
     .big-rating-num {
-        font-size: 2.6rem;
+        font-size: 2.4rem;
     }
 
     .bar-row {
@@ -9052,16 +9301,16 @@ img.amz-ref-logo {
     }
 
     .review-card {
-        padding: 16px 14px;
+        padding: 14px 12px;
         border-radius: 14px;
     }
 
     .review-headline {
-        font-size: 0.96rem;
+        font-size: 0.94rem;
     }
 
     .review-body {
-        font-size: 0.86rem;
+        font-size: 0.85rem;
     }
 
     .related-header {
@@ -9069,11 +9318,11 @@ img.amz-ref-logo {
     }
 
     .related-header h2 {
-        font-size: 1.45rem;
+        font-size: 1.4rem;
     }
 
     .related-header p {
-        font-size: 0.88rem;
+        font-size: 0.86rem;
     }
 
     /* Single column centered on narrow phones */
@@ -9082,6 +9331,7 @@ img.amz-ref-logo {
         max-width: 380px;
         margin: 0 auto;
         gap: 16px;
+        width: 100%;
     }
 
     .product-img-box-exact {
@@ -9101,15 +9351,47 @@ img.amz-ref-logo {
     }
 }
 
+/* Medium & Small Phones (max-width: 480px) */
+@media (max-width: 480px) {
+    .product-rating-stock-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .product-trust-features-bar {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .pincode-input-row {
+        flex-direction: row;
+    }
+
+    .size-pill-btn {
+        padding: 8px 6px;
+    }
+
+    .size-pill-btn span:first-child {
+        font-size: 0.84rem;
+    }
+}
+
 /* Extra Small Phones (max-width: 380px - iPhone SE, small Galaxy) */
 @media (max-width: 380px) {
+    .container {
+        padding: 0 12px;
+    }
+
     .main-img-container {
-        height: 250px;
+        height: 240px;
+        border-radius: 14px;
     }
 
     .thumb-btn {
-        width: 58px;
-        height: 58px;
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
     }
 
     .product-trust-features-bar {
@@ -9119,7 +9401,11 @@ img.amz-ref-logo {
     }
 
     .product-title-main {
-        font-size: 1.45rem;
+        font-size: 1.35rem;
+    }
+
+    .current-price-val {
+        font-size: 1.65rem;
     }
 
     .size-pills-wrap {
@@ -9137,24 +9423,43 @@ img.amz-ref-logo {
         width: 100%;
         max-width: 160px;
         margin: 0 auto;
+        height: 44px;
     }
 
     .btn-add-to-cart-gold {
         grid-column: 1 / 2;
         width: 100%;
+        height: 48px;
     }
 
     .btn-buy-now-green {
         grid-column: 1 / 2;
         width: 100%;
+        height: 48px;
     }
 
     .pincode-input-row {
         flex-direction: column;
     }
 
-}
+    .btn-check-pincode {
+        width: 100%;
+        height: 40px;
+    }
 
+    .tabs-header-nav {
+        gap: 6px;
+    }
+
+    .tab-btn {
+        font-size: 0.78rem;
+        padding: 5px 8px;
+    }
+
+    .related-grid-4 {
+        max-width: 100%;
+    }
+}
 /* ==========================================================================
    DYNAMIC EMPTY STATE STYLES (Clean & Luxury Minimalist)
    ========================================================================== */

@@ -525,3 +525,24 @@ function kash_naturals_ajax_remove_out_of_stock() {
 }
 add_action('wp_ajax_kash_remove_out_of_stock', 'kash_naturals_ajax_remove_out_of_stock');
 add_action('wp_ajax_nopriv_kash_remove_out_of_stock', 'kash_naturals_ajax_remove_out_of_stock');
+
+/**
+ * Automatically bypass & disable WooCommerce 9.1+ "Coming Soon" / Site Visibility Mode
+ * Prevents logged-out visitors on mobile/incognito from seeing the "Great things are on the horizon" screen.
+ */
+// 1. Exclude all customer requests from WooCommerce Coming Soon restrictions
+add_filter('woocommerce_coming_soon_exclude', '__return_true', 99);
+
+// 2. Ensure WooCommerce store visibility option is set to Live ('no') in database
+add_action('init', function() {
+    if (get_option('woocommerce_coming_soon') === 'yes') {
+        update_option('woocommerce_coming_soon', 'no');
+    }
+}, 5);
+
+// 3. Remove Coming Soon / Site Visibility badge from the WP Admin bar
+add_action('admin_bar_menu', function($wp_admin_bar) {
+    if (is_object($wp_admin_bar)) {
+        $wp_admin_bar->remove_node('woocommerce-site-visibility-badge');
+    }
+}, 100);
