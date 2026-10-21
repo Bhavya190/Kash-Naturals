@@ -139,23 +139,28 @@ jQuery(document).ready(function ($) {
             const isOos = (prod.in_stock === false || prod.stock_status === 'outofstock');
             const $item = $(`
                 <div class="search-item-card ${isOos ? 'item-out-of-stock' : ''}">
-                    <div class="search-item-img">
-                        <img src="${prod.image}" alt="${prod.name}" />
-                    </div>
+                    <a href="${prod.link}" class="search-item-img" aria-label="${prod.name}">
+                        <img src="${prod.image}" alt="${prod.name}" loading="lazy" />
+                    </a>
                     <div class="search-item-info">
                         <span class="search-item-cat">${prod.category_name}</span>
-                        <h4 class="search-item-title">${prod.name}</h4>
+                        <h4 class="search-item-title">
+                            <a href="${prod.link}">${prod.name}</a>
+                        </h4>
                         <div class="search-item-stars">★★★★★ (${prod.rating})</div>
-                        <div class="search-item-price">₹${prod.price} <del>₹${prod.regular_price}</del></div>
-                        ${isOos ? '<div style="color:#ef4444; font-size:11px; font-weight:700; margin-top:3px;"><i class="fa-solid fa-ban"></i> Out of Stock</div>' : ''}
+                        <div class="search-item-price">
+                            <span>₹${prod.price}</span>
+                            ${prod.regular_price > prod.price ? `<del>₹${prod.regular_price}</del>` : ''}
+                        </div>
+                        ${isOos ? '<div class="search-oos-badge" style="color:#ef4444; font-size:11px; font-weight:700; margin-top:3px;"><i class="fa-solid fa-ban"></i> Out of Stock</div>' : ''}
                     </div>
                     ${isOos ? `
                         <button type="button" class="btn-search-add-cart disabled" disabled style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); cursor:not-allowed;">
-                            <i class="fa-solid fa-ban"></i> Sold Out
+                            <i class="fa-solid fa-ban"></i> <span>Sold Out</span>
                         </button>
                     ` : `
-                        <button type="button" class="btn-search-add-cart" data-id="${prod.id}">
-                            <i class="fa-solid fa-cart-plus"></i> ADD
+                        <button type="button" class="btn-search-add-cart" data-id="${prod.id}" title="Add to cart">
+                            <i class="fa-solid fa-cart-plus"></i> <span>ADD</span>
                         </button>
                     `}
                 </div>
