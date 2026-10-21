@@ -228,7 +228,7 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                     <div class="checkout-form-row checkout-form-row-2col">
                                         <div class="wc-block-components-text-input">
                                             <label for="email"><?php esc_html_e('Email address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="email" id="email" name="email" value="admin@kashnaturals.com" placeholder="name@domain.com" required>
+                                            <input type="email" id="email" name="email" placeholder="name@domain.com" required>
                                         </div>
                                         <div class="wc-block-components-text-input">
                                             <label for="phone"><?php esc_html_e('Phone number', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
