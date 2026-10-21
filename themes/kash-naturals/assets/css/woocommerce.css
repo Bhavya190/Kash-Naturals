@@ -3889,3 +3889,12 @@ img.amz-ref-logo {
     color: #0d6efd !important;
     margin-right: 6px !important;
 }
+
+/* Explicitly hide default WooCommerce top coupon & login banners on custom checkout */
+.woocommerce-form-coupon-toggle,
+form.checkout_coupon,
+.woocommerce-form-login-toggle,
+form.login.woocommerce-form-login {
+    display: none !important;
+}
+

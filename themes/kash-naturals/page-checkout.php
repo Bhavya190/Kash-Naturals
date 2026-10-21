@@ -189,8 +189,6 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                 ?>
             </div>
 
-            <?php if ($checkout) { do_action('woocommerce_before_checkout_form', $checkout); } ?>
-
             <div class="wp-block-woocommerce-checkout alignwide wc-block-checkout is-large">
                 <div class="wc-block-components-sidebar-layout">
                     <!-- Left Column: Order Summary (Swapped for optimal width & focus) -->

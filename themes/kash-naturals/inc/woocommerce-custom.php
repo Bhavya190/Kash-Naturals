@@ -546,3 +546,11 @@ add_action('admin_bar_menu', function($wp_admin_bar) {
         $wp_admin_bar->remove_node('woocommerce-site-visibility-badge');
     }
 }, 100);
+
+/**
+ * Remove default WooCommerce top coupon & login banners from checkout
+ * (Kash Naturals provides a built-in artisanal coupon accordion inside the order summary)
+ */
+remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
+remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10);
+
