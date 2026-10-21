@@ -99,23 +99,57 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
         <!-- Render WooCommerce Checkout Form / Block Content -->
         <div class="kash-checkout-content-wrap">
             <?php
-            if (function_exists('have_posts') && have_posts()) {
-                while (have_posts()) :
-                    the_post();
-                    the_content();
-                endwhile;
-            } elseif (class_exists('WooCommerce')) {
-                echo do_shortcode('[woocommerce_checkout]');
-            } else {
-                // High-Fidelity Standalone Preview for Local Dev & Testing
-                ?>
-                <div class="wp-block-woocommerce-checkout alignwide wc-block-checkout is-large">
-                    <div class="wc-block-components-sidebar-layout">
-                        <!-- Left Column: Order Summary (Swapped for optimal width & focus) -->
-                        <div class="wc-block-components-sidebar wc-block-checkout__sidebar">
-                            <div class="wc-block-components-order-summary">
-                                <h2 class="wc-block-components-order-summary__header"><?php esc_html_e('Order summary', 'kash-naturals'); ?></h2>
+            // Check for real WooCommerce cart items and totals
+            $wc_checkout_items = array();
+            $has_real_wc_items = false;
+            $cart_subtotal_display = '₹179.00';
+            $cart_total_display = '₹179.00';
+            $shipping_display = __('FREE', 'kash-naturals');
 
+            if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+                $has_real_wc_items = true;
+                $cart_subtotal_display = WC()->cart->get_cart_subtotal();
+                $cart_total_display = WC()->cart->get_total();
+                $shipping_display = WC()->cart->get_cart_shipping_total() ? WC()->cart->get_cart_shipping_total() : __('FREE', 'kash-naturals');
+
+                foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                    $_product = apply_filters('woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key);
+                    if ($_product && $_product->exists() && $cart_item['quantity'] > 0) {
+                        $image_id = $_product->get_image_id();
+                        $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'medium') : $theme_uri . '/assets/images/jar-royal-mukhwas.jpg';
+                        $wc_checkout_items[] = array(
+                            'name' => $_product->get_name(),
+                            'qty' => $cart_item['quantity'],
+                            'image' => $image_url,
+                            'price_html' => WC()->cart->get_product_subtotal($_product, $cart_item['quantity'])
+                        );
+                    }
+                }
+            }
+            ?>
+            <div class="wp-block-woocommerce-checkout alignwide wc-block-checkout is-large">
+                <div class="wc-block-components-sidebar-layout">
+                    <!-- Left Column: Order Summary (Swapped for optimal width & focus) -->
+                    <div class="wc-block-components-sidebar wc-block-checkout__sidebar">
+                        <div class="wc-block-components-order-summary">
+                            <h2 class="wc-block-components-order-summary__header"><?php esc_html_e('Order summary', 'kash-naturals'); ?></h2>
+
+                            <?php if ($has_real_wc_items) : ?>
+                                <?php foreach ($wc_checkout_items as $item) : ?>
+                                    <div class="wc-block-components-order-summary-item">
+                                        <div class="wc-block-components-order-summary-item__image">
+                                            <img src="<?php echo esc_url($item['image']); ?>" alt="<?php echo esc_attr($item['name']); ?>">
+                                            <span class="wc-block-components-order-summary-item__quantity"><?php echo esc_html($item['qty']); ?></span>
+                                        </div>
+                                        <div class="wc-block-components-order-summary-item__description">
+                                            <span class="wc-block-components-product-name"><?php echo esc_html($item['name']); ?></span>
+                                            <div class="wc-block-components-order-summary-item__price">
+                                                <ins><?php echo wp_kses_post($item['price_html']); ?></ins>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else : ?>
                                 <div class="wc-block-components-order-summary-item">
                                     <div class="wc-block-components-order-summary-item__image">
                                         <img src="<?php echo esc_url($theme_uri . '/assets/images/jar-royal-mukhwas.jpg'); ?>" alt="Kash Natural Raj Ratan">
@@ -137,6 +171,7 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                         </div>
                                     </div>
                                 </div>
+                            <?php endif; ?>
 
                                 <!-- Add a coupon toggle -->
                                 <div class="wc-block-components-totals-coupon">
@@ -158,18 +193,18 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                 <div class="wc-block-components-totals-wrapper">
                                     <div class="wc-block-components-totals-item" style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; color: #555;">
                                         <span><?php esc_html_e('Subtotal', 'kash-naturals'); ?></span>
-                                        <span style="font-weight: 600; color: #222;">₹179.00</span>
+                                        <span style="font-weight: 600; color: #222;"><?php echo wp_kses_post($cart_subtotal_display); ?></span>
                                     </div>
                                     <div class="wc-block-components-totals-item" style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; color: #555;">
                                         <span><?php esc_html_e('Pan-India Priority Shipping', 'kash-naturals'); ?></span>
-                                        <span style="font-weight: 700; color: #27ae60;"><?php esc_html_e('FREE', 'kash-naturals'); ?></span>
+                                        <span style="font-weight: 700; color: #27ae60;"><?php echo wp_kses_post($shipping_display); ?></span>
                                     </div>
                                     <div class="wc-block-components-totals-footer-item" style="display: flex; justify-content: space-between; align-items: baseline; border-top: 2px dashed #e2d8c9; margin-top: 16px; padding-top: 18px;">
                                         <div>
                                             <span style="display: block; font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: #0f3820;"><?php esc_html_e('Total', 'kash-naturals'); ?></span>
                                             <span style="font-size: 0.75rem; color: #777;"><?php esc_html_e('Inclusive of all applicable taxes', 'kash-naturals'); ?></span>
                                         </div>
-                                        <span class="wc-block-components-totals-item__value" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 800; color: #c68b27;">₹179.00</span>
+                                        <span class="wc-block-components-totals-item__value" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 800; color: #c68b27;"><?php echo wp_kses_post($cart_total_display); ?></span>
                                     </div>
                                 </div>
 
@@ -183,7 +218,8 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
 
                         <!-- Right Column: Customer Details, Address & Payment -->
                         <div class="wc-block-components-main">
-                            <form class="wc-block-checkout__form">
+                            <form name="checkout" method="post" class="wc-block-checkout__form checkout woocommerce-checkout" action="<?php echo esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout')); ?>" enctype="multipart/form-data">
+                                <?php if (function_exists('wp_nonce_field')) { wp_nonce_field('woocommerce-process_checkout', 'woocommerce-process-checkout-nonce'); } ?>
 
                             <!-- Step 1: Contact Information -->
                             <div class="wc-block-components-checkout-step wc-block-components-checkout-step--contact-information">
@@ -314,8 +350,8 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                     </div>
 
                                     <div class="wc-block-checkout__actions" style="margin-top: 22px;">
-                                        <button type="submit" class="wc-block-components-checkout-place-order-button">
-                                            <i class="fa-solid fa-lock" style="margin-right: 8px;"></i> <?php esc_html_e('Place Order • ₹179.00', 'kash-naturals'); ?>
+                                        <button type="submit" class="wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="<?php esc_attr_e('Place order', 'woocommerce'); ?>">
+                                            <i class="fa-solid fa-lock" style="margin-right: 8px;"></i> <?php echo esc_html(sprintf(__('Place Order • %s', 'kash-naturals'), strip_tags($cart_total_display))); ?>
                                         </button>
                                     </div>
                                 </div>
@@ -323,13 +359,9 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
 
                             </form>
                         </div>
-
                     </div>
                 </div>
-                <?php
-            }
-            ?>
-        </div>
+            </div>
 
         <!-- Bottom Security & Quality Seal -->
         <div class="checkout-security-footer text-center">

@@ -113,16 +113,45 @@ $shop_url      = function_exists('wc_get_page_permalink') ? wc_get_page_permalin
         <!-- Render Cart Content Wrap -->
         <div class="kash-cart-content-wrap">
             <?php
-            // If in real WordPress environment and post content exists (WooCommerce Blocks / Shortcode)
-            if (function_exists('have_posts') && have_posts() && class_exists('WooCommerce')) {
-                while (have_posts()) :
-                    the_post();
-                    the_content();
-                endwhile;
-            } else {
-                // Interactive Standalone High-Fidelity Cart (Matches Image 1 & Image 2)
-                ?>
-                <div class="kash-cart-grid-layout" id="kash-standalone-cart">
+            // Always render the custom high-fidelity Kash Naturals Cart UI across all environments
+            $wc_cart_items_json = array();
+            $is_wc_active = class_exists('WooCommerce');
+            $is_wc_cart_empty = false;
+            $has_wc_items = false;
+
+            if ($is_wc_active && function_exists('WC') && WC()->cart) {
+                if (WC()->cart->is_empty()) {
+                    $is_wc_cart_empty = true;
+                } else {
+                    $has_wc_items = true;
+                    foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                        $_product = apply_filters('woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key);
+                        if ($_product && $_product->exists() && $cart_item['quantity'] > 0) {
+                            $pid = $cart_item['product_id'];
+                            $img_id = $_product->get_image_id();
+                            $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'medium') : $theme_uri . '/assets/images/jar-royal-mukhwas.jpg';
+                            $price = floatval($_product->get_price());
+                            $regular = floatval($_product->get_regular_price());
+                            if (!$regular || $regular <= $price) {
+                                $regular = $price + 121;
+                            }
+                            $wc_cart_items_json[] = array(
+                                'id' => $pid,
+                                'key' => $cart_item_key,
+                                'name' => $_product->get_name(),
+                                'price' => $price,
+                                'regular_price' => $regular,
+                                'qty' => $cart_item['quantity'],
+                                'image' => $img_url,
+                                'remove_url' => wc_get_cart_remove_url($cart_item_key),
+                                'tags' => array('100% Vegetarian', 'Artisanal Jar')
+                            );
+                        }
+                    }
+                }
+            }
+            ?>
+            <div class="kash-cart-grid-layout" id="kash-standalone-cart">
                     <!-- Left: Items Card -->
                     <div class="kash-cart-main-col">
                         <div class="kash-card-box kash-cart-items-card">
@@ -324,9 +353,6 @@ $shop_url      = function_exists('wc_get_page_permalink') ? wc_get_page_permalin
                         <?php esc_html_e('EXPLORE ARTISANAL SHOP', 'kash-naturals'); ?>
                     </a>
                 </div>
-                <?php
-            }
-            ?>
         </div>
 
     </div>
@@ -334,6 +360,11 @@ $shop_url      = function_exists('wc_get_page_permalink') ? wc_get_page_permalin
 
 <!-- Client-side Cart Sync Script for live page calculations & local cart consistency -->
 <script>
+window.kashWooCartItems = <?php echo json_encode($wc_cart_items_json); ?>;
+window.isWcActive = <?php echo $is_wc_active ? 'true' : 'false'; ?>;
+window.hasWcItems = <?php echo $has_wc_items ? 'true' : 'false'; ?>;
+window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
+
 (function() {
     function initCartPage() {
         var cartContainer = document.getElementById('kash-standalone-cart');
@@ -369,20 +400,23 @@ $shop_url      = function_exists('wc_get_page_permalink') ? wc_get_page_permalin
             }
         ];
 
-        // Retrieve existing cart or initialize with demo items if not present
+        // Retrieve existing cart or initialize with real WooCommerce or demo items
         var cart = [];
-        try {
-            var raw = localStorage.getItem('kash_cart');
-            if (raw) {
-                cart = JSON.parse(raw);
-            }
-        } catch(e) {}
-
-        if (!cart || cart.length === 0) {
-            cart = defaultDemoCart;
+        if (window.hasWcItems && window.kashWooCartItems && window.kashWooCartItems.length > 0) {
+            cart = window.kashWooCartItems;
+            try { localStorage.setItem('kash_cart', JSON.stringify(cart)); } catch(e) {}
+        } else if (window.isWcCartEmpty) {
+            cart = [];
+            try { localStorage.removeItem('kash_cart'); } catch(e) {}
+        } else {
             try {
-                localStorage.setItem('kash_cart', JSON.stringify(cart));
+                var raw = localStorage.getItem('kash_cart');
+                if (raw) cart = JSON.parse(raw);
             } catch(e) {}
+            if (!cart || cart.length === 0) {
+                cart = defaultDemoCart;
+                try { localStorage.setItem('kash_cart', JSON.stringify(cart)); } catch(e) {}
+            }
         }
 
         var isCouponApplied = false;

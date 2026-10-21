@@ -372,9 +372,11 @@ table.shop_table .cart-item-title {
     box-sizing: border-box !important;
 }
 
-/* Left Column: Order Summary (Sidebar) */
-.wc-block-components-sidebar,
-.wc-block-checkout__sidebar {
+/* Left Column: Order Summary on Checkout */
+.wc-block-checkout .wc-block-components-sidebar,
+.wc-block-checkout .wc-block-checkout__sidebar,
+.wp-block-woocommerce-checkout .wc-block-components-sidebar,
+.wp-block-woocommerce-checkout .wc-block-checkout__sidebar {
     grid-column: 1 !important;
     order: 1 !important;
     width: 100% !important;
@@ -383,9 +385,11 @@ table.shop_table .cart-item-title {
     align-self: flex-start !important;
 }
 
-/* Right Column: Customer Details, Address & Payment */
-.wc-block-components-main,
-.wc-block-checkout__main {
+/* Right Column: Customer Details, Address & Payment on Checkout */
+.wc-block-checkout .wc-block-components-main,
+.wc-block-checkout .wc-block-checkout__main,
+.wp-block-woocommerce-checkout .wc-block-components-main,
+.wp-block-woocommerce-checkout .wc-block-checkout__main {
     grid-column: 2 !important;
     order: 2 !important;
     width: 100% !important;
@@ -393,6 +397,32 @@ table.shop_table .cart-item-title {
     min-width: 0 !important;
     flex: 1 1 0% !important;
     box-sizing: border-box !important;
+}
+
+/* Cart Block Alignment: Left = Items, Right = Totals */
+.wc-block-cart .wc-block-cart__main,
+.wc-block-cart .wc-block-components-main,
+.wp-block-woocommerce-cart .wc-block-cart__main,
+.wp-block-woocommerce-cart .wc-block-components-main {
+    grid-column: 1 !important;
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+.wc-block-cart .wc-block-cart__sidebar,
+.wc-block-cart .wc-block-components-sidebar,
+.wp-block-woocommerce-cart .wc-block-cart__sidebar,
+.wp-block-woocommerce-cart .wc-block-components-sidebar {
+    grid-column: 2 !important;
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    position: sticky !important;
+    top: 90px !important;
+    align-self: flex-start !important;
 }
 
 /* Single-Column Stack for Form Steps (CRITICAL: Do NOT grid this into 2 sub-columns!) */
