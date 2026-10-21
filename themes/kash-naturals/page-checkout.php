@@ -59,28 +59,36 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
         <!-- Trust Badges Strip -->
         <div class="checkout-trust-banner">
             <div class="trust-badge-item">
-                <i class="fa-solid fa-lock trust-icon"></i>
+                <div class="trust-icon">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
                 <div class="trust-text">
                     <strong><?php esc_html_e('256-Bit SSL', 'kash-naturals'); ?></strong>
                     <span><?php esc_html_e('Bank-grade Encryption', 'kash-naturals'); ?></span>
                 </div>
             </div>
             <div class="trust-badge-item">
-                <i class="fa-solid fa-leaf trust-icon"></i>
+                <div class="trust-icon">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
                 <div class="trust-text">
                     <strong><?php esc_html_e('100% Natural', 'kash-naturals'); ?></strong>
                     <span><?php esc_html_e('Pure & Artisanal Batches', 'kash-naturals'); ?></span>
                 </div>
             </div>
             <div class="trust-badge-item">
-                <i class="fa-solid fa-truck-fast trust-icon"></i>
+                <div class="trust-icon">
+                    <i class="fa-solid fa-truck-fast"></i>
+                </div>
                 <div class="trust-text">
                     <strong><?php esc_html_e('Express Delivery', 'kash-naturals'); ?></strong>
                     <span><?php esc_html_e('Pan-India Priority Dispatch', 'kash-naturals'); ?></span>
                 </div>
             </div>
             <div class="trust-badge-item">
-                <i class="fa-solid fa-money-bill-1-wave trust-icon"></i>
+                <div class="trust-icon">
+                    <i class="fa-solid fa-money-bill-1-wave"></i>
+                </div>
                 <div class="trust-text">
                     <strong><?php esc_html_e('UPI & COD Available', 'kash-naturals'); ?></strong>
                     <span><?php esc_html_e('Pay on delivery or instant UPI', 'kash-naturals'); ?></span>
@@ -181,9 +189,15 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                             <div class="wc-block-components-checkout-step wc-block-components-checkout-step--contact-information">
                                 <h2 class="wc-block-components-checkout-step__heading"><?php esc_html_e('Contact information', 'kash-naturals'); ?></h2>
                                 <div class="wc-block-components-checkout-step__container">
-                                    <div class="wc-block-components-text-input">
-                                        <label for="email"><?php esc_html_e('Email address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                        <input type="email" id="email" name="email" value="admin@kashnaturals.com" placeholder="name@domain.com" required>
+                                    <div class="checkout-form-row checkout-form-row-2col">
+                                        <div class="wc-block-components-text-input">
+                                            <label for="email"><?php esc_html_e('Email address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="email" id="email" name="email" value="admin@kashnaturals.com" placeholder="name@domain.com" required>
+                                        </div>
+                                        <div class="wc-block-components-text-input">
+                                            <label for="phone"><?php esc_html_e('Phone number', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" required>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -192,59 +206,65 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                             <div class="wc-block-components-checkout-step wc-block-components-checkout-step--billing-address">
                                 <h2 class="wc-block-components-checkout-step__heading"><?php esc_html_e('Billing address', 'kash-naturals'); ?></h2>
                                 <div class="wc-block-components-checkout-step__container">
-                                    <div class="wc-block-components-combobox" style="margin-bottom: 16px;">
-                                        <label for="billing_country"><?php esc_html_e('Country / Region', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                        <select id="billing_country" name="billing_country" class="input-text">
-                                            <option value="IN" selected>India</option>
-                                        </select>
+                                    <div class="checkout-form-row checkout-form-row-full">
+                                        <div class="wc-block-components-combobox">
+                                            <label for="billing_country"><?php esc_html_e('Country / Region', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <div class="checkout-select-wrap">
+                                                <select id="billing_country" name="billing_country" class="input-text">
+                                                    <option value="IN" selected>India</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                                        <div class="wc-block-components-text-input" style="margin-bottom: 0;">
+                                    <div class="checkout-form-row checkout-form-row-2col">
+                                        <div class="wc-block-components-text-input">
                                             <label for="first_name"><?php esc_html_e('First name', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
                                             <input type="text" id="first_name" name="first_name" placeholder="First name" required>
                                         </div>
-                                        <div class="wc-block-components-text-input" style="margin-bottom: 0;">
+                                        <div class="wc-block-components-text-input">
                                             <label for="last_name"><?php esc_html_e('Last name', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
                                             <input type="text" id="last_name" name="last_name" placeholder="Last name" required>
                                         </div>
                                     </div>
 
-                                    <div class="wc-block-components-text-input">
-                                        <label for="address_1"><?php esc_html_e('Address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                        <input type="text" id="address_1" name="address_1" placeholder="House number and street name" required>
+                                    <div class="checkout-form-row checkout-form-row-full">
+                                        <div class="wc-block-components-text-input">
+                                            <label for="address_1"><?php esc_html_e('Address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="text" id="address_1" name="address_1" placeholder="House number and street name" required>
+                                        </div>
                                     </div>
 
-                                    <div class="wc-block-components-text-input">
-                                        <label for="address_2"><?php esc_html_e('Apartment, suite, unit, etc. (optional)', 'kash-naturals'); ?></label>
-                                        <input type="text" id="address_2" name="address_2" placeholder="Apartment, suite, landmark, etc.">
+                                    <div class="checkout-form-row checkout-form-row-full">
+                                        <div class="wc-block-components-text-input">
+                                            <label for="address_2"><?php esc_html_e('Apartment, suite, unit, etc. (optional)', 'kash-naturals'); ?></label>
+                                            <input type="text" id="address_2" name="address_2" placeholder="Apartment, suite, landmark, etc.">
+                                        </div>
                                     </div>
 
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                                        <div class="wc-block-components-text-input" style="margin-bottom: 0;">
+                                    <div class="checkout-form-row checkout-form-row-2col">
+                                        <div class="wc-block-components-text-input">
                                             <label for="city"><?php esc_html_e('City / Town', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
                                             <input type="text" id="city" name="city" placeholder="City" required>
                                         </div>
-                                        <div class="wc-block-components-combobox" style="margin-bottom: 0;">
+                                        <div class="wc-block-components-combobox">
                                             <label for="state"><?php esc_html_e('State', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <select id="state" name="state" class="input-text">
-                                                <option value="GJ" selected>Gujarat</option>
-                                                <option value="MH">Maharashtra</option>
-                                                <option value="DL">Delhi</option>
-                                                <option value="KA">Karnataka</option>
-                                                <option value="RJ">Rajasthan</option>
-                                            </select>
+                                            <div class="checkout-select-wrap">
+                                                <select id="state" name="state" class="input-text">
+                                                    <option value="GJ" selected>Gujarat</option>
+                                                    <option value="MH">Maharashtra</option>
+                                                    <option value="DL">Delhi</option>
+                                                    <option value="KA">Karnataka</option>
+                                                    <option value="RJ">Rajasthan</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                                        <div class="wc-block-components-text-input" style="margin-bottom: 0;">
+                                    <div class="checkout-form-row checkout-form-row-full">
+                                        <div class="wc-block-components-text-input">
                                             <label for="postcode"><?php esc_html_e('PIN Code', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
                                             <input type="text" id="postcode" name="postcode" placeholder="6-digit PIN code" required>
-                                        </div>
-                                        <div class="wc-block-components-text-input" style="margin-bottom: 0;">
-                                            <label for="phone"><?php esc_html_e('Phone (optional)', 'kash-naturals'); ?></label>
-                                            <input type="tel" id="phone" name="phone" placeholder="Mobile phone for delivery updates">
                                         </div>
                                     </div>
                                 </div>

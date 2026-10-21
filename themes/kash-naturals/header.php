@@ -185,11 +185,12 @@ if (!defined('ABSPATH')) {
                 if (function_exists('WC') && WC() && isset(WC()->cart) && is_object(WC()->cart)) {
                     $initial_cart_count = WC()->cart->get_cart_contents_count();
                 }
+                $cart_page_url = function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/cart');
                 ?>
-                <button type="button" class="action-btn-clean cart-drawer-trigger" id="mini-cart-toggle" aria-label="<?php esc_attr_e('Cart', 'kash-naturals'); ?>" title="<?php esc_attr_e('Shopping Cart', 'kash-naturals'); ?>">
+                <a href="<?php echo esc_url($cart_page_url); ?>" class="action-btn-clean header-cart-link" id="header-cart-icon" aria-label="<?php esc_attr_e('Cart', 'kash-naturals'); ?>" title="<?php esc_attr_e('Shopping Cart', 'kash-naturals'); ?>">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span class="cart-count-badge-orange cart-count-badge" id="mini-cart-count"><?php echo esc_html($initial_cart_count); ?></span>
-                </button>
+                </a>
             </div>
 
         </div>

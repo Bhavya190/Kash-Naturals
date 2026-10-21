@@ -141,9 +141,38 @@ if (!function_exists('wp_body_open')) { function wp_body_open() {} }
 if (!function_exists('wp_footer')) {
     function wp_footer() {
         echo '<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>' . "\n";
+        $mock_products = array(
+            array(
+                'id' => 1,
+                'name' => 'Kash Natural Raj Ratan – Sweet & Salty Mukhwas | Traditional Indian Mouth Freshener, 200g',
+                'price' => 179,
+                'regular_price' => 300,
+                'image' => KASH_THEME_URI . '/assets/images/jar-royal-mukhwas.jpg',
+                'in_stock' => true,
+                'stock_status' => 'instock'
+            ),
+            array(
+                'id' => 2,
+                'name' => 'Kash Natural – Jamun Shots Mukhwas | Premium Indian Mouth Freshener | Sweet & Tangy After-Meal Digestive',
+                'price' => 179,
+                'regular_price' => 300,
+                'image' => KASH_THEME_URI . '/assets/images/product-royal-mukhwas.jpg',
+                'in_stock' => true,
+                'stock_status' => 'instock'
+            ),
+            array(
+                'id' => 3,
+                'name' => 'Kash Natural Gotli Tal Mukhwas, Crispy Salty Mix, 200g',
+                'price' => 179,
+                'regular_price' => 300,
+                'image' => KASH_THEME_URI . '/assets/images/jar-sweet-saunf.jpg',
+                'in_stock' => true,
+                'stock_status' => 'instock'
+            ),
+        );
         $dynamic_data = array(
-            'products' => array(),
-            'products_count' => 0,
+            'products' => $mock_products,
+            'products_count' => count($mock_products),
             'theme_uri' => KASH_THEME_URI,
             'shop_url' => '/shop',
             'cart_url' => '/cart',
@@ -219,7 +248,7 @@ if (!function_exists('wc_get_checkout_url')) { function wc_get_checkout_url() { 
 if (!function_exists('wc_get_product')) { function wc_get_product($id) { return false; } }
 if (!function_exists('wc_price')) { function wc_price($price) { return '₹' . number_format((float)$price, 2); } }
 if (!function_exists('get_woocommerce_currency_symbol')) { function get_woocommerce_currency_symbol($currency = '') { return '₹'; } }
-if (!function_exists('is_cart')) { function is_cart() { return false; } }
+if (!function_exists('is_cart')) { function is_cart() { global $kash_is_cart; return !empty($kash_is_cart); } }
 if (!function_exists('is_checkout')) { function is_checkout() { return false; } }
 if (!function_exists('is_account_page')) { function is_account_page() { return false; } }
 if (!function_exists('woocommerce_page_title')) { function woocommerce_page_title() { echo 'Shop Collection'; } }
@@ -300,6 +329,14 @@ switch ($cleanUri) {
         $GLOBALS['kash_is_shop'] = true;
         $GLOBALS['kash_page_title'] = 'Shop | Kash Naturals';
         require KASH_THEME_DIR . '/page-shop.php';
+        exit;
+
+    case '/cart':
+    case '/cart.php':
+    case '/cart.html':
+        $GLOBALS['kash_is_cart'] = true;
+        $GLOBALS['kash_page_title'] = 'Shopping Bag | Kash Naturals';
+        require KASH_THEME_DIR . '/page-cart.php';
         exit;
 
     case '/about':

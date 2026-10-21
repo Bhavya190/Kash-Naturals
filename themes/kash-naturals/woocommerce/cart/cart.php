@@ -10,12 +10,10 @@ defined('ABSPATH') || exit;
 do_action('woocommerce_before_cart'); ?>
 
 <div class="cart-page-wrapper">
-    <div class="cart-header text-center">
-        <h1 class="page-title"><i class="fa-solid fa-basket-shopping"></i> Your Chocolate Basket</h1>
-        <p class="free-shipping-note">✨ Add <strong>$15.00</strong> more to qualify for <strong>FREE Insulated Express Shipping</strong>!</p>
-        <div class="shipping-progress-bar">
-            <div class="shipping-progress-fill" style="width: 75%;"></div>
-        </div>
+    <div class="cart-header text-center" style="margin-bottom: 25px;">
+        <h1 class="page-title" style="font-family: 'Playfair Display', serif; color: #0f3820; font-weight: 700;">
+            <i class="fa-solid fa-bag-shopping" style="color: #c68b27; margin-right: 8px;"></i> <?php esc_html_e('Your Shopping Bag', 'kash-naturals'); ?>
+        </h1>
     </div>
 
     <form class="woocommerce-cart-form" action="<?php echo esc_url(wc_get_cart_url()); ?>" method="post">

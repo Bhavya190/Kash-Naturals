@@ -353,6 +353,9 @@ if (!defined('ABSPATH')) {
             <button type="button" class="btn-checkout-drawer" id="btn-open-checkout">
                 PROCEED TO CHECKOUT
             </button>
+            <a href="<?php echo esc_url(function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/cart')); ?>" class="btn-view-bag-drawer" id="btn-drawer-view-cart">
+                VIEW SHOPPING BAG
+            </a>
             <button type="button" class="btn-continue-shopping" id="btn-close-cart-continue">
                 CONTINUE SHOPPING
             </button>
