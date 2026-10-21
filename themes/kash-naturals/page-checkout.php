@@ -99,6 +99,9 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
         <!-- Render WooCommerce Checkout Form / Block Content -->
         <div class="kash-checkout-content-wrap">
             <?php
+            // Initialize WooCommerce checkout instance if available
+            $checkout = function_exists('WC') && WC()->checkout ? WC()->checkout() : null;
+
             // Check for real WooCommerce cart items and totals
             $wc_checkout_items = array();
             $has_real_wc_items = false;
@@ -126,7 +129,68 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                     }
                 }
             }
+
+            // Indian states list
+            $indian_states = array(
+                'AP' => 'Andhra Pradesh',
+                'AR' => 'Arunachal Pradesh',
+                'AS' => 'Assam',
+                'BR' => 'Bihar',
+                'CT' => 'Chhattisgarh',
+                'GA' => 'Goa',
+                'GJ' => 'Gujarat',
+                'HR' => 'Haryana',
+                'HP' => 'Himachal Pradesh',
+                'JK' => 'Jammu and Kashmir',
+                'JH' => 'Jharkhand',
+                'KA' => 'Karnataka',
+                'KL' => 'Kerala',
+                'MP' => 'Madhya Pradesh',
+                'MH' => 'Maharashtra',
+                'MN' => 'Manipur',
+                'ML' => 'Meghalaya',
+                'MZ' => 'Mizoram',
+                'NL' => 'Nagaland',
+                'OR' => 'Odisha',
+                'PB' => 'Punjab',
+                'RJ' => 'Rajasthan',
+                'SK' => 'Sikkim',
+                'TN' => 'Tamil Nadu',
+                'TS' => 'Telangana',
+                'TR' => 'Tripura',
+                'UK' => 'Uttarakhand',
+                'UP' => 'Uttar Pradesh',
+                'WB' => 'West Bengal',
+                'AN' => 'Andaman and Nicobar Islands',
+                'CH' => 'Chandigarh',
+                'DH' => 'Dadra and Nagar Haveli and Daman and Diu',
+                'DL' => 'Delhi',
+                'LD' => 'Lakshadweep',
+                'PY' => 'Puducherry',
+                'LA' => 'Ladakh',
+            );
+            if (function_exists('WC') && WC()->countries) {
+                $wc_states = WC()->countries->get_states('IN');
+                if (!empty($wc_states) && is_array($wc_states)) {
+                    $indian_states = $wc_states;
+                }
+            }
+            $current_state = ($checkout && $checkout->get_value('billing_state')) ? $checkout->get_value('billing_state') : 'GJ';
             ?>
+
+            <!-- Display WooCommerce Validation & Error Notices -->
+            <div class="woocommerce-notices-wrapper">
+                <?php
+                if (function_exists('woocommerce_output_all_notices')) {
+                    woocommerce_output_all_notices();
+                } elseif (function_exists('wc_print_notices')) {
+                    wc_print_notices();
+                }
+                ?>
+            </div>
+
+            <?php if ($checkout) { do_action('woocommerce_before_checkout_form', $checkout); } ?>
+
             <div class="wp-block-woocommerce-checkout alignwide wc-block-checkout is-large">
                 <div class="wc-block-components-sidebar-layout">
                     <!-- Left Column: Order Summary (Swapped for optimal width & focus) -->
@@ -220,6 +284,7 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                         <div class="wc-block-components-main">
                             <form name="checkout" method="post" class="wc-block-checkout__form checkout woocommerce-checkout" action="<?php echo esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout')); ?>" enctype="multipart/form-data">
                                 <?php if (function_exists('wp_nonce_field')) { wp_nonce_field('woocommerce-process_checkout', 'woocommerce-process-checkout-nonce'); } ?>
+                                <?php do_action('woocommerce_checkout_before_customer_details'); ?>
 
                             <!-- Step 1: Contact Information -->
                             <div class="wc-block-components-checkout-step wc-block-components-checkout-step--contact-information">
@@ -227,12 +292,12 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                 <div class="wc-block-components-checkout-step__container">
                                     <div class="checkout-form-row checkout-form-row-2col">
                                         <div class="wc-block-components-text-input">
-                                            <label for="email"><?php esc_html_e('Email address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="email" id="email" name="email" placeholder="name@domain.com" required>
+                                            <label for="billing_email"><?php esc_html_e('Email address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="email" id="billing_email" name="billing_email" class="input-text" placeholder="example@gmail.com" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_email') : ''); ?>" autocomplete="email">
                                         </div>
                                         <div class="wc-block-components-text-input">
-                                            <label for="phone"><?php esc_html_e('Phone number', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" required>
+                                            <label for="billing_phone"><?php esc_html_e('Phone number', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="tel" id="billing_phone" name="billing_phone" class="input-text" placeholder="10-digit mobile number" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_phone') : ''); ?>" autocomplete="tel">
                                         </div>
                                     </div>
                                 </div>
@@ -246,7 +311,7 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                         <div class="wc-block-components-combobox">
                                             <label for="billing_country"><?php esc_html_e('Country / Region', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
                                             <div class="checkout-select-wrap">
-                                                <select id="billing_country" name="billing_country" class="input-text">
+                                                <select id="billing_country" name="billing_country" class="input-text" autocomplete="country">
                                                     <option value="IN" selected>India</option>
                                                 </select>
                                             </div>
@@ -255,43 +320,43 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
 
                                     <div class="checkout-form-row checkout-form-row-2col">
                                         <div class="wc-block-components-text-input">
-                                            <label for="first_name"><?php esc_html_e('First name', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="text" id="first_name" name="first_name" placeholder="First name" required>
+                                            <label for="billing_first_name"><?php esc_html_e('First name', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="text" id="billing_first_name" name="billing_first_name" class="input-text" placeholder="<?php esc_attr_e('First name', 'kash-naturals'); ?>" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_first_name') : ''); ?>" autocomplete="given-name">
                                         </div>
                                         <div class="wc-block-components-text-input">
-                                            <label for="last_name"><?php esc_html_e('Last name', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="text" id="last_name" name="last_name" placeholder="Last name" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="checkout-form-row checkout-form-row-full">
-                                        <div class="wc-block-components-text-input">
-                                            <label for="address_1"><?php esc_html_e('Address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="text" id="address_1" name="address_1" placeholder="House number and street name" required>
+                                            <label for="billing_last_name"><?php esc_html_e('Last name', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="text" id="billing_last_name" name="billing_last_name" class="input-text" placeholder="<?php esc_attr_e('Last name', 'kash-naturals'); ?>" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_last_name') : ''); ?>" autocomplete="family-name">
                                         </div>
                                     </div>
 
                                     <div class="checkout-form-row checkout-form-row-full">
                                         <div class="wc-block-components-text-input">
-                                            <label for="address_2"><?php esc_html_e('Apartment, suite, unit, etc. (optional)', 'kash-naturals'); ?></label>
-                                            <input type="text" id="address_2" name="address_2" placeholder="Apartment, suite, landmark, etc.">
+                                            <label for="billing_address_1"><?php esc_html_e('Address', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="text" id="billing_address_1" name="billing_address_1" class="input-text" placeholder="<?php esc_attr_e('House number and street name', 'kash-naturals'); ?>" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_address_1') : ''); ?>" autocomplete="address-line1">
+                                        </div>
+                                    </div>
+
+                                    <div class="checkout-form-row checkout-form-row-full">
+                                        <div class="wc-block-components-text-input">
+                                            <label for="billing_address_2"><?php esc_html_e('Apartment, suite, unit, etc. (optional)', 'kash-naturals'); ?></label>
+                                            <input type="text" id="billing_address_2" name="billing_address_2" class="input-text" placeholder="<?php esc_attr_e('Apartment, suite, landmark, etc.', 'kash-naturals'); ?>" value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_address_2') : ''); ?>" autocomplete="address-line2">
                                         </div>
                                     </div>
 
                                     <div class="checkout-form-row checkout-form-row-2col">
                                         <div class="wc-block-components-text-input">
-                                            <label for="city"><?php esc_html_e('City / Town', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="text" id="city" name="city" placeholder="City" required>
+                                            <label for="billing_city"><?php esc_html_e('City / Town', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="text" id="billing_city" name="billing_city" class="input-text" placeholder="<?php esc_attr_e('City', 'kash-naturals'); ?>" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_city') : ''); ?>" autocomplete="address-level2">
                                         </div>
                                         <div class="wc-block-components-combobox">
-                                            <label for="state"><?php esc_html_e('State', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <label for="billing_state"><?php esc_html_e('State', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
                                             <div class="checkout-select-wrap">
-                                                <select id="state" name="state" class="input-text">
-                                                    <option value="GJ" selected>Gujarat</option>
-                                                    <option value="MH">Maharashtra</option>
-                                                    <option value="DL">Delhi</option>
-                                                    <option value="KA">Karnataka</option>
-                                                    <option value="RJ">Rajasthan</option>
+                                                <select id="billing_state" name="billing_state" class="input-text" autocomplete="address-level1">
+                                                    <?php foreach ($indian_states as $st_code => $st_name) : ?>
+                                                        <option value="<?php echo esc_attr($st_code); ?>" <?php selected($current_state, $st_code); ?>>
+                                                            <?php echo esc_html($st_name); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -299,65 +364,153 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
 
                                     <div class="checkout-form-row checkout-form-row-full">
                                         <div class="wc-block-components-text-input">
-                                            <label for="postcode"><?php esc_html_e('PIN Code', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
-                                            <input type="text" id="postcode" name="postcode" placeholder="6-digit PIN code" required>
+                                            <label for="billing_postcode"><?php esc_html_e('PIN Code', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
+                                            <input type="text" id="billing_postcode" name="billing_postcode" class="input-text" placeholder="<?php esc_attr_e('6-digit PIN code', 'kash-naturals'); ?>" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_postcode') : ''); ?>" autocomplete="postal-code" maxlength="6" pattern="[0-9]{6}">
                                         </div>
                                     </div>
+
+                                    <!-- Shipping Synchronization & Compatibility Fields -->
+                                    <input type="hidden" name="ship_to_different_address" value="0">
+                                    <input type="hidden" name="terms" value="1">
+                                    <input type="hidden" name="terms-field" value="1">
+                                    <?php
+                                    if ( function_exists('WC') && WC()->cart && WC()->cart->needs_shipping() ) {
+                                        $chosen_shipping_methods = function_exists('WC') && WC()->session ? WC()->session->get( 'chosen_shipping_methods', array() ) : array();
+                                        $packages = function_exists('WC') && WC()->shipping ? WC()->shipping()->get_packages() : array();
+                                        if ( ! empty( $packages ) ) {
+                                            foreach ( $packages as $i => $package ) {
+                                                $chosen = isset( $chosen_shipping_methods[ $i ] ) ? $chosen_shipping_methods[ $i ] : '';
+                                                if ( ! empty( $package['rates'] ) ) {
+                                                    if ( empty( $chosen ) || ! isset( $package['rates'][ $chosen ] ) ) {
+                                                        $chosen = key( $package['rates'] );
+                                                    }
+                                                    echo '<input type="hidden" name="shipping_method[' . esc_attr( $i ) . ']" value="' . esc_attr( $chosen ) . '" class="shipping_method">';
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ?>
                                 </div>
                             </div>
+
+                            <?php do_action('woocommerce_checkout_after_customer_details'); ?>
 
                             <!-- Step 3: Payment Options -->
                             <div class="wc-block-components-checkout-step wc-block-components-checkout-step--payment-method">
                                 <h2 class="wc-block-components-checkout-step__heading"><?php esc_html_e('Payment options', 'kash-naturals'); ?></h2>
                                 <div class="wc-block-components-checkout-step__container">
-                                    <div class="wc-block-components-radio-control">
-                                        <label class="wc-block-components-radio-control__option wc-block-components-radio-control__option--checked" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer;">
-                                            <input type="radio" name="payment_method" value="cod" checked class="wc-block-components-radio-control__input" style="margin-top: 4px;">
-                                            <div class="wc-block-components-radio-control__option-layout">
-                                                <span class="wc-block-components-radio-control__label">
-                                                    <i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60; margin-right: 6px;"></i>
-                                                    <?php esc_html_e('Cash on delivery', 'kash-naturals'); ?>
-                                                </span>
-                                                <div class="wc-block-components-radio-control__description">
-                                                    <?php esc_html_e('Pay with cash or UPI QR scan upon delivery at your doorstep.', 'kash-naturals'); ?>
-                                                </div>
-                                            </div>
-                                        </label>
+                                    <?php
+                                    $available_gateways = array();
+                                    if (function_exists('WC') && WC()->payment_gateways) {
+                                        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                                    }
 
-                                        <label class="wc-block-components-radio-control__option" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer;">
-                                            <input type="radio" name="payment_method" value="online" class="wc-block-components-radio-control__input" style="margin-top: 4px;">
-                                            <div class="wc-block-components-radio-control__option-layout">
-                                                <span class="wc-block-components-radio-control__label">
-                                                    <i class="fa-solid fa-bolt" style="color: #c68b27; margin-right: 6px;"></i>
-                                                    <?php esc_html_e('Instant UPI / Cards / NetBanking', 'kash-naturals'); ?>
-                                                </span>
-                                                <div class="wc-block-components-radio-control__description">
-                                                    <?php esc_html_e('Fast, contactless payment via Google Pay, PhonePe, Paytm, Cards & UPI.', 'kash-naturals'); ?>
-                                                </div>
+                                    $chosen_gateway = '';
+                                    if (function_exists('WC') && WC()->session) {
+                                        $chosen_gateway = WC()->session->get('chosen_payment_method');
+                                    }
+                                    if (empty($chosen_gateway) && !empty($available_gateways)) {
+                                        $chosen_gateway = isset($available_gateways['cod']) ? 'cod' : key($available_gateways);
+                                    }
+
+                                    do_action('woocommerce_review_order_before_payment');
+                                    ?>
+
+                                    <div id="payment" class="wc-block-components-radio-control payment-methods-list">
+                                        <?php if (!empty($available_gateways)) : ?>
+                                            <ul class="wc_payment_methods payment_methods methods" style="list-style: none; margin: 0; padding: 0;">
+                                                <?php foreach ($available_gateways as $gateway) :
+                                                    $is_checked = ($gateway->id === $chosen_gateway);
+                                                    $icon_html = '';
+                                                    if ($gateway->id === 'cod') {
+                                                        $icon_html = '<i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60; margin-right: 8px;"></i>';
+                                                    } elseif (in_array($gateway->id, array('razorpay', 'phonepe', 'phonepe_woocommerce', 'paytm', 'cashfree', 'upi'))) {
+                                                        $icon_html = '<i class="fa-solid fa-bolt" style="color: #c68b27; margin-right: 8px;"></i>';
+                                                    } elseif ($gateway->id === 'bacs') {
+                                                        $icon_html = '<i class="fa-solid fa-building-columns" style="color: #0f3820; margin-right: 8px;"></i>';
+                                                    } else {
+                                                        $icon_html = '<i class="fa-solid fa-credit-card" style="color: #c68b27; margin-right: 8px;"></i>';
+                                                    }
+                                                ?>
+                                                    <li class="wc_payment_method payment_method_<?php echo esc_attr($gateway->id); ?>" style="margin-bottom: 12px;">
+                                                        <label class="wc-block-components-radio-control__option <?php echo $is_checked ? 'wc-block-components-radio-control__option--checked' : ''; ?>" for="payment_method_<?php echo esc_attr($gateway->id); ?>" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer;">
+                                                            <input id="payment_method_<?php echo esc_attr($gateway->id); ?>" type="radio" class="input-radio wc-block-components-radio-control__input" name="payment_method" value="<?php echo esc_attr($gateway->id); ?>" <?php checked($is_checked, true); ?> data-order_button_text="<?php echo esc_attr($gateway->order_button_text); ?>" style="margin-top: 4px;">
+                                                            <div class="wc-block-components-radio-control__option-layout" style="flex: 1;">
+                                                                <span class="wc-block-components-radio-control__label" style="display: flex; align-items: center; justify-content: space-between;">
+                                                                    <span><?php echo $icon_html; ?><?php echo esc_html($gateway->get_title()); ?></span>
+                                                                    <?php if ($gateway->id === 'cod') : ?>
+                                                                        <span style="font-size: 0.72rem; padding: 2px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; font-weight: 600;">RECOMMENDED</span>
+                                                                    <?php elseif ($gateway->has_fields() || in_array($gateway->id, array('razorpay', 'phonepe', 'paytm', 'cashfree', 'upi'))) : ?>
+                                                                        <span style="font-size: 0.72rem; padding: 2px 8px; background: #fff8e1; color: #b78103; border-radius: 4px; font-weight: 600;">INSTANT UPI &amp; CARDS</span>
+                                                                    <?php endif; ?>
+                                                                </span>
+                                                                <?php if ($gateway->get_description()) : ?>
+                                                                    <div class="wc-block-components-radio-control__description payment_box payment_method_<?php echo esc_attr($gateway->id); ?>" style="font-size: 0.85rem; color: #666; margin-top: 4px; line-height: 1.45;">
+                                                                        <?php echo wp_kses_post($gateway->get_description()); ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                                <?php if ($gateway->has_fields()) : ?>
+                                                                    <div class="payment_box payment_method_<?php echo esc_attr($gateway->id); ?>" style="<?php echo $is_checked ? '' : 'display:none;'; ?> margin-top: 10px; padding: 12px; background: #fdfcf9; border: 1px solid #e8dfd2; border-radius: 8px;">
+                                                                        <?php $gateway->payment_fields(); ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </label>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else : ?>
+                                            <!-- Fallback if gateways not yet initialized -->
+                                            <div class="wc-block-components-radio-control">
+                                                <label class="wc-block-components-radio-control__option wc-block-components-radio-control__option--checked" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer;">
+                                                    <input type="radio" name="payment_method" value="cod" checked class="wc-block-components-radio-control__input" style="margin-top: 4px;">
+                                                    <div class="wc-block-components-radio-control__option-layout">
+                                                        <span class="wc-block-components-radio-control__label">
+                                                            <i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60; margin-right: 6px;"></i>
+                                                            <?php esc_html_e('Cash on delivery (COD)', 'kash-naturals'); ?>
+                                                        </span>
+                                                        <div class="wc-block-components-radio-control__description">
+                                                            <?php esc_html_e('Pay with cash or UPI QR scan upon delivery at your doorstep.', 'kash-naturals'); ?>
+                                                        </div>
+                                                    </div>
+                                                </label>
                                             </div>
-                                        </label>
+                                        <?php endif; ?>
                                     </div>
 
-                                    <div style="margin-top: 20px; padding: 14px 18px; background: #faf8f5; border: 1.5px solid #ede5d8; border-radius: 12px;">
+                                    <?php do_action('woocommerce_review_order_after_payment'); ?>
+
+                                    <div class="checkout-order-notes-wrap" style="margin-top: 20px; padding: 14px 18px; background: #faf8f5; border: 1.5px solid #ede5d8; border-radius: 12px;">
                                         <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600; color: #333; cursor: pointer;">
-                                            <input type="checkbox" name="order_notes_toggle" style="accent-color: #0f3820; width: 17px; height: 17px;">
+                                            <input type="checkbox" id="order_notes_toggle" name="order_notes_toggle" style="accent-color: #0f3820; width: 17px; height: 17px;" onchange="var el = document.getElementById('order_comments_container'); if(el) el.style.display = this.checked ? 'block' : 'none';">
                                             <?php esc_html_e('Add a note to your order (gift message, landmark, or special delivery instructions)', 'kash-naturals'); ?>
                                         </label>
+                                        <div id="order_comments_container" style="display: none; margin-top: 12px;">
+                                            <textarea id="order_comments" name="order_comments" class="input-text" rows="3" placeholder="<?php esc_attr_e('Notes about your order, e.g. special notes for delivery or gift message.', 'kash-naturals'); ?>" style="width: 100%; border: 1.5px solid #d4c8b8; border-radius: 8px; padding: 10px 14px; font-family: inherit; font-size: 0.9rem; background: #fff; box-sizing: border-box;"></textarea>
+                                        </div>
                                     </div>
+
+                                    <?php do_action('woocommerce_review_order_before_submit'); ?>
 
                                     <div class="wc-block-checkout__terms" style="margin-top: 18px; font-size: 0.85rem; color: #666; line-height: 1.5;">
                                         <?php esc_html_e('By proceeding with your purchase you agree to our', 'kash-naturals'); ?> <a href="<?php echo esc_url(home_url('/terms-and-conditions')); ?>" style="color: #0f3820; font-weight: 600; text-decoration: underline;"><?php esc_html_e('Terms and Conditions', 'kash-naturals'); ?></a> <?php esc_html_e('and', 'kash-naturals'); ?> <a href="<?php echo esc_url(home_url('/privacy-policy')); ?>" style="color: #0f3820; font-weight: 600; text-decoration: underline;"><?php esc_html_e('Privacy Policy', 'kash-naturals'); ?></a>.
                                     </div>
 
                                     <div class="wc-block-checkout__actions" style="margin-top: 22px;">
-                                        <button type="submit" class="wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="<?php esc_attr_e('Place order', 'woocommerce'); ?>">
-                                            <i class="fa-solid fa-lock" style="margin-right: 8px;"></i> <?php echo esc_html(sprintf(__('Place Order • %s', 'kash-naturals'), strip_tags($cart_total_display))); ?>
+                                        <?php
+                                        $order_btn_text = apply_filters('woocommerce_order_button_text', sprintf(__('Place Order • %s', 'kash-naturals'), strip_tags($cart_total_display)));
+                                        ?>
+                                        <button type="submit" class="wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="<?php echo esc_attr($order_btn_text); ?>" data-value="<?php echo esc_attr($order_btn_text); ?>">
+                                            <i class="fa-solid fa-lock" style="margin-right: 8px;"></i> <?php echo esc_html($order_btn_text); ?>
                                         </button>
                                     </div>
+
+                                    <?php do_action('woocommerce_review_order_after_submit'); ?>
                                 </div>
                             </div>
 
                             </form>
+                            <?php if ($checkout) { do_action('woocommerce_after_checkout_form', $checkout); } ?>
                         </div>
                     </div>
                 </div>

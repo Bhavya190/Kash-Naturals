@@ -29,4 +29,17 @@ jQuery(document).ready(function ($) {
         $badge.addClass('bump-anim');
         setTimeout(() => $badge.removeClass('bump-anim'), 400);
     });
+
+    // Checkout payment method dynamic switcher & visual active toggle
+    $(document.body).on('change', 'input[name="payment_method"]', function () {
+        var $this = $(this);
+        var gatewayId = $this.val();
+
+        $('ul.payment_methods li label, .payment-methods-list label').removeClass('wc-block-components-radio-control__option--checked');
+        $this.closest('label').addClass('wc-block-components-radio-control__option--checked');
+
+        $('.wc_payment_method .payment_box').hide();
+        $('.payment_method_' + gatewayId + ' .payment_box').slideDown(200);
+    });
 });
+

@@ -3807,4 +3807,85 @@ img.amz-ref-logo {
     }
 }
 
+/* ==========================================================================
+   WOOCOMMERCE NOTICES & ALERTS (LUXURY EMERALD & GOLD)
+   ========================================================================== */
+.woocommerce-NoticeGroup,
+.woocommerce-notices-wrapper {
+    width: 100%;
+    margin-bottom: 24px;
+}
 
+.woocommerce-error,
+.woocommerce-message,
+.woocommerce-info {
+    list-style: none !important;
+    padding: 16px 20px !important;
+    margin: 0 0 16px 0 !important;
+    border-radius: 12px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 0.94rem !important;
+    line-height: 1.5 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    position: relative !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+.woocommerce-error {
+    background: #fdf5f5 !important;
+    border: 1.5px solid #f5c2c7 !important;
+    color: #842029 !important;
+}
+
+.woocommerce-error li {
+    list-style: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-weight: 500 !important;
+}
+
+.woocommerce-error li::before {
+    content: "\f06a" !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    color: #dc3545 !important;
+    font-size: 1rem !important;
+    margin-right: 4px !important;
+}
+
+.woocommerce-error a {
+    color: #842029 !important;
+    text-decoration: underline !important;
+    font-weight: 600 !important;
+}
+
+.woocommerce-message {
+    background: #edf7ed !important;
+    border: 1.5px solid #c3e6cb !important;
+    color: #0f5132 !important;
+}
+
+.woocommerce-message::before {
+    content: "\f058" !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    color: #198754 !important;
+    margin-right: 6px !important;
+}
+
+.woocommerce-info {
+    background: #eef5fc !important;
+    border: 1.5px solid #b6d4fe !important;
+    color: #084298 !important;
+}
+
+.woocommerce-info::before {
+    content: "\f05a" !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    color: #0d6efd !important;
+    margin-right: 6px !important;
+}
