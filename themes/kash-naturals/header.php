@@ -32,10 +32,9 @@ if (!defined('ABSPATH')) {
             3 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Pan India Delivery', 'link' => ''),
             4 => array('icon' => 'fa-brands fa-amazon', 'text' => 'Available on Amazon', 'link' => ''),
         );
-    ?>
-    <div class="top-notice-bar" style="background-color: <?php echo esc_attr($notice_bg); ?>; color: <?php echo esc_attr($notice_color); ?>;">
-        <div class="container notice-bar-container">
-            <?php for ($i = 1; $i <= 4; $i++) :
+
+        $render_notice_items = function() use ($default_items) {
+            for ($i = 1; $i <= 4; $i++) :
                 $icon = get_theme_mod("kash_noticebar_item{$i}_icon", $default_items[$i]['icon']);
                 $text = get_theme_mod("kash_noticebar_item{$i}_text", $default_items[$i]['text']);
                 $link = get_theme_mod("kash_noticebar_item{$i}_link", $default_items[$i]['link']);
@@ -53,7 +52,29 @@ if (!defined('ABSPATH')) {
                         <?php endif; ?>
                     </div>
                 <?php endif;
-            endfor; ?>
+            endfor;
+        };
+    ?>
+    <div class="top-notice-bar" style="background-color: <?php echo esc_attr($notice_bg); ?>; color: <?php echo esc_attr($notice_color); ?>;">
+        <div class="container notice-bar-container">
+            <!-- Desktop Layout: static evenly-spaced row across the bar -->
+            <div class="notice-bar-desktop" id="noticeBarDesktop">
+                <?php $render_notice_items(); ?>
+            </div>
+
+            <!-- Mobile Layout: Continuous moving line (infinite ticker marquee) -->
+            <div class="notice-bar-mobile" id="noticeBarMobile">
+                <div class="notice-bar-marquee-track">
+                    <div class="notice-bar-marquee-content">
+                        <?php $render_notice_items(); ?>
+                        <?php $render_notice_items(); ?>
+                    </div>
+                    <div class="notice-bar-marquee-content" aria-hidden="true">
+                        <?php $render_notice_items(); ?>
+                        <?php $render_notice_items(); ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <?php endif; ?>

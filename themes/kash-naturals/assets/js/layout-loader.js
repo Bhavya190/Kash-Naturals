@@ -9,11 +9,37 @@
 
     const noticeBarHTML = `
     <div class="top-notice-bar">
-        <div class="notice-bar-container">
-            <div class="notice-bar-item"><i class="fa-solid fa-leaf"></i> <span>Natural Ingredients</span></div>
-            <div class="notice-bar-item"><i class="fa-solid fa-spa"></i> <span>Hygienically Manufactured</span></div>
-            <div class="notice-bar-item"><i class="fa-solid fa-truck-fast"></i> <span>Pan India Delivery</span></div>
-            <div class="notice-bar-item"><i class="fa-brands fa-amazon"></i> <span>Available on Amazon</span></div>
+        <div class="container notice-bar-container">
+            <div class="notice-bar-desktop" id="noticeBarDesktop">
+                <div class="notice-bar-item"><i class="fa-solid fa-leaf notice-icon"></i> <span class="notice-text">Natural Ingredients</span></div>
+                <div class="notice-bar-item"><i class="fa-solid fa-spa notice-icon"></i> <span class="notice-text">Hygienically Manufactured</span></div>
+                <div class="notice-bar-item"><i class="fa-solid fa-truck-fast notice-icon"></i> <span class="notice-text">Pan India Delivery</span></div>
+                <div class="notice-bar-item"><i class="fa-brands fa-amazon notice-icon"></i> <span class="notice-text">Available on Amazon</span></div>
+            </div>
+            <div class="notice-bar-mobile" id="noticeBarMobile">
+                <div class="notice-bar-marquee-track">
+                    <div class="notice-bar-marquee-content">
+                        <div class="notice-bar-item"><i class="fa-solid fa-leaf notice-icon"></i> <span class="notice-text">Natural Ingredients</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-spa notice-icon"></i> <span class="notice-text">Hygienically Manufactured</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-truck-fast notice-icon"></i> <span class="notice-text">Pan India Delivery</span></div>
+                        <div class="notice-bar-item"><i class="fa-brands fa-amazon notice-icon"></i> <span class="notice-text">Available on Amazon</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-leaf notice-icon"></i> <span class="notice-text">Natural Ingredients</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-spa notice-icon"></i> <span class="notice-text">Hygienically Manufactured</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-truck-fast notice-icon"></i> <span class="notice-text">Pan India Delivery</span></div>
+                        <div class="notice-bar-item"><i class="fa-brands fa-amazon notice-icon"></i> <span class="notice-text">Available on Amazon</span></div>
+                    </div>
+                    <div class="notice-bar-marquee-content" aria-hidden="true">
+                        <div class="notice-bar-item"><i class="fa-solid fa-leaf notice-icon"></i> <span class="notice-text">Natural Ingredients</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-spa notice-icon"></i> <span class="notice-text">Hygienically Manufactured</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-truck-fast notice-icon"></i> <span class="notice-text">Pan India Delivery</span></div>
+                        <div class="notice-bar-item"><i class="fa-brands fa-amazon notice-icon"></i> <span class="notice-text">Available on Amazon</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-leaf notice-icon"></i> <span class="notice-text">Natural Ingredients</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-spa notice-icon"></i> <span class="notice-text">Hygienically Manufactured</span></div>
+                        <div class="notice-bar-item"><i class="fa-solid fa-truck-fast notice-icon"></i> <span class="notice-text">Pan India Delivery</span></div>
+                        <div class="notice-bar-item"><i class="fa-brands fa-amazon notice-icon"></i> <span class="notice-text">Available on Amazon</span></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>`;
 

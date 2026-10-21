@@ -101,6 +101,8 @@ img {
     font-size: 0.85rem;
     font-weight: 500;
     letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
 }
 
 .top-notice-bar span,
@@ -111,11 +113,22 @@ img {
 }
 
 .notice-bar-container {
+    width: 100%;
+}
+
+/* Desktop layout: Clean, evenly spaced row across the bar */
+.notice-bar-desktop {
     display: flex;
     align-items: center;
     justify-content: space-around;
     flex-wrap: wrap;
     gap: 15px 25px;
+    width: 100%;
+}
+
+/* Mobile marquee hidden on desktop */
+.notice-bar-mobile {
+    display: none;
 }
 
 .notice-bar-item {
@@ -149,30 +162,109 @@ img {
     text-decoration: underline;
 }
 
+/* ==========================================================================
+   Mobile-Only: Continuous Moving Line (Infinite Marquee Ticker)
+   ========================================================================== */
 @media (max-width: 768px) {
     .top-notice-bar {
-        padding: 8px 10px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        padding: 7px 0;
+        overflow: hidden !important;
+        -webkit-overflow-scrolling: auto;
+        touch-action: pan-y;
     }
 
     .top-notice-bar::-webkit-scrollbar {
-        display: none;
-        width: 0;
-        height: 0;
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 
     .notice-bar-container {
-        justify-content: flex-start;
-        flex-wrap: nowrap;
-        gap: 20px;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* Hide static desktop layout on mobile */
+    .notice-bar-desktop {
+        display: none !important;
+    }
+
+    /* Continuous moving marquee line container on mobile */
+    .notice-bar-mobile {
+        display: block !important;
+        width: 100%;
+        overflow: hidden !important;
+        white-space: nowrap;
+        position: relative;
+        mask-image: linear-gradient(to right, transparent, black 15px, black calc(100% - 15px), transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 15px, black calc(100% - 15px), transparent);
+    }
+
+    .notice-bar-marquee-track {
+        display: flex !important;
+        width: max-content !important;
+        align-items: center;
+        white-space: nowrap !important;
+        animation: kashNoticeMarquee 24s linear infinite !important;
+        will-change: transform;
+    }
+
+    /* Pause smoothly on hover or touch so user can tap or read */
+    .top-notice-bar:hover .notice-bar-marquee-track,
+    .top-notice-bar:active .notice-bar-marquee-track {
+        animation-play-state: paused;
+    }
+
+    .notice-bar-marquee-content {
+        display: flex !important;
+        align-items: center;
+        flex-shrink: 0;
     }
 
     .notice-bar-item {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
+        letter-spacing: 0.2px;
+        padding: 0 18px;
         flex-shrink: 0;
+        position: relative;
+    }
+
+    .notice-bar-item:hover {
+        transform: none;
+    }
+
+    /* Subtle elegant divider between moving items */
+    .notice-bar-item::after {
+        content: "✦";
+        position: absolute;
+        right: -3px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.55rem;
+        color: rgba(255, 255, 255, 0.4);
+        pointer-events: none;
+    }
+
+    .notice-icon {
+        font-size: 0.9rem;
+    }
+}
+
+@keyframes kashNoticeMarquee {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notice-bar-marquee-track {
+        animation-duration: 50s !important;
     }
 }
 
