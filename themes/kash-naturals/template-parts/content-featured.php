@@ -15,26 +15,41 @@ $shop_url = home_url('/shop');
 
 $bestseller_products = array();
 
-// Query Dynamic Products from WooCommerce
+// Query Dynamic Products from WooCommerce Category "customer-favorite"
 if (class_exists('WooCommerce')) {
+    // Collect potential slugs matching the category created by the user
+    $fav_term_slugs = array('customer-favorite', 'customer-favorites', 'customer_favorite', 'customer_favorites');
+
+    // Dynamically look up category term by name or slug to ensure 100% match with user's WP admin category
+    $candidate_names = array('customer-favorite', 'customer-favorites', 'Customer Favorite', 'Customer Favorites', 'customer_favorite', 'Customer-Favorite', 'customer favorite', 'customer favorites');
+    foreach ($candidate_names as $cand) {
+        $term_by_name = get_term_by('name', $cand, 'product_cat');
+        if ($term_by_name && !is_wp_error($term_by_name)) {
+            $fav_term_slugs[] = $term_by_name->slug;
+        }
+        $term_by_slug = get_term_by('slug', sanitize_title($cand), 'product_cat');
+        if ($term_by_slug && !is_wp_error($term_by_slug)) {
+            $fav_term_slugs[] = $term_by_slug->slug;
+        }
+    }
+    $fav_term_slugs = array_values(array_unique(array_filter($fav_term_slugs)));
+
     $wc_query = new WP_Query(array(
         'post_type'      => 'product',
         'post_status'    => 'publish',
-        'posts_per_page' => 12,
-        'orderby'        => 'meta_value_num date',
-        'meta_key'       => 'total_sales',
+        'posts_per_page' => 24,
+        'tax_query'      => array(
+            array(
+                'taxonomy'         => 'product_cat',
+                'field'            => 'slug',
+                'terms'            => $fav_term_slugs,
+                'operator'         => 'IN',
+                'include_children' => true,
+            ),
+        ),
+        'orderby'        => 'menu_order date',
         'order'          => 'DESC',
     ));
-
-    if (!$wc_query->have_posts()) {
-        $wc_query = new WP_Query(array(
-            'post_type'      => 'product',
-            'post_status'    => 'publish',
-            'posts_per_page' => 12,
-            'orderby'        => 'date',
-            'order'          => 'DESC',
-        ));
-    }
 
     if ($wc_query->have_posts()) {
         $currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹';
