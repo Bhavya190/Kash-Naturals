@@ -127,3 +127,18 @@ function kash_naturals_widgets_init() {
     ));
 }
 add_action('widgets_init', 'kash_naturals_widgets_init');
+
+/**
+ * Append dropdown chevron icon to parent menu items with children in the header nav
+ */
+function kash_naturals_add_menu_chevron($title, $item, $args, $depth) {
+    // Only apply to primary navigation or when theme_location is primary
+    if (isset($args->theme_location) && $args->theme_location === 'primary') {
+        if (in_array('menu-item-has-children', (array) $item->classes, true)) {
+            $title .= ' <i class="fa-solid fa-chevron-down nav-chevron"></i>';
+        }
+    }
+    return $title;
+}
+add_filter('nav_menu_item_title', 'kash_naturals_add_menu_chevron', 10, 4);
+

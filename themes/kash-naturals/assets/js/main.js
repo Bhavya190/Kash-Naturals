@@ -1088,11 +1088,16 @@ jQuery(document).ready(function ($) {
         $(this).find('i').toggleClass('fa-bars fa-xmark');
     });
 
-    // Mobile Submenu Dropdown Toggle
-    $(document).on('click', '.nav-dropdown-item > a', function (e) {
+    // Mobile Submenu Dropdown Toggle (supports .nav-dropdown-item and standard WP .menu-item-has-children)
+    $(document).on('click', '.nav-dropdown-item > a, .menu-item-has-children > a', function (e) {
         if ($(window).width() <= 992) {
-            e.preventDefault();
-            $(this).parent('.nav-dropdown-item').toggleClass('open');
+            const $parent = $(this).parent();
+            if ($parent.hasClass('menu-item-has-children') || $parent.hasClass('nav-dropdown-item')) {
+                if ($parent.children('.sub-menu, .header-dropdown-menu').length > 0) {
+                    e.preventDefault();
+                    $parent.toggleClass('open');
+                }
+            }
         }
     });
 

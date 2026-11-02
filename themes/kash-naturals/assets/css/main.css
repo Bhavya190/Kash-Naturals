@@ -3686,16 +3686,18 @@ img {
     }
 }
 
-/* Header SHOP Nav Dropdown Styles */
-.nav-dropdown-item {
+/* Header SHOP Nav Dropdown Styles (Supports Custom Classes & WordPress Standard Submenus) */
+.nav-dropdown-item,
+.main-navigation .nav-menu-list .menu-item-has-children {
     position: relative;
 }
 
-.header-dropdown-menu {
+.header-dropdown-menu,
+.main-navigation .nav-menu-list .sub-menu {
     position: absolute;
     top: 100%;
     left: 0;
-    width: 230px;
+    min-width: 230px;
     background: #0f3820;
     border-radius: 12px;
     padding: 10px 0;
@@ -3710,18 +3712,32 @@ img {
     border: 1px solid rgba(198, 139, 39, 0.3);
 }
 
-.nav-dropdown-item:hover .header-dropdown-menu {
+/* 3rd-level nested submenu positioning */
+.main-navigation .nav-menu-list .sub-menu .sub-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+}
+
+.nav-dropdown-item:hover > .header-dropdown-menu,
+.nav-dropdown-item:focus-within > .header-dropdown-menu,
+.main-navigation .nav-menu-list .menu-item-has-children:hover > .sub-menu,
+.main-navigation .nav-menu-list .menu-item-has-children:focus-within > .sub-menu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
 }
 
-.header-dropdown-menu li {
+.header-dropdown-menu li,
+.main-navigation .nav-menu-list .sub-menu li {
     margin: 0;
     padding: 0;
+    list-style: none;
+    width: 100%;
 }
 
-.header-dropdown-menu li a {
+.header-dropdown-menu li a,
+.main-navigation .nav-menu-list .sub-menu li a {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -3729,21 +3745,27 @@ img {
     font-family: 'Outfit', sans-serif;
     font-size: 0.88rem;
     font-weight: 600;
-    color: #e2ece5;
+    color: #e2ece5 !important;
     text-decoration: none;
+    text-transform: none;
+    letter-spacing: normal;
     transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+    white-space: nowrap;
 }
 
-.header-dropdown-menu li a i {
+.header-dropdown-menu li a i,
+.main-navigation .nav-menu-list .sub-menu li a i {
     font-size: 0.95rem;
     color: #c68b27;
     width: 18px;
     text-align: center;
 }
 
-.header-dropdown-menu li a:hover {
+.header-dropdown-menu li a:hover,
+.main-navigation .nav-menu-list .sub-menu li a:hover,
+.main-navigation .nav-menu-list .sub-menu li.current-menu-item > a {
     background-color: #17502e;
-    color: #ffffff;
+    color: #ffffff !important;
     padding-left: 24px;
 }
 
@@ -4604,7 +4626,8 @@ img {
         display: none;
     }
 
-    .main-navigation.active-mobile .header-dropdown-menu {
+    .main-navigation.active-mobile .header-dropdown-menu,
+    .main-navigation.active-mobile .sub-menu {
         position: static;
         display: none;
         width: 100%;
@@ -4617,12 +4640,14 @@ img {
         box-sizing: border-box;
     }
 
-    .main-navigation.active-mobile .nav-dropdown-item.open .header-dropdown-menu,
-    .main-navigation.active-mobile .nav-dropdown-item:hover .header-dropdown-menu {
+    .main-navigation.active-mobile .nav-dropdown-item.open > .header-dropdown-menu,
+    .main-navigation.active-mobile .nav-dropdown-item:hover > .header-dropdown-menu,
+    .main-navigation.active-mobile .menu-item-has-children.open > .sub-menu {
         display: block !important;
     }
 
-    .main-navigation.active-mobile .header-dropdown-menu a {
+    .main-navigation.active-mobile .header-dropdown-menu a,
+    .main-navigation.active-mobile .sub-menu a {
         color: #d8e5db !important;
         padding: 10px 0;
         font-size: 0.88rem;
@@ -4631,11 +4656,13 @@ img {
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .main-navigation.active-mobile .header-dropdown-menu li:last-child a {
+    .main-navigation.active-mobile .header-dropdown-menu li:last-child a,
+    .main-navigation.active-mobile .sub-menu li:last-child a {
         border-bottom: none;
     }
 
-    .main-navigation.active-mobile .header-dropdown-menu a:hover {
+    .main-navigation.active-mobile .header-dropdown-menu a:hover,
+    .main-navigation.active-mobile .sub-menu a:hover {
         color: #ed8e00 !important;
     }
 
