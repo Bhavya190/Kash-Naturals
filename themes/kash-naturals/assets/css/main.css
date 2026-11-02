@@ -297,7 +297,7 @@ img {
     align-items: center;
     justify-content: space-between;
     height: 98px;
-    max-width: 1240px;
+    max-width: 1360px;
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -366,24 +366,30 @@ img {
     display: flex;
     align-items: center;
     list-style: none;
-    gap: 36px;
+    gap: clamp(12px, 1.5vw, 26px);
     margin: 0;
     padding: 0;
+    flex-wrap: nowrap;
+}
+
+.main-navigation .nav-menu-list > li {
+    flex-shrink: 0;
 }
 
 .main-navigation .nav-menu-list > li > a {
     color: #1c2b1f;
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: clamp(0.78rem, 0.84vw, 0.88rem);
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.5px;
     position: relative;
     padding: 8px 0;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    white-space: nowrap;
 }
 
 .main-navigation .nav-menu-list > li > a::after {

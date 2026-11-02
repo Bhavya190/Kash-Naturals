@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 }
 
 $theme_uri = get_template_directory_uri();
-$about_url = home_url('/about');
+$about_url = home_url('/our-story/');
 
 $left_img  = $theme_uri . '/assets/images/product-calcutta-pan.jpg';
 $right_img = $theme_uri . '/assets/images/chocolate-dragees.jpg';

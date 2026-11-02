@@ -304,6 +304,18 @@ if (preg_match('#^/product/([^/]+)#', $cleanUri, $matches)) {
     exit;
 }
 
+if (preg_match('#^/product-category/([a-zA-Z0-9_-]+)#', $cleanUri, $catMatches)) {
+    $_GET['category'] = $catMatches[1];
+    $GLOBALS['kash_page_title'] = ucwords(str_replace('-', ' ', $catMatches[1])) . ' | Kash Naturals';
+    $GLOBALS['kash_is_shop'] = true;
+    if (file_exists(KASH_THEME_DIR . '/taxonomy-product_cat.php')) {
+        require KASH_THEME_DIR . '/taxonomy-product_cat.php';
+    } else {
+        require KASH_THEME_DIR . '/page-shop.php';
+    }
+    exit;
+}
+
 switch ($cleanUri) {
     case '/favicon.ico':
         $favPath = KASH_THEME_DIR . '/assets/images/Kash Natural Leaf Logo.png';
@@ -339,12 +351,31 @@ switch ($cleanUri) {
         require KASH_THEME_DIR . '/page-cart.php';
         exit;
 
+    case '/our-story':
+    case '/our-story.php':
+    case '/our-story.html':
     case '/about':
     case '/about-us':
     case '/about.php':
     case '/about.html':
-        $GLOBALS['kash_page_title'] = 'About Us';
-        require KASH_THEME_DIR . '/page-about.php';
+        $GLOBALS['kash_page_title'] = 'Our Story | Kash Naturals';
+        if (file_exists(KASH_THEME_DIR . '/page-our-story.php')) {
+            require KASH_THEME_DIR . '/page-our-story.php';
+        } else {
+            require KASH_THEME_DIR . '/page-about.php';
+        }
+        exit;
+
+    case '/bulk-order':
+    case '/bulk-orders':
+    case '/bulk-order.php':
+    case '/bulk-order.html':
+        $GLOBALS['kash_page_title'] = 'Bulk & Corporate Orders | Kash Naturals';
+        if (file_exists(KASH_THEME_DIR . '/page-bulk-order.php')) {
+            require KASH_THEME_DIR . '/page-bulk-order.php';
+        } else {
+            require KASH_THEME_DIR . '/page.php';
+        }
         exit;
 
     case '/contact':

@@ -38,15 +38,16 @@ if (!defined('ABSPATH')) {
                 </div>
             </div>
 
-            <!-- Col 2: SHOP -->
+            <!-- Col 2: SHOP & COLLECTIONS -->
             <div class="footer-col">
-                <h4 class="footer-col-title"><?php esc_html_e('SHOP', 'kash-naturals'); ?></h4>
+                <h4 class="footer-col-title"><?php esc_html_e('SHOP COLLECTIONS', 'kash-naturals'); ?></h4>
                 <ul class="footer-nav-list">
-                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Mouth Fresheners', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Chocolate Dragees', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('Kunafa Bars', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/combos')); ?>"><?php esc_html_e('Gift Combos', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('All Products', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/product-category/mukhwas/')); ?>"><?php esc_html_e('Mukhwas', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/product-category/chocolates/')); ?>"><?php esc_html_e('Chocolates', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/product-category/dry-fruits/')); ?>"><?php esc_html_e('Dry Fruits', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/product-category/gift-hampers/')); ?>"><?php esc_html_e('Gift Hampers', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/combos/')); ?>"><?php esc_html_e('Deal Combos', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/bulk-order/')); ?>"><?php esc_html_e('Bulk Orders', 'kash-naturals'); ?></a></li>
                 </ul>
             </div>
 
@@ -63,14 +64,14 @@ if (!defined('ABSPATH')) {
                 </ul>
             </div>
 
-            <!-- Col 4: ABOUT US -->
+            <!-- Col 4: OUR STORY -->
             <div class="footer-col">
-                <h4 class="footer-col-title"><?php esc_html_e('ABOUT US', 'kash-naturals'); ?></h4>
+                <h4 class="footer-col-title"><?php esc_html_e('OUR STORY', 'kash-naturals'); ?></h4>
                 <ul class="footer-nav-list">
-                    <li><a href="<?php echo esc_url(home_url('/about')); ?>"><?php esc_html_e('Our Story', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/about')); ?>"><?php esc_html_e('Why Kash Natural', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/about')); ?>"><?php esc_html_e('Quality Promise', 'kash-naturals'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/contact')); ?>"><?php esc_html_e('Contact Us', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/our-story/')); ?>"><?php esc_html_e('Our Story', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/our-story/')); ?>"><?php esc_html_e('Why Kash Natural', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/our-story/')); ?>"><?php esc_html_e('Quality Promise', 'kash-naturals'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/contact/')); ?>"><?php esc_html_e('Contact Us', 'kash-naturals'); ?></a></li>
                 </ul>
             </div>
 
@@ -127,6 +128,7 @@ if (!defined('ABSPATH')) {
             <div class="search-cat-pills" id="search-cat-pills">
                 <button type="button" class="search-pill active" data-cat="all"><?php esc_html_e('All Items', 'kash-naturals'); ?></button>
                 <?php
+                $rendered_pills = false;
                 if (class_exists('WooCommerce')) {
                     $search_terms = get_terms(array(
                         'taxonomy'   => 'product_cat',
@@ -137,7 +139,14 @@ if (!defined('ABSPATH')) {
                         foreach ($search_terms as $sterm) {
                             echo '<button type="button" class="search-pill" data-cat="' . esc_attr($sterm->slug) . '">' . esc_html($sterm->name) . '</button>';
                         }
+                        $rendered_pills = true;
                     }
+                }
+                if (!$rendered_pills) {
+                    echo '<button type="button" class="search-pill" data-cat="mukhwas">' . esc_html__('Mukhwas', 'kash-naturals') . '</button>';
+                    echo '<button type="button" class="search-pill" data-cat="chocolates">' . esc_html__('Chocolates', 'kash-naturals') . '</button>';
+                    echo '<button type="button" class="search-pill" data-cat="dry-fruits">' . esc_html__('Dry Fruits', 'kash-naturals') . '</button>';
+                    echo '<button type="button" class="search-pill" data-cat="gift-hampers">' . esc_html__('Gift Hampers', 'kash-naturals') . '</button>';
                 }
                 ?>
             </div>

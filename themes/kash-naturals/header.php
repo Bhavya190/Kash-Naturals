@@ -102,71 +102,161 @@ if (!defined('ABSPATH')) {
             <!-- Primary Navigation Menu -->
             <nav id="site-navigation" class="main-navigation" role="navigation">
                 <?php
+                // Function to render navigation items
+                $render_kash_nav_items = function() {
+                    /**
+                     * Kash Naturals Top Navigation Configuration
+                     * - collection: dynamically resolves WooCommerce product_cat permalink via get_term_link() or falls back to /product-category/{slug}/
+                     * - page: dynamically resolves WordPress page permalink via get_page_by_path() or falls back to /{slug}/
+                     */
+                    $nav_items = array(
+                        array(
+                            'title' => __('MUKHWAS', 'kash-naturals'),
+                            'slug'  => 'mukhwas',
+                            'type'  => 'collection',
+                        ),
+                        array(
+                            'title' => __('CHOCOLATES', 'kash-naturals'),
+                            'slug'  => 'chocolates',
+                            'type'  => 'collection',
+                        ),
+                        array(
+                            'title' => __('DRY FRUITS', 'kash-naturals'),
+                            'slug'  => 'dry-fruits',
+                            'type'  => 'collection',
+                        ),
+                        array(
+                            'title' => __('GIFT HAMPERS', 'kash-naturals'),
+                            'slug'  => 'gift-hampers',
+                            'type'  => 'collection',
+                        ),
+                        array(
+                            'title' => __('DEAL COMBOS', 'kash-naturals'),
+                            'slug'  => 'combos',
+                            'type'  => 'page',
+                            'aliases' => array('combo'),
+                        ),
+                        array(
+                            'title' => __('BULK ORDER', 'kash-naturals'),
+                            'slug'  => 'bulk-order',
+                            'type'  => 'page',
+                            'aliases' => array('bulk-orders'),
+                        ),
+                        array(
+                            'title' => __('OUR STORY', 'kash-naturals'),
+                            'slug'  => 'our-story',
+                            'type'  => 'page',
+                            'aliases' => array('about', 'about-us'),
+                        ),
+                        array(
+                            'title' => __('CONTACT', 'kash-naturals'),
+                            'slug'  => 'contact',
+                            'type'  => 'page',
+                            'aliases' => array('contact-us'),
+                        ),
+                    );
+
+                    $nav_items = apply_filters('kash_top_nav_items', $nav_items);
+
+                    // Current Request Context for Active Highlighting
+                    $req_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+                    $req_path = trim(parse_url($req_uri, PHP_URL_PATH), '/');
+
+                    $current_tax_slug = '';
+                    if (function_exists('is_product_category') && is_product_category()) {
+                        $queried_obj = get_queried_object();
+                        if ($queried_obj && isset($queried_obj->slug)) {
+                            $current_tax_slug = $queried_obj->slug;
+                        }
+                    } elseif (isset($_GET['category'])) {
+                        $current_tax_slug = sanitize_text_field($_GET['category']);
+                    }
+                    ?>
+                    <ul class="nav-menu-list">
+                        <?php foreach ($nav_items as $item) :
+                            $item_slug  = $item['slug'];
+                            $item_type  = isset($item['type']) ? $item['type'] : 'page';
+                            $item_title = $item['title'];
+                            $is_active  = false;
+                            $nav_url    = '';
+
+                            if ($item_type === 'collection') {
+                                // 1. WooCommerce Product Category / Collection
+                                if (function_exists('get_term_by') && function_exists('get_term_link')) {
+                                    $term = get_term_by('slug', $item_slug, 'product_cat');
+                                    if ($term && !is_wp_error($term)) {
+                                        $t_link = get_term_link($term, 'product_cat');
+                                        if (!is_wp_error($t_link)) {
+                                            $nav_url = $t_link;
+                                        }
+                                    }
+                                }
+                                if (empty($nav_url)) {
+                                    $nav_url = home_url('/product-category/' . $item_slug . '/');
+                                }
+
+                                // Active state check
+                                if (!empty($current_tax_slug) && $current_tax_slug === $item_slug) {
+                                    $is_active = true;
+                                } elseif (function_exists('is_product_category') && is_product_category($item_slug)) {
+                                    $is_active = true;
+                                } elseif (function_exists('is_tax') && is_tax('product_cat', $item_slug)) {
+                                    $is_active = true;
+                                } elseif (strpos($req_path, 'product-category/' . $item_slug) !== false || $req_path === 'product-category/' . $item_slug) {
+                                    $is_active = true;
+                                }
+
+                            } else {
+                                // 2. Standard WordPress Page
+                                if (function_exists('get_page_by_path') && function_exists('get_permalink')) {
+                                    $page_obj = get_page_by_path($item_slug);
+                                    if ($page_obj) {
+                                        $p_link = get_permalink($page_obj);
+                                        if (!is_wp_error($p_link)) {
+                                            $nav_url = $p_link;
+                                        }
+                                    }
+                                }
+                                if (empty($nav_url)) {
+                                    $nav_url = home_url('/' . trim($item_slug, '/') . '/');
+                                }
+
+                                // Active state check
+                                $check_slugs = array($item_slug);
+                                if (!empty($item['aliases']) && is_array($item['aliases'])) {
+                                    $check_slugs = array_merge($check_slugs, $item['aliases']);
+                                }
+
+                                if (function_exists('is_page') && is_page($check_slugs)) {
+                                    $is_active = true;
+                                } else {
+                                    foreach ($check_slugs as $chk) {
+                                        if ($req_path === $chk || strpos($req_path, $chk . '/') === 0 || strpos($req_path, '/' . $chk) !== false) {
+                                            $is_active = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        ?>
+                            <li class="nav-item-<?php echo esc_attr($item_slug); ?> nav-type-<?php echo esc_attr($item_type); ?> <?php echo $is_active ? 'current-menu-item active' : ''; ?>">
+                                <a href="<?php echo esc_url($nav_url); ?>"><?php echo esc_html($item_title); ?></a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <?php
+                };
+
                 if (has_nav_menu('primary')) {
                     wp_nav_menu(array(
                         'theme_location' => 'primary',
                         'menu_id'        => 'primary-menu',
                         'container'      => false,
                         'menu_class'     => 'nav-menu-list',
+                        'fallback_cb'    => $render_kash_nav_items,
                     ));
                 } else {
-                    $req_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
-                    $req_path = trim(parse_url($req_uri, PHP_URL_PATH), '/');
-
-                    $is_home_active = false;
-                    $is_shop_active = false;
-                    $is_combos_active = false;
-                    $is_about_active = false;
-                    $is_contact_active = false;
-
-                    if (empty($req_path) || $req_path === 'index.php' || (function_exists('is_front_page') && is_front_page()) || !empty($GLOBALS['kash_is_front'])) {
-                        $is_home_active = true;
-                    } elseif (strpos($req_path, 'combos') !== false || strpos($req_path, 'combo') !== false || (function_exists('is_page') && is_page('combos'))) {
-                        $is_combos_active = true;
-                    } elseif (strpos($req_path, 'about') !== false || (function_exists('is_page') && is_page(array('about', 'about-us')))) {
-                        $is_about_active = true;
-                    } elseif (strpos($req_path, 'contact') !== false || (function_exists('is_page') && is_page(array('contact', 'contact-us')))) {
-                        $is_contact_active = true;
-                    } elseif (strpos($req_path, 'shop') !== false || strpos($req_path, 'product') !== false || (function_exists('is_shop') && is_shop()) || (function_exists('is_product') && is_product()) || !empty($GLOBALS['kash_is_shop'])) {
-                        $is_shop_active = true;
-                    }
-                    ?>
-                    <ul class="nav-menu-list">
-                        <li class="<?php echo $is_home_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('HOME', 'kash-naturals'); ?></a></li>
-                        <li class="menu-item-has-children nav-dropdown-item <?php echo $is_shop_active ? 'current-menu-item active' : ''; ?>">
-                            <a href="<?php echo esc_url(home_url('/shop')); ?>"><?php esc_html_e('SHOP', 'kash-naturals'); ?> <i class="fa-solid fa-chevron-down nav-chevron"></i></a>
-                            <ul class="sub-menu header-dropdown-menu">
-                                <?php
-                                $header_cats = array();
-                                if (class_exists('WooCommerce')) {
-                                    $header_terms = get_terms(array(
-                                        'taxonomy'   => 'product_cat',
-                                        'hide_empty' => false,
-                                        'parent'     => 0,
-                                        'exclude'    => array(get_option('default_product_cat')),
-                                        'number'     => 6,
-                                    ));
-                                    if (!empty($header_terms) && !is_wp_error($header_terms)) {
-                                        $header_cats = $header_terms;
-                                    }
-                                }
-                                ?>
-                                <?php if (!empty($header_cats)) : ?>
-                                    <?php foreach ($header_cats as $hcat) : ?>
-                                        <li><a href="<?php echo esc_url(get_term_link($hcat)); ?>"><i class="fa-solid fa-leaf"></i> <?php echo esc_html($hcat->name); ?></a></li>
-                                    <?php endforeach; ?>
-                                    <li class="dropdown-divider-line"></li>
-                                <?php endif; ?>
-                                <li><a href="<?php echo esc_url(home_url('/shop')); ?>"><i class="fa-solid fa-border-all"></i> <?php esc_html_e('All Products', 'kash-naturals'); ?></a></li>
-                            </ul>
-                        </li>
-
-                        <li class="<?php echo $is_combos_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/combos/')); ?>"><?php esc_html_e('COMBOS', 'kash-naturals'); ?></a></li>
-
-                        <li class="<?php echo $is_about_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/about/')); ?>"><?php esc_html_e('ABOUT US', 'kash-naturals'); ?></a></li>
-                        <li class="<?php echo $is_contact_active ? 'current-menu-item active' : ''; ?>"><a href="<?php echo esc_url(home_url('/contact/')); ?>"><?php esc_html_e('CONTACT US', 'kash-naturals'); ?></a></li>
-                    </ul>
-                    <?php
+                    $render_kash_nav_items();
                 }
                 ?>
             </nav>
