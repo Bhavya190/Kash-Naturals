@@ -27,17 +27,22 @@ if (!defined('ABSPATH')) {
         $notice_bg = get_theme_mod('kash_noticebar_bg', '#0a331a');
         $notice_color = get_theme_mod('kash_noticebar_color', '#ffffff');
         $default_items = array(
-            1 => array('icon' => 'fa-solid fa-leaf', 'text' => 'Natural Ingredients', 'link' => ''),
-            2 => array('icon' => 'fa-solid fa-spa', 'text' => 'Hygienically Manufactured', 'link' => ''),
-            3 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Pan India Delivery', 'link' => ''),
-            4 => array('icon' => 'fa-brands fa-amazon', 'text' => 'Available on Amazon', 'link' => ''),
+            1 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Free Shipping Above - 499', 'link' => ''),
+            2 => array('icon' => 'fa-solid fa-tag', 'text' => 'New User get 10% Welcome10 code', 'link' => ''),
         );
 
         $render_notice_items = function() use ($default_items) {
-            for ($i = 1; $i <= 4; $i++) :
-                $icon = get_theme_mod("kash_noticebar_item{$i}_icon", $default_items[$i]['icon']);
-                $text = get_theme_mod("kash_noticebar_item{$i}_text", $default_items[$i]['text']);
-                $link = get_theme_mod("kash_noticebar_item{$i}_link", $default_items[$i]['link']);
+            foreach ($default_items as $i => $item_def) :
+                $icon = get_theme_mod("kash_noticebar_item{$i}_icon", $item_def['icon']);
+                $text = get_theme_mod("kash_noticebar_item{$i}_text", $item_def['text']);
+                $link = get_theme_mod("kash_noticebar_item{$i}_link", $item_def['link']);
+
+                // Reset old defaults if still stored in theme_mods
+                if ($text === 'Natural Ingredients' || $text === 'Hygienically Manufactured' || $text === 'Pan India Delivery' || $text === 'Available on Amazon') {
+                    $text = $item_def['text'];
+                    $icon = $item_def['icon'];
+                }
+
                 if (!empty($text)) : ?>
                     <div class="notice-bar-item">
                         <?php if (!empty($link)) : ?>
@@ -52,12 +57,12 @@ if (!defined('ABSPATH')) {
                         <?php endif; ?>
                     </div>
                 <?php endif;
-            endfor;
+            endforeach;
         };
     ?>
     <div class="top-notice-bar" style="background-color: <?php echo esc_attr($notice_bg); ?>; color: <?php echo esc_attr($notice_color); ?>;">
         <div class="container notice-bar-container">
-            <!-- Desktop Layout: static evenly-spaced row across the bar -->
+            <!-- Desktop Layout: Centered clean spaced row across the bar -->
             <div class="notice-bar-desktop" id="noticeBarDesktop">
                 <?php $render_notice_items(); ?>
             </div>
@@ -68,8 +73,10 @@ if (!defined('ABSPATH')) {
                     <div class="notice-bar-marquee-content">
                         <?php $render_notice_items(); ?>
                         <?php $render_notice_items(); ?>
+                        <?php $render_notice_items(); ?>
                     </div>
                     <div class="notice-bar-marquee-content" aria-hidden="true">
+                        <?php $render_notice_items(); ?>
                         <?php $render_notice_items(); ?>
                         <?php $render_notice_items(); ?>
                     </div>

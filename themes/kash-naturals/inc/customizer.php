@@ -51,12 +51,10 @@ function kash_naturals_customize_register($wp_customize) {
         )));
     }
 
-    // Default Items Data
+    // Default Items Data (2 items: Free Shipping & Welcome Coupon)
     $default_items = array(
-        1 => array('icon' => 'fa-solid fa-leaf', 'text' => 'Natural Ingredients', 'link' => ''),
-        2 => array('icon' => 'fa-solid fa-spa', 'text' => 'Hygienically Manufactured', 'link' => ''),
-        3 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Pan India Delivery', 'link' => ''),
-        4 => array('icon' => 'fa-brands fa-amazon', 'text' => 'Available on Amazon', 'link' => 'https://amazon.in'),
+        1 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Free Shipping Above - 499', 'link' => ''),
+        2 => array('icon' => 'fa-solid fa-tag', 'text' => 'New User get 10% Welcome10 code', 'link' => ''),
     );
 
     foreach ($default_items as $i => $item) {

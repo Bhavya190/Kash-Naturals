@@ -116,13 +116,13 @@ img {
     width: 100%;
 }
 
-/* Desktop layout: Clean, evenly spaced row across the bar */
+/* Desktop layout: Clean, centered row across the bar */
 .notice-bar-desktop {
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
     flex-wrap: wrap;
-    gap: 15px 25px;
+    gap: clamp(24px, 5vw, 70px);
     width: 100%;
 }
 
