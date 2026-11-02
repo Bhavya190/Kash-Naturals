@@ -141,28 +141,30 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
                             <?php echo wp_kses_post($slide['subtitle']); ?>
                         </p>
 
-                        <div class="hero-action-buttons">
-                            <?php if (!empty($slide['btn_primary_text'])) : ?>
-                                <a href="<?php echo esc_url($slide['btn_primary_link']); ?>" class="btn-shop-now">
-                                    <span><?php echo esc_html($slide['btn_primary_text']); ?></span>
-                                    <i class="fa-solid fa-arrow-right ms-2"></i>
-                                </a>
-                            <?php endif; ?>
-                            <?php if (!empty($slide['btn_secondary_text'])) : ?>
-                                <a href="<?php echo esc_url($slide['btn_secondary_link']); ?>" class="btn-explore-combos">
-                                    <?php echo esc_html($slide['btn_secondary_text']); ?>
-                                </a>
+                        <div class="hero-actions-row">
+                            <div class="hero-action-buttons">
+                                <?php if (!empty($slide['btn_primary_text'])) : ?>
+                                    <a href="<?php echo esc_url($slide['btn_primary_link']); ?>" class="btn-shop-now">
+                                        <span><?php echo esc_html($slide['btn_primary_text']); ?></span>
+                                        <i class="fa-solid fa-arrow-right ms-2"></i>
+                                    </a>
+                                <?php endif; ?>
+                                <?php if (!empty($slide['btn_secondary_text'])) : ?>
+                                    <a href="<?php echo esc_url($slide['btn_secondary_link']); ?>" class="btn-explore-combos">
+                                        <?php echo esc_html($slide['btn_secondary_text']); ?>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php if (!empty($slide['show_amazon'])) : ?>
+                                <div class="hero-amazon-badge-wrapper">
+                                    <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-pill-badge" title="<?php esc_attr_e('Buy Kash Naturals on Amazon', 'kash-naturals'); ?>">
+                                        <span class="badge-subtext"><?php esc_html_e('Available on', 'kash-naturals'); ?></span>
+                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/amazon-logo-png.png'); ?>" alt="Amazon" class="amazon-logo-img" width="85" height="20">
+                                    </a>
+                                </div>
                             <?php endif; ?>
                         </div>
-
-                        <?php if (!empty($slide['show_amazon'])) : ?>
-                            <div class="hero-amazon-badge-wrapper">
-                                <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-pill-badge">
-                                    <span class="badge-subtext"><?php esc_html_e('Available on', 'kash-naturals'); ?></span>
-                                    <img src="<?php echo esc_url($theme_uri . '/assets/images/amazon-logo-png.png'); ?>" alt="Amazon" class="amazon-logo-img" width="90" height="24">
-                                </a>
-                            </div>
-                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -178,34 +180,36 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
         <i class="fa-solid fa-chevron-right"></i>
     </button>
 
-    <!-- Bottom Carousel Navigation Bar (Progress Dots + Slide Counter + Autoplay Toggle) -->
+    <!-- Bottom Carousel Navigation Bar (Capsule with Slide Counter + Progress Dots + Autoplay Toggle) -->
     <div class="hero-carousel-nav-bar">
         <div class="container hero-nav-bar-inner">
-            <!-- Counter -->
-            <div class="hero-slide-counter">
-                <span class="current-slide-num" id="heroCurrentSlideNum">01</span>
-                <span class="counter-sep">/</span>
-                <span class="total-slides-num" id="heroTotalSlidesNum"><?php echo sprintf('%02d', $total_slides); ?></span>
-            </div>
+            <div class="hero-carousel-nav-capsule">
+                <!-- Counter -->
+                <div class="hero-slide-counter">
+                    <span class="current-slide-num" id="heroCurrentSlideNum">01</span>
+                    <span class="counter-sep">/</span>
+                    <span class="total-slides-num" id="heroTotalSlidesNum"><?php echo sprintf('%02d', $total_slides); ?></span>
+                </div>
 
-            <!-- Progress Indicator Dots -->
-            <div class="hero-progress-dots" id="heroProgressDots">
-                <?php foreach ($slides as $idx => $s) : ?>
-                    <button type="button" 
-                            class="hero-dot <?php echo ($idx === 0) ? 'active' : ''; ?>" 
-                            data-slide-target="<?php echo esc_attr($idx); ?>" 
-                            aria-label="<?php echo esc_attr(sprintf(__('Go to slide %d: %s', 'kash-naturals'), $idx + 1, $s['title_top'])); ?>">
-                        <span class="dot-progress-track">
-                            <span class="dot-progress-fill"></span>
-                        </span>
-                    </button>
-                <?php endforeach; ?>
-            </div>
+                <!-- Progress Indicator Dots -->
+                <div class="hero-progress-dots" id="heroProgressDots">
+                    <?php foreach ($slides as $idx => $s) : ?>
+                        <button type="button" 
+                                class="hero-dot <?php echo ($idx === 0) ? 'active' : ''; ?>" 
+                                data-slide-target="<?php echo esc_attr($idx); ?>" 
+                                aria-label="<?php echo esc_attr(sprintf(__('Go to slide %d: %s', 'kash-naturals'), $idx + 1, $s['title_top'])); ?>">
+                            <span class="dot-progress-track">
+                                <span class="dot-progress-fill"></span>
+                            </span>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
 
-            <!-- Autoplay Pause / Play Control -->
-            <button type="button" class="hero-autoplay-toggle" id="heroAutoplayToggle" aria-label="<?php esc_attr_e('Pause Slideshow', 'kash-naturals'); ?>" title="<?php esc_attr_e('Pause / Play Slideshow', 'kash-naturals'); ?>">
-                <i class="fa-solid fa-pause"></i>
-            </button>
+                <!-- Autoplay Pause / Play Control -->
+                <button type="button" class="hero-autoplay-toggle" id="heroAutoplayToggle" aria-label="<?php esc_attr_e('Pause Slideshow', 'kash-naturals'); ?>" title="<?php esc_attr_e('Pause / Play Slideshow', 'kash-naturals'); ?>">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+            </div>
         </div>
     </div>
 

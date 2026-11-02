@@ -675,7 +675,10 @@ img {
 .hero-carousel-section {
     position: relative;
     width: 100%;
-    min-height: calc(100vh - 36px);
+    /* Viewport responsive: fits precisely below the sticky header without page overflow */
+    height: calc(100vh - 116px);
+    min-height: 520px;
+    max-height: 680px;
     overflow: hidden;
     background-color: #0b1f11;
     display: flex;
@@ -686,7 +689,7 @@ img {
 .hero-carousel-track {
     position: relative;
     width: 100%;
-    min-height: calc(100vh - 36px);
+    height: 100%;
 }
 
 .hero-slide {
@@ -694,14 +697,13 @@ img {
     inset: 0;
     width: 100%;
     height: 100%;
-    min-height: calc(100vh - 36px);
     opacity: 0;
     visibility: hidden;
     display: flex;
     align-items: center;
-    padding: 130px 0 80px;
+    padding: 15px 0 65px;
     box-sizing: border-box;
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s ease;
+    transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.75s ease;
     z-index: 1;
 }
 
@@ -730,11 +732,11 @@ img {
     background-position: center right;
     background-repeat: no-repeat;
     transform: scale(1);
-    transition: transform 7s ease-out;
+    transition: transform 6s ease-out;
 }
 
 .hero-slide.active .hero-slide-bg-img {
-    transform: scale(1.05);
+    transform: scale(1.04);
 }
 
 /* HTML5 Background Video */
@@ -751,13 +753,34 @@ img {
     z-index: 1;
 }
 
-/* Luxury Light-to-Transparent Gradient Vignette */
-.hero-slide-overlay {
+/* Subtle, Feathered Overlay for Image Slides (Keeps food imagery natural, crisp & visible) */
+.hero-slide.has-image-media .hero-slide-overlay {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, rgba(244, 248, 244, 0.96) 0%, rgba(244, 248, 244, 0.88) 45%, rgba(244, 248, 244, 0.35) 75%, rgba(244, 248, 244, 0.1) 100%);
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.70) 0%, 
+        rgba(255, 255, 255, 0.44) 36%, 
+        rgba(255, 255, 255, 0.12) 60%, 
+        transparent 78%
+    );
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Cinematic Dark Vignette for Video Slide */
+.hero-slide.has-video-media .hero-slide-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(8, 18, 10, 0.85) 0%, 
+        rgba(8, 18, 10, 0.55) 45%, 
+        rgba(8, 18, 10, 0.15) 75%, 
+        transparent 100%
+    );
     z-index: 2;
     pointer-events: none;
 }
@@ -766,32 +789,47 @@ img {
 .hero-slide .hero-banner-container {
     position: relative;
     z-index: 4;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.hero-slide .hero-left-content {
+    max-width: 560px;
+    position: relative;
 }
 
 /* Slide Content Entrance Animation */
 .hero-badge-pill {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(43, 77, 28, 0.12);
-    border: 1px solid rgba(43, 77, 28, 0.25);
+    gap: 7px;
+    background: rgba(43, 77, 28, 0.10);
+    border: 1px solid rgba(43, 77, 28, 0.22);
     color: #1e3c15;
-    padding: 6px 16px;
+    padding: 5px 14px;
     border-radius: 30px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
     opacity: 0;
-    transform: translateY(18px);
-    transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s;
+    transform: translateY(16px);
+    transition: all 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s;
+}
+
+.hero-slide.has-video-media .hero-badge-pill {
+    background: rgba(237, 142, 0, 0.15);
+    border-color: rgba(237, 142, 0, 0.4);
+    color: #f7ca7d;
 }
 
 .hero-badge-pill .badge-dot {
     color: #ed8e00;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .hero-slide.active .hero-badge-pill {
@@ -801,8 +839,8 @@ img {
 
 .hero-slide .hero-main-title {
     opacity: 0;
-    transform: translateY(22px);
-    transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
+    transform: translateY(18px);
+    transition: all 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
 }
 
 .hero-slide.active .hero-main-title {
@@ -810,10 +848,16 @@ img {
     transform: translateY(0);
 }
 
+.hero-slide.has-video-media .title-top,
+.hero-slide.has-video-media .title-bottom {
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
 .hero-slide .hero-main-subtitle {
     opacity: 0;
-    transform: translateY(22px);
-    transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s;
+    transform: translateY(18px);
+    transition: all 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s;
 }
 
 .hero-slide.active .hero-main-subtitle {
@@ -821,53 +865,53 @@ img {
     transform: translateY(0);
 }
 
-.hero-slide .hero-action-buttons,
-.hero-slide .hero-amazon-badge-wrapper {
-    opacity: 0;
-    transform: translateY(22px);
-    transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
+.hero-slide.has-video-media .hero-main-subtitle {
+    color: #f0f4f0 !important;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
-.hero-slide.active .hero-action-buttons,
-.hero-slide.active .hero-amazon-badge-wrapper {
+.hero-slide.has-video-media .btn-explore-combos {
+    border-color: #ed8e00 !important;
+    color: #f7ca7d !important;
+}
+
+.hero-slide.has-video-media .btn-explore-combos:hover {
+    background: #ed8e00 !important;
+    color: #0b1f11 !important;
+}
+
+.hero-slide .hero-actions-row {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: all 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s;
+}
+
+.hero-slide.active .hero-actions-row {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Video Control Pill (Sound & Playback Toggle) */
-.hero-video-controls {
-    position: absolute;
-    bottom: 95px;
-    right: 35px;
-    z-index: 10;
-    display: inline-flex;
+/* Action Row (Buttons + Amazon Pill) */
+.hero-actions-row {
+    display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(10, 51, 26, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 6px 14px;
-    border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 20px;
 }
 
-.btn-hero-video-toggle {
-    background: transparent;
-    border: none;
-    color: #ffffff;
-    font-size: 0.95rem;
-    cursor: pointer;
-    padding: 4px 6px;
+.hero-action-buttons {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease, transform 0.2s ease;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 0;
 }
 
-.btn-hero-video-toggle:hover {
-    color: #ed8e00;
-    transform: scale(1.15);
+.hero-amazon-badge-wrapper {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
 }
 
 /* Arrow Buttons */
@@ -875,21 +919,21 @@ img {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(44, 95, 62, 0.16);
     color: #0b381e;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 10;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
     transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -897,34 +941,48 @@ img {
     background: #0b381e;
     color: #ffffff;
     border-color: #0b381e;
-    box-shadow: 0 6px 24px rgba(11, 56, 30, 0.3);
+    box-shadow: 0 6px 20px rgba(11, 56, 30, 0.25);
     transform: translateY(-50%) scale(1.08);
 }
 
 .hero-arrow-prev {
-    left: 28px;
+    left: 24px;
 }
 
 .hero-arrow-next {
-    right: 28px;
+    right: 24px;
 }
 
-/* Bottom Navigation Bar (Slide Counter + Animated Progress Dots + Pause Control) */
+/* Bottom Navigation Bar (Centered Luxury Glass Capsule) */
 .hero-carousel-nav-bar {
     position: absolute;
-    bottom: 25px;
+    bottom: 20px;
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 10;
+    z-index: 15;
     pointer-events: none;
 }
 
 .hero-nav-bar-inner {
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
     pointer-events: auto;
+    padding: 0 20px;
+}
+
+.hero-carousel-nav-capsule {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(11, 35, 18, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 6px 16px;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* Slide Counter */
@@ -934,28 +992,22 @@ img {
     gap: 4px;
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem;
-    color: #1a3818;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid rgba(44, 95, 62, 0.15);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    font-size: 0.85rem;
+    color: #ffffff;
+    padding: 0 4px;
 }
 
 .hero-slide-counter .current-slide-num {
     color: #ed8e00;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
 }
 
 .hero-slide-counter .counter-sep {
-    color: #888888;
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .hero-slide-counter .total-slides-num {
-    color: #4a5c48;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 /* Animated Progress Dots */
@@ -968,7 +1020,7 @@ img {
 .hero-dot {
     background: transparent;
     border: none;
-    padding: 8px 0;
+    padding: 6px 0;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -976,10 +1028,10 @@ img {
 
 .dot-progress-track {
     display: block;
-    width: 38px;
+    width: 30px;
     height: 4px;
     border-radius: 4px;
-    background: rgba(26, 56, 24, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     overflow: hidden;
     position: relative;
     transition: width 0.3s ease, background-color 0.3s ease;
@@ -995,21 +1047,19 @@ img {
 }
 
 .hero-dot.active .dot-progress-track {
-    width: 60px;
-    background: rgba(26, 56, 24, 0.28);
+    width: 50px;
+    background: rgba(255, 255, 255, 0.35);
 }
 
 /* Autoplay Pause / Play Toggle */
 .hero-autoplay-toggle {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(44, 95, 62, 0.15);
-    color: #1a3818;
-    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    font-size: 0.75rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1018,87 +1068,151 @@ img {
 }
 
 .hero-autoplay-toggle:hover {
-    background: #1a3818;
+    background: #ed8e00;
+    border-color: #ed8e00;
+    color: #0b1f11;
+}
+
+/* Video Control Pill */
+.hero-video-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 24px;
+    z-index: 15;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10, 35, 18, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 5px 12px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.btn-hero-video-toggle {
+    background: transparent;
+    border: none;
     color: #ffffff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 3px 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-hero-video-toggle:hover {
+    color: #ed8e00;
+    transform: scale(1.15);
 }
 
 /* Responsive Media Queries for Carousel */
 @media (max-width: 992px) {
-    .hero-carousel-section,
-    .hero-carousel-track,
-    .hero-slide {
-        min-height: 85vh;
+    .hero-carousel-section {
+        height: auto;
+        min-height: 520px;
+        max-height: 600px;
     }
 
     .hero-slide {
-        padding: 120px 0 70px;
+        padding: 24px 0 60px;
+    }
+
+    .hero-slide .hero-banner-container {
+        padding: 0 24px;
     }
 
     .hero-arrow-btn {
-        width: 42px;
-        height: 42px;
-        font-size: 1rem;
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
     }
 
     .hero-arrow-prev {
-        left: 14px;
+        left: 12px;
     }
 
     .hero-arrow-next {
-        right: 14px;
+        right: 12px;
     }
 
     .hero-video-controls {
-        bottom: 80px;
-        right: 20px;
+        bottom: 65px;
+        right: 15px;
     }
 }
 
 @media (max-width: 768px) {
-    .hero-carousel-section,
-    .hero-carousel-track,
-    .hero-slide {
-        min-height: 620px;
+    .hero-carousel-section {
+        height: auto;
+        min-height: 530px;
+        max-height: unset;
     }
 
-    .hero-slide-overlay {
-        background: linear-gradient(180deg, rgba(244, 248, 244, 0.95) 0%, rgba(244, 248, 244, 0.88) 60%, rgba(244, 248, 244, 0.7) 100%);
+    .hero-slide {
+        padding: 35px 0 65px;
+        align-items: center;
+    }
+
+    .hero-slide.has-image-media .hero-slide-overlay {
+        background: linear-gradient(180deg, 
+            rgba(255, 255, 255, 0.88) 0%, 
+            rgba(255, 255, 255, 0.75) 55%, 
+            rgba(255, 255, 255, 0.40) 100%
+        );
+    }
+
+    .hero-slide.has-video-media .hero-slide-overlay {
+        background: linear-gradient(180deg, 
+            rgba(10, 18, 12, 0.85) 0%, 
+            rgba(10, 18, 12, 0.70) 55%, 
+            rgba(10, 18, 12, 0.45) 100%
+        );
     }
 
     .hero-slide .hero-left-content {
         max-width: 100%;
-        background: rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.55);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        padding: 22px;
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.45);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .hero-slide.has-video-media .hero-left-content {
+        background: rgba(10, 25, 15, 0.65);
+        border-color: rgba(255, 255, 255, 0.15);
     }
 
     .hero-arrow-btn {
-        display: none; /* Swipe & dots take over on mobile */
+        display: none; /* Mobile swipe gestures */
     }
 
     .hero-carousel-nav-bar {
-        bottom: 15px;
+        bottom: 12px;
     }
 
-    .hero-nav-bar-inner {
-        justify-content: center;
+    .hero-carousel-nav-capsule {
+        padding: 5px 12px;
+        gap: 10px;
     }
 
     .dot-progress-track {
-        width: 26px;
+        width: 22px;
     }
 
     .hero-dot.active .dot-progress-track {
-        width: 44px;
+        width: 36px;
     }
 
     .hero-video-controls {
-        bottom: 60px;
-        right: 15px;
+        bottom: 55px;
+        right: 12px;
         padding: 4px 10px;
     }
 }
@@ -1126,64 +1240,72 @@ img {
 }
 
 .hero-left-content {
-    max-width: 580px;
+    max-width: 560px;
 }
 
 .hero-main-title {
-    margin: 0 0 20px 0;
-    line-height: 1.08;
+    margin: 0 0 12px 0;
+    line-height: 1.1;
 }
 
 .hero-main-title .title-top {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(3rem, 5.2vw, 4.8rem);
+    font-size: clamp(2.3rem, 3.6vw, 3.4rem);
     font-weight: 800;
-    color: #1a3818;
+    color: #122812;
     display: block;
-    letter-spacing: -0.5px;
-    line-height: 1.05;
+    letter-spacing: -0.4px;
+    line-height: 1.08;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 
 .hero-main-title .title-bottom {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(2.8rem, 4.8vw, 4.4rem);
+    font-size: clamp(2rem, 3vw, 2.9rem);
     font-weight: 600;
     color: #1a231b;
     display: block;
-    letter-spacing: -0.5px;
-    line-height: 1.08;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 
 .hero-main-subtitle {
     font-family: 'Outfit', sans-serif;
-    font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+    font-size: clamp(0.95rem, 1.25vw, 1.12rem);
     font-weight: 600;
-    color: #243025;
+    color: #1e2e1e;
     line-height: 1.45;
-    margin: 0 0 36px 0;
+    margin: 0 0 18px 0;
+    max-width: 520px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .hero-action-buttons {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 18px;
-    margin-bottom: 32px;
+    gap: 12px;
+    margin: 0;
     flex-wrap: wrap;
 }
 
 .btn-shop-now {
     background-color: #2b4d1c;
     color: #ffffff !important;
-    padding: 15px 38px;
+    padding: 12px 28px;
     border-radius: 6px;
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
-    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-    letter-spacing: 0.8px;
+    font-size: 0.92rem;
+    letter-spacing: 0.6px;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: background-color 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 14px rgba(43, 77, 28, 0.25);
+    box-shadow: 0 4px 12px rgba(43, 77, 28, 0.25);
+    height: 46px;
+    box-sizing: border-box;
 }
 
 .btn-shop-now:hover {
@@ -1193,17 +1315,21 @@ img {
 
 .btn-explore-combos {
     background-color: transparent;
-    border: 1.8px solid #c49a56;
+    border: 1.5px solid #c49a56;
     color: #6d5024 !important;
-    padding: 13px 34px;
+    padding: 11px 24px;
     border-radius: 6px;
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
-    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-    letter-spacing: 0.8px;
+    font-size: 0.92rem;
+    letter-spacing: 0.6px;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s ease;
+    height: 46px;
+    box-sizing: border-box;
 }
 
 .btn-explore-combos:hover {
@@ -1213,37 +1339,48 @@ img {
 }
 
 .hero-amazon-badge-wrapper {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
 }
 
 .amazon-pill-badge {
     display: inline-flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
     background: #ffffff;
-    border: 1px solid #ded9ce;
-    border-radius: 12px;
-    padding: 9px 26px;
+    border: 1px solid #d4cebe;
+    border-radius: 6px;
+    padding: 0 16px;
     text-decoration: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    height: 46px;
+    box-sizing: border-box;
 }
 
 .amazon-pill-badge:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    border-color: #ed8e00;
 }
 
 .amazon-pill-badge .badge-subtext {
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     color: #555555;
     font-weight: 600;
-    margin-bottom: 3px;
+    white-space: nowrap;
+    margin: 0;
     line-height: 1;
 }
 
 .amazon-pill-badge .amazon-logo-img {
+    height: 17px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+}
     height: 25px;
     width: auto;
     display: block;
