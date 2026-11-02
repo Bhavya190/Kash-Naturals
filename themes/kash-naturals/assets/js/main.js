@@ -1112,7 +1112,6 @@ jQuery(document).ready(function ($) {
     const $heroPrevBtn = $('#heroPrevBtn');
     const $heroNextBtn = $('#heroNextBtn');
     const $heroDots = $('#heroProgressDots .hero-dot');
-    const $heroCurrentNum = $('#heroCurrentSlideNum');
     const $heroAutoplayToggle = $('#heroAutoplayToggle');
 
     if ($heroSlides.length) {
@@ -1155,11 +1154,6 @@ jQuery(document).ready(function ($) {
             $heroDots.removeClass('active');
             $heroDots.find('.dot-progress-fill').css('width', '0%');
             $heroDots.eq(currentSlide).addClass('active');
-
-            // Update counter
-            if ($heroCurrentNum.length) {
-                $heroCurrentNum.text(String(currentSlide + 1).padStart(2, '0'));
-            }
 
             // Restart progress bar & autoplay
             startSlideProgress();

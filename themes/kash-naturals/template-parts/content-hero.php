@@ -160,7 +160,7 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
                                 <div class="hero-amazon-badge-wrapper">
                                     <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-pill-badge" title="<?php esc_attr_e('Buy Kash Naturals on Amazon', 'kash-naturals'); ?>">
                                         <span class="badge-subtext"><?php esc_html_e('Available on', 'kash-naturals'); ?></span>
-                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/amazon-logo-png.png'); ?>" alt="Amazon" class="amazon-logo-img" width="85" height="20">
+                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/amazon-logo-clean.png'); ?>" alt="Amazon" class="amazon-logo-img" width="76" height="24">
                                     </a>
                                 </div>
                             <?php endif; ?>
@@ -180,17 +180,10 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
         <i class="fa-solid fa-chevron-right"></i>
     </button>
 
-    <!-- Bottom Carousel Navigation Bar (Capsule with Slide Counter + Progress Dots + Autoplay Toggle) -->
+    <!-- Bottom Carousel Navigation Bar (Progress Dots + Autoplay Toggle) -->
     <div class="hero-carousel-nav-bar">
         <div class="container hero-nav-bar-inner">
             <div class="hero-carousel-nav-capsule">
-                <!-- Counter -->
-                <div class="hero-slide-counter">
-                    <span class="current-slide-num" id="heroCurrentSlideNum">01</span>
-                    <span class="counter-sep">/</span>
-                    <span class="total-slides-num" id="heroTotalSlidesNum"><?php echo sprintf('%02d', $total_slides); ?></span>
-                </div>
-
                 <!-- Progress Indicator Dots -->
                 <div class="hero-progress-dots" id="heroProgressDots">
                     <?php foreach ($slides as $idx => $s) : ?>
