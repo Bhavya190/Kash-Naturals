@@ -999,6 +999,78 @@ function kash_naturals_customize_register($wp_customize) {
             'section'     => 'kash_newsletter_options',
         )));
     }
+
+    /* ==========================================================================
+       WHATSAPP FLOATING CHAT WIDGET
+       ========================================================================== */
+    $wp_customize->add_section('kash_whatsapp_options', array(
+        'title'       => __('WhatsApp Chat Widget', 'kash-naturals'),
+        'description' => __('Configure the floating WhatsApp contact button displayed across all pages of the website.', 'kash-naturals'),
+        'priority'    => 42,
+    ));
+
+    // Enable / Disable
+    $wp_customize->add_setting('kash_whatsapp_enable', array(
+        'default'           => true,
+        'sanitize_callback' => 'wp_validate_boolean',
+    ));
+    $wp_customize->add_control('kash_whatsapp_enable', array(
+        'label'       => __('Enable WhatsApp Widget', 'kash-naturals'),
+        'description' => __('Display floating WhatsApp button site-wide.', 'kash-naturals'),
+        'section'     => 'kash_whatsapp_options',
+        'type'        => 'checkbox',
+    ));
+
+    // WhatsApp Phone Number
+    $wp_customize->add_setting('kash_whatsapp_number', array(
+        'default'           => '+91 98765 43210',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_whatsapp_number', array(
+        'label'       => __('WhatsApp Phone Number', 'kash-naturals'),
+        'description' => __('Include country code (e.g. +91 98765 43210 or 919876543210). Spaces, dashes, and symbols are formatted automatically.', 'kash-naturals'),
+        'section'     => 'kash_whatsapp_options',
+        'type'        => 'text',
+    ));
+
+    // Pre-filled Message
+    $wp_customize->add_setting('kash_whatsapp_message', array(
+        'default'           => __('Hello Kash Naturals! I have an inquiry about your artisanal mukhwas and products.', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('kash_whatsapp_message', array(
+        'label'       => __('Pre-filled Message', 'kash-naturals'),
+        'description' => __('Message automatically drafted when a visitor clicks to start a WhatsApp chat.', 'kash-naturals'),
+        'section'     => 'kash_whatsapp_options',
+        'type'        => 'textarea',
+    ));
+
+    // Tooltip / Pill Badge Text
+    $wp_customize->add_setting('kash_whatsapp_tooltip', array(
+        'default'           => __('Chat with us', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_whatsapp_tooltip', array(
+        'label'       => __('Tooltip / Pill Text', 'kash-naturals'),
+        'description' => __('Badge text displayed beside the button (e.g. "Chat with us" or "Need help?"). Leave blank to hide.', 'kash-naturals'),
+        'section'     => 'kash_whatsapp_options',
+        'type'        => 'text',
+    ));
+
+    // Screen Position
+    $wp_customize->add_setting('kash_whatsapp_position', array(
+        'default'           => 'right',
+        'sanitize_callback' => 'sanitize_key',
+    ));
+    $wp_customize->add_control('kash_whatsapp_position', array(
+        'label'       => __('Screen Position', 'kash-naturals'),
+        'section'     => 'kash_whatsapp_options',
+        'type'        => 'select',
+        'choices'     => array(
+            'right' => __('Bottom Right (Recommended)', 'kash-naturals'),
+            'left'  => __('Bottom Left', 'kash-naturals'),
+        ),
+    ));
 }
 add_action('customize_register', 'kash_naturals_customize_register');
 

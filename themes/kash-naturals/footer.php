@@ -500,6 +500,9 @@ if (!defined('ABSPATH')) {
     <!-- 7. WELCOME NEWSLETTER POPUP MODAL -->
     <?php get_template_part('template-parts/modal', 'newsletter'); ?>
 
+    <!-- 8. UNIVERSAL FLOATING WHATSAPP CHAT WIDGET -->
+    <?php get_template_part('template-parts/widget', 'whatsapp'); ?>
+
 </div><!-- #page -->
 
 <?php wp_footer(); ?>
