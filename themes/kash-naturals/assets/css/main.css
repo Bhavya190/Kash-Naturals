@@ -9053,17 +9053,17 @@ img.amz-ref-logo {
    ========================================================================== */
 .kash-deal-promo-section {
     background-color: #FAF7F2;
-    padding: 70px 0 85px;
+    padding: 60px 0 75px;
     position: relative;
     overflow: hidden;
 }
 
 .deal-promo-card-banner {
     background: linear-gradient(135deg, #072613 0%, #0F381D 55%, #092B17 100%);
-    border-radius: 36px;
-    border: 1.5px solid rgba(212, 139, 16, 0.45);
-    box-shadow: 0 24px 60px rgba(10, 46, 24, 0.22);
-    padding: 55px 65px;
+    border-radius: 32px;
+    border: 1.5px solid rgba(212, 139, 16, 0.4);
+    box-shadow: 0 20px 50px rgba(10, 46, 24, 0.2);
+    padding: 32px 36px;
     position: relative;
     overflow: hidden;
 }
@@ -9077,47 +9077,84 @@ img.amz-ref-logo {
 }
 
 .deal-bg-glow-orb.deal-glow-1 {
-    top: -120px;
-    left: -100px;
-    width: 440px;
-    height: 440px;
-    background: radial-gradient(circle, rgba(229, 154, 22, 0.18) 0%, transparent 70%);
+    top: -100px;
+    left: -80px;
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(229, 154, 22, 0.16) 0%, transparent 70%);
     filter: blur(50px);
 }
 
 .deal-bg-glow-orb.deal-glow-2 {
-    bottom: -120px;
-    right: -100px;
-    width: 480px;
-    height: 480px;
-    background: radial-gradient(circle, rgba(46, 125, 50, 0.22) 0%, transparent 70%);
-    filter: blur(60px);
+    bottom: -100px;
+    right: -80px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(46, 125, 50, 0.2) 0%, transparent 70%);
+    filter: blur(50px);
 }
 
 .deal-promo-grid {
     display: flex;
-    align-items: center;
-    gap: 60px;
+    align-items: stretch;
+    gap: 36px;
     position: relative;
     z-index: 5;
+    width: 100%;
 }
 
-/* Left Visual Column */
+/* Left Visual Column: Image Covering Entire Div */
 .deal-product-showcase-col {
-    flex: 0 0 44%;
-    max-width: 44%;
+    flex: 0 0 45%;
+    max-width: 45%;
+    display: flex;
+    flex-direction: column;
 }
 
 .deal-image-stage {
-    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border: 1.5px solid rgba(255, 255, 255, 0.14);
-    border-radius: 28px;
-    padding: 28px 24px 22px;
     position: relative;
-    text-align: center;
-    box-shadow: inset 0 2px 20px rgba(255, 255, 255, 0.04), 0 15px 35px rgba(0, 0, 0, 0.2);
+    border-radius: 22px;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    min-height: 440px;
+    background-color: #0b2915;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
+.deal-product-cover-link {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+}
+
+.deal-product-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.deal-image-stage:hover .deal-product-cover-img {
+    transform: scale(1.06);
+}
+
+/* Vignette Shadow Overlay for Badge & Timer Legibility */
+.deal-image-overlay-gradient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(3, 18, 9, 0.65) 0%, rgba(3, 18, 9, 0.1) 30%, rgba(3, 18, 9, 0.25) 55%, rgba(3, 18, 9, 0.88) 100%);
+}
+
+/* Overlaid Elements on Image (Left Side ONLY) */
 .deal-discount-badge {
     position: absolute;
     top: 18px;
@@ -9126,20 +9163,20 @@ img.amz-ref-logo {
     color: #FFFFFF;
     font-family: 'Outfit', sans-serif;
     font-weight: 800;
-    font-size: 0.88rem;
-    padding: 7px 16px;
+    font-size: 0.82rem;
+    padding: 6px 14px;
     border-radius: 50px;
-    box-shadow: 0 6px 18px rgba(212, 139, 16, 0.45);
+    box-shadow: 0 4px 15px rgba(212, 139, 16, 0.5);
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
     z-index: 10;
     letter-spacing: 0.5px;
     text-transform: uppercase;
 }
 
 .deal-discount-badge i {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     animation: dealBadgeShine 2s infinite ease-in-out;
 }
 
@@ -9152,25 +9189,25 @@ img.amz-ref-logo {
     position: absolute;
     top: 18px;
     right: 18px;
-    background: rgba(7, 38, 19, 0.75);
+    background: rgba(4, 22, 11, 0.8);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(212, 139, 16, 0.35);
+    border: 1px solid rgba(212, 139, 16, 0.4);
     color: #FFFFFF;
     font-family: 'Outfit', sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: 50px;
     z-index: 10;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 
 .deal-rating-pill i {
     color: #F5B041;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
 }
 
 .deal-rating-pill .rating-num {
@@ -9179,90 +9216,126 @@ img.amz-ref-logo {
 }
 
 .deal-rating-pill .rating-count {
-    color: rgba(255, 255, 255, 0.65);
-    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.74rem;
 }
 
-.deal-product-frame {
-    display: block;
-    width: 100%;
-    height: 310px;
-    overflow: hidden;
-    border-radius: 20px;
-    margin: 26px 0 18px;
-    text-decoration: none;
-}
-
-.deal-product-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
-    transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1), filter 0.45s ease;
-}
-
-.deal-product-frame:hover .deal-product-img {
-    transform: scale(1.06) translateY(-6px);
-    filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.5));
-}
-
-.deal-trust-micro-badges {
+/* Overlaid Countdown Timer at Bottom of Image */
+.deal-countdown-box {
+    position: absolute;
+    bottom: 18px;
+    left: 18px;
+    right: 18px;
+    z-index: 10;
+    background: rgba(3, 18, 9, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 139, 16, 0.45);
+    border-radius: 14px;
+    padding: 10px 14px;
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 0;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-.deal-trust-micro-badges .micro-badge {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.76rem;
-    font-weight: 600;
-    padding: 5px 12px;
-    border-radius: 20px;
-    display: inline-flex;
+.deal-countdown-header {
+    display: flex;
     align-items: center;
     gap: 6px;
-}
-
-.deal-trust-micro-badges .micro-badge i {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 700;
     color: #F5B041;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
 }
 
-/* Right Content Column */
+.deal-countdown-header i {
+    font-size: 0.85rem;
+}
+
+.deal-timer-digits {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.timer-block {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(212, 139, 16, 0.3);
+    border-radius: 8px;
+    min-width: 44px;
+    padding: 4px 5px;
+    text-align: center;
+}
+
+.timer-val {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1;
+}
+
+.timer-unit {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.58rem;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.timer-sep {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #F5B041;
+    line-height: 1;
+}
+
+/* Right Content Column: Compact Refined Font Sizes */
 .deal-content-col {
-    flex: 0 0 56%;
-    max-width: 56%;
+    flex: 0 0 55%;
+    max-width: 55%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6px 0;
 }
 
 .deal-eyebrow-pill {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(212, 139, 16, 0.16);
-    border: 1px solid rgba(212, 139, 16, 0.45);
+    gap: 6px;
+    background: rgba(212, 139, 16, 0.14);
+    border: 1px solid rgba(212, 139, 16, 0.4);
     color: #F5B041;
     font-family: 'Outfit', sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.74rem;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
-    padding: 6px 16px;
+    padding: 4px 13px;
     border-radius: 50px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    align-self: flex-start;
 }
 
 .deal-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 2.35rem;
-    font-weight: 800;
+    font-size: 1.48rem;
+    font-weight: 700;
     color: #FFFFFF;
-    line-height: 1.25;
-    margin: 0 0 12px 0;
-    letter-spacing: -0.3px;
+    line-height: 1.35;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.2px;
 }
 
 .deal-title a {
@@ -9277,107 +9350,63 @@ img.amz-ref-logo {
 
 .deal-description {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.02rem;
-    color: rgba(255, 255, 255, 0.82);
-    line-height: 1.6;
-    margin-bottom: 22px;
-    max-width: 580px;
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.55;
+    margin-bottom: 14px;
+    max-width: 540px;
 }
 
-/* Realtime Countdown Timer Card */
-.deal-countdown-box {
-    background: rgba(0, 0, 0, 0.32);
-    border: 1px solid rgba(212, 139, 16, 0.32);
-    border-radius: 16px;
-    padding: 12px 20px;
+/* Trust Micro Pills on Right Side */
+.deal-trust-micro-badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.deal-trust-micro-badges .micro-badge {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.88);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
     display: inline-flex;
     align-items: center;
-    gap: 22px;
-    margin-bottom: 22px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    gap: 5px;
 }
 
-.deal-countdown-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 700;
+.deal-trust-micro-badges .micro-badge i {
     color: #F5B041;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.deal-countdown-header i {
-    font-size: 1rem;
-}
-
-.deal-timer-digits {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.timer-block {
-    background: rgba(7, 38, 19, 0.7);
-    border: 1px solid rgba(212, 139, 16, 0.4);
-    border-radius: 10px;
-    min-width: 58px;
-    padding: 6px 8px;
-    text-align: center;
-}
-
-.timer-val {
-    display: block;
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.45rem;
-    font-weight: 800;
-    color: #FFFFFF;
-    line-height: 1;
-}
-
-.timer-unit {
-    display: block;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.65);
-    letter-spacing: 1px;
-    font-weight: 700;
-    margin-top: 3px;
-}
-
-.timer-sep {
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: #F5B041;
-    line-height: 1;
+    font-size: 0.72rem;
 }
 
 /* Pricing Row */
 .deal-price-row {
     display: flex;
     align-items: baseline;
-    gap: 16px;
-    margin-bottom: 12px;
+    gap: 12px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 
 .deal-price-current {
     font-family: 'Outfit', sans-serif;
-    font-size: 2.35rem;
+    font-size: 1.75rem;
     font-weight: 800;
     color: #F5B041;
     line-height: 1;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.4px;
 }
 
 .deal-price-old {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.35rem;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.45);
     text-decoration: line-through;
 }
 
@@ -9385,33 +9414,33 @@ img.amz-ref-logo {
     background: #1B5E20;
     color: #A5D6A7;
     font-family: 'Outfit', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 800;
-    padding: 5px 14px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 3px 10px;
     border-radius: 20px;
     border: 1px solid rgba(165, 214, 167, 0.35);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
 }
 
 /* Urgency Notice */
 .deal-urgency-notice {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 7px;
     font-family: 'Outfit', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     color: #FFD54F;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
     font-weight: 500;
 }
 
 .deal-urgency-notice .pulse-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: #FF5252;
-    box-shadow: 0 0 10px #FF5252;
+    box-shadow: 0 0 8px #FF5252;
     animation: dealPulse 1.6s infinite ease-in-out;
 }
 
@@ -9425,8 +9454,8 @@ img.amz-ref-logo {
 .deal-actions-row {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 26px;
+    gap: 12px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
@@ -9437,21 +9466,21 @@ img.amz-ref-logo {
     color: #FFFFFF !important;
     font-family: 'Outfit', sans-serif;
     font-weight: 800;
-    font-size: 1.02rem;
-    padding: 16px 36px;
+    font-size: 0.88rem;
+    padding: 12px 26px;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
     text-decoration: none;
-    box-shadow: 0 10px 25px rgba(229, 154, 22, 0.38);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
-    letter-spacing: 0.5px;
+    box-shadow: 0 8px 20px rgba(229, 154, 22, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    letter-spacing: 0.4px;
 }
 
 .btn-deal-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(229, 154, 22, 0.5);
+    box-shadow: 0 12px 25px rgba(229, 154, 22, 0.45);
     filter: brightness(1.06);
     color: #FFFFFF !important;
 }
@@ -9462,24 +9491,24 @@ img.amz-ref-logo {
 
 .btn-deal-secondary {
     background: transparent;
-    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
     border-radius: 50px;
     color: #FFFFFF !important;
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem;
-    padding: 15px 28px;
+    font-size: 0.84rem;
+    padding: 11px 20px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-deal-secondary:hover {
     border-color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.1);
     color: #FFFFFF !important;
     transform: translateY(-2px);
 }
@@ -9496,61 +9525,66 @@ img.amz-ref-logo {
 .deal-trust-strip {
     display: flex;
     align-items: center;
-    gap: 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    padding-top: 20px;
+    gap: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 16px;
     flex-wrap: wrap;
 }
 
 .deal-trust-strip .trust-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-family: 'Outfit', sans-serif;
-    font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .deal-trust-strip .trust-item i {
     color: #F5B041;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
 }
 
 /* Responsive Breakpoints */
 @media (max-width: 1024px) {
     .deal-promo-card-banner {
-        padding: 45px 40px;
-        border-radius: 32px;
+        padding: 28px 24px;
+        border-radius: 28px;
     }
 
     .deal-promo-grid {
-        gap: 40px;
+        gap: 28px;
     }
 
     .deal-title {
-        font-size: 2rem;
+        font-size: 1.35rem;
     }
 }
 
 @media (max-width: 991px) {
     .kash-deal-promo-section {
-        padding: 50px 0 65px;
+        padding: 45px 0 55px;
     }
 
     .deal-promo-card-banner {
-        padding: 40px 24px;
-        border-radius: 28px;
+        padding: 24px 18px;
+        border-radius: 24px;
     }
 
     .deal-promo-grid {
         flex-direction: column;
-        gap: 35px;
+        gap: 26px;
     }
 
     .deal-product-showcase-col {
         flex: 0 0 100%;
         max-width: 100%;
         width: 100%;
+    }
+
+    .deal-image-stage {
+        min-height: 380px;
+        height: 380px;
     }
 
     .deal-content-col {
@@ -9560,25 +9594,22 @@ img.amz-ref-logo {
         text-align: center;
     }
 
-    .deal-product-frame {
-        height: 270px;
-        margin: 22px 0 16px;
+    .deal-eyebrow-pill {
+        align-self: center;
     }
 
     .deal-title {
-        font-size: 1.85rem;
+        font-size: 1.35rem;
     }
 
     .deal-description {
         margin-left: auto;
         margin-right: auto;
-        font-size: 0.95rem;
+        font-size: 0.86rem;
     }
 
-    .deal-countdown-box {
-        flex-direction: column;
-        gap: 12px;
-        width: 100%;
+    .deal-trust-micro-badges {
+        justify-content: center;
     }
 
     .deal-price-row {
@@ -9587,6 +9618,49 @@ img.amz-ref-logo {
 
     .deal-urgency-notice {
         justify-content: center;
+    }
+
+    .deal-actions-row {
+        justify-content: center;
+    }
+
+    .deal-trust-strip {
+        justify-content: center;
+        gap: 14px;
+    }
+}
+
+@media (max-width: 520px) {
+    .deal-image-stage {
+        min-height: 330px;
+        height: 330px;
+    }
+
+    .deal-discount-badge {
+        top: 14px;
+        left: 14px;
+        font-size: 0.74rem;
+        padding: 5px 10px;
+    }
+
+    .deal-rating-pill {
+        top: 14px;
+        right: 14px;
+        font-size: 0.72rem;
+        padding: 4px 9px;
+    }
+
+    .deal-rating-pill .rating-count {
+        display: none;
+    }
+
+    .deal-countdown-box {
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        padding: 8px 10px;
+        flex-direction: column;
+        gap: 6px;
     }
 
     .deal-actions-row {
@@ -9600,64 +9674,12 @@ img.amz-ref-logo {
         justify-content: center;
     }
 
-    .deal-trust-strip {
-        justify-content: center;
-        gap: 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .deal-promo-card-banner {
-        padding: 30px 18px;
-        border-radius: 24px;
-    }
-
-    .deal-image-stage {
-        padding: 22px 14px 18px;
-    }
-
-    .deal-discount-badge {
-        top: 14px;
-        left: 14px;
-        font-size: 0.78rem;
-        padding: 5px 12px;
-    }
-
-    .deal-rating-pill {
-        top: 14px;
-        right: 14px;
-        font-size: 0.76rem;
-        padding: 5px 10px;
-    }
-
-    .deal-rating-pill .rating-count {
-        display: none;
-    }
-
-    .deal-product-frame {
-        height: 220px;
-    }
-
     .deal-title {
-        font-size: 1.55rem;
-    }
-
-    .timer-block {
-        min-width: 50px;
-        padding: 5px 6px;
-    }
-
-    .timer-val {
         font-size: 1.25rem;
     }
 
     .deal-price-current {
-        font-size: 1.95rem;
-    }
-
-    .btn-deal-primary {
-        padding: 14px 24px;
-        font-size: 0.92rem;
+        font-size: 1.55rem;
     }
 }
 

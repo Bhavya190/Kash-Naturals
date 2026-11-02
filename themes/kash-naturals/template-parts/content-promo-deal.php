@@ -1,7 +1,8 @@
 <?php
 /**
  * Promotional Product Deal & Offer Spotlight Section Template Part
- * Placed on Homepage after the "Shop on Amazon" section
+ * 2-Column Layout: Full-cover image on Left with overlaid Timer, Discount %, Rating.
+ * Compact refined typography and action hub on Right.
  *
  * @package KashNaturals
  */
@@ -149,7 +150,7 @@ $timer_hours = intval(get_theme_mod('kash_promo_timer_hours', 24));
 if ($timer_hours <= 0) {
     $timer_hours = 24;
 }
-$timer_label = get_theme_mod('kash_promo_timer_label', __('⚡ Limited Time Deal Ends In:', 'kash-naturals'));
+$timer_label = get_theme_mod('kash_promo_timer_label', __('⚡ DEAL ENDS IN:', 'kash-naturals'));
 ?>
 
 <section class="kash-deal-promo-section" id="promotional-deal-section">
@@ -162,11 +163,11 @@ $timer_label = get_theme_mod('kash_promo_timer_label', __('⚡ Limited Time Deal
 
             <div class="deal-promo-grid">
                 
-                <!-- Left Column: Visual Product Showcase -->
+                <!-- Left Column: Visual Product Showcase with Full-Cover Image & Overlaid Badges/Timer -->
                 <div class="deal-product-showcase-col">
                     <div class="deal-image-stage">
                         
-                        <!-- Floating Discount Badge -->
+                        <!-- Floating Discount Badge (Top Left) -->
                         <?php if (!empty($badge_text)) : ?>
                             <div class="deal-discount-badge">
                                 <i class="fa-solid fa-bolt"></i>
@@ -174,29 +175,49 @@ $timer_label = get_theme_mod('kash_promo_timer_label', __('⚡ Limited Time Deal
                             </div>
                         <?php endif; ?>
 
-                        <!-- Glass Rating Pill -->
+                        <!-- Glass Rating Pill (Top Right) -->
                         <div class="deal-rating-pill">
                             <i class="fa-solid fa-star"></i>
                             <span class="rating-num">5.0</span>
                             <span class="rating-count">(500+ Reviews)</span>
                         </div>
 
-                        <!-- Main Product Image Frame -->
-                        <a href="<?php echo esc_url($product_link); ?>" class="deal-product-frame" aria-label="<?php echo esc_attr($title); ?>">
-                            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" class="deal-product-img" loading="lazy">
+                        <!-- Image covering entire left div -->
+                        <a href="<?php echo esc_url($product_link); ?>" class="deal-product-cover-link" aria-label="<?php echo esc_attr($title); ?>">
+                            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" class="deal-product-cover-img" loading="lazy">
                         </a>
 
-                        <!-- Micro Trust Pills Below Image -->
-                        <div class="deal-trust-micro-badges">
-                            <span class="micro-badge"><i class="fa-solid fa-leaf"></i> <?php esc_html_e('100% Natural', 'kash-naturals'); ?></span>
-                            <span class="micro-badge"><i class="fa-solid fa-shield-heart"></i> <?php esc_html_e('Zero Preservatives', 'kash-naturals'); ?></span>
-                            <span class="micro-badge"><i class="fa-solid fa-award"></i> <?php esc_html_e('Royal Heritage Taste', 'kash-naturals'); ?></span>
+                        <!-- Vignette Gradient Overlay for readability -->
+                        <div class="deal-image-overlay-gradient"></div>
+
+                        <!-- Countdown Timer Overlapping Image at Bottom -->
+                        <div class="deal-countdown-box">
+                            <div class="deal-countdown-header">
+                                <i class="fa-regular fa-clock"></i>
+                                <span><?php echo esc_html($timer_label); ?></span>
+                            </div>
+                            <div class="deal-timer-digits" data-timer-hours="<?php echo esc_attr($timer_hours); ?>">
+                                <div class="timer-block">
+                                    <span class="timer-val timer-hours">00</span>
+                                    <span class="timer-unit"><?php esc_html_e('HRS', 'kash-naturals'); ?></span>
+                                </div>
+                                <span class="timer-sep">:</span>
+                                <div class="timer-block">
+                                    <span class="timer-val timer-mins">00</span>
+                                    <span class="timer-unit"><?php esc_html_e('MIN', 'kash-naturals'); ?></span>
+                                </div>
+                                <span class="timer-sep">:</span>
+                                <div class="timer-block">
+                                    <span class="timer-val timer-secs">00</span>
+                                    <span class="timer-unit"><?php esc_html_e('SEC', 'kash-naturals'); ?></span>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- Right Column: Deal Information & Action Hub -->
+                <!-- Right Column: Deal Information & Action Hub with Smaller Refined Font Sizes -->
                 <div class="deal-content-col">
                     
                     <!-- Eyebrow Pill -->
@@ -206,40 +227,23 @@ $timer_label = get_theme_mod('kash_promo_timer_label', __('⚡ Limited Time Deal
                         </div>
                     <?php endif; ?>
 
-                    <!-- Product Main Title -->
+                    <!-- Product Main Title (Clean, smaller font size) -->
                     <h2 class="deal-title">
                         <a href="<?php echo esc_url($product_link); ?>">
                             <?php echo esc_html($title); ?>
                         </a>
                     </h2>
 
-                    <!-- Flavor / Product Teaser Description -->
+                    <!-- Flavor / Product Teaser Description (Clean, smaller font size) -->
                     <p class="deal-description">
                         <?php echo esc_html($description); ?>
                     </p>
 
-                    <!-- Realtime Countdown Timer Card -->
-                    <div class="deal-countdown-box">
-                        <div class="deal-countdown-header">
-                            <i class="fa-regular fa-clock"></i>
-                            <span><?php echo esc_html($timer_label); ?></span>
-                        </div>
-                        <div class="deal-timer-digits" data-timer-hours="<?php echo esc_attr($timer_hours); ?>">
-                            <div class="timer-block">
-                                <span class="timer-val timer-hours">00</span>
-                                <span class="timer-unit"><?php esc_html_e('HOURS', 'kash-naturals'); ?></span>
-                            </div>
-                            <span class="timer-sep">:</span>
-                            <div class="timer-block">
-                                <span class="timer-val timer-mins">00</span>
-                                <span class="timer-unit"><?php esc_html_e('MINS', 'kash-naturals'); ?></span>
-                            </div>
-                            <span class="timer-sep">:</span>
-                            <div class="timer-block">
-                                <span class="timer-val timer-secs">00</span>
-                                <span class="timer-unit"><?php esc_html_e('SECS', 'kash-naturals'); ?></span>
-                            </div>
-                        </div>
+                    <!-- Trust Micro Pills -->
+                    <div class="deal-trust-micro-badges">
+                        <span class="micro-badge"><i class="fa-solid fa-leaf"></i> <?php esc_html_e('100% Natural', 'kash-naturals'); ?></span>
+                        <span class="micro-badge"><i class="fa-solid fa-shield-heart"></i> <?php esc_html_e('Zero Preservatives', 'kash-naturals'); ?></span>
+                        <span class="micro-badge"><i class="fa-solid fa-award"></i> <?php esc_html_e('Royal Heritage Taste', 'kash-naturals'); ?></span>
                     </div>
 
                     <!-- Pricing & Savings Highlight -->
