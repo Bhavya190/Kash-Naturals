@@ -449,6 +449,148 @@ function kash_naturals_customize_register($wp_customize) {
         'section'     => 'kash_hero_options',
         'type'        => 'url',
     ));
+
+    /* ==========================================================================
+       CUSTOMER REVIEWS / TESTIMONIALS SECTION
+       ========================================================================== */
+    $wp_customize->add_section('kash_testimonials_options', array(
+        'title'       => __('Customer Reviews / Testimonials', 'kash-naturals'),
+        'description' => __('Configure the customer review cards (images, ratings, single star, customer names, quotes).', 'kash-naturals'),
+        'priority'    => 35,
+    ));
+
+    $wp_customize->add_setting('kash_testi_subheading', array(
+        'default'           => '— TESTIMONIALS —',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_testi_subheading', array(
+        'label'    => __('Section Subheading', 'kash-naturals'),
+        'section'  => 'kash_testimonials_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_testi_title', array(
+        'default'           => __('What Our Customers Say', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_testi_title', array(
+        'label'    => __('Section Main Title', 'kash-naturals'),
+        'section'  => 'kash_testimonials_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_testi_desc', array(
+        'default'           => __('Read real experiences from food lovers who savor our authentic digestives', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('kash_testi_desc', array(
+        'label'    => __('Section Subtitle / Description', 'kash-naturals'),
+        'section'  => 'kash_testimonials_options',
+        'type'     => 'textarea',
+    ));
+
+    $defaults_testi = array(
+        1 => array(
+            'image'    => '',
+            'rating'   => '5.0',
+            'product'  => 'Royal Calcutta Paan Mukhwas',
+            'title'    => 'UNMATCHED FRESHNESS',
+            'quote'    => 'Excellent freshness and premium authentic taste. Every jar feels hand-picked and freshly packed with royal aroma! Loved all the varieties.',
+            'author'   => 'Priya Sharma',
+            'location' => 'Mumbai',
+        ),
+        2 => array(
+            'image'    => '',
+            'rating'   => '5.0',
+            'product'  => 'Belgian Roasted Dragees',
+            'title'    => 'MUST-TRY DRAGEES',
+            'quote'    => 'Chocolate dragees are absolutely amazing! The smooth Belgian chocolate shell paired with roasted nuts is addictive. Must try for celebrations!',
+            'author'   => 'Rahul Mehta',
+            'location' => 'Delhi',
+        ),
+        3 => array(
+            'image'    => '',
+            'rating'   => '5.0',
+            'product'  => 'Curated Gift Hamper',
+            'title'    => 'ROYAL QUALITY',
+            'quote'    => 'Best quality mukhwas I have ever ordered online. Zero preservatives and 100% natural ingredients make all the difference. Highly recommended!',
+            'author'   => 'Neha Kapoor',
+            'location' => 'Bengaluru',
+        ),
+    );
+
+    foreach ($defaults_testi as $t_id => $t_def) {
+        $wp_customize->add_setting("kash_testi{$t_id}_image", array(
+            'default'           => $t_def['image'],
+            'sanitize_callback' => 'esc_url_raw',
+        ));
+        if (class_exists('WP_Customize_Image_Control')) {
+            $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, "kash_testi{$t_id}_image", array(
+                'label'       => sprintf(__('Card %d: Customer / Product Photo', 'kash-naturals'), $t_id),
+                'section'     => 'kash_testimonials_options',
+            )));
+        }
+
+        $wp_customize->add_setting("kash_testi{$t_id}_rating", array(
+            'default'           => $t_def['rating'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("kash_testi{$t_id}_rating", array(
+            'label'       => sprintf(__('Card %d: Rating Number (e.g. 5.0 with 1 Star)', 'kash-naturals'), $t_id),
+            'section'     => 'kash_testimonials_options',
+            'type'        => 'text',
+        ));
+
+        $wp_customize->add_setting("kash_testi{$t_id}_product", array(
+            'default'           => $t_def['product'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("kash_testi{$t_id}_product", array(
+            'label'       => sprintf(__('Card %d: Product / Category Pill', 'kash-naturals'), $t_id),
+            'section'     => 'kash_testimonials_options',
+            'type'        => 'text',
+        ));
+
+        $wp_customize->add_setting("kash_testi{$t_id}_title", array(
+            'default'           => $t_def['title'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("kash_testi{$t_id}_title", array(
+            'label'       => sprintf(__('Card %d: Review Headline / Title', 'kash-naturals'), $t_id),
+            'section'     => 'kash_testimonials_options',
+            'type'        => 'text',
+        ));
+
+        $wp_customize->add_setting("kash_testi{$t_id}_quote", array(
+            'default'           => $t_def['quote'],
+            'sanitize_callback' => 'sanitize_textarea_field',
+        ));
+        $wp_customize->add_control("kash_testi{$t_id}_quote", array(
+            'label'       => sprintf(__('Card %d: Customer Review Text', 'kash-naturals'), $t_id),
+            'section'     => 'kash_testimonials_options',
+            'type'        => 'textarea',
+        ));
+
+        $wp_customize->add_setting("kash_testi{$t_id}_author", array(
+            'default'           => $t_def['author'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("kash_testi{$t_id}_author", array(
+            'label'       => sprintf(__('Card %d: Customer Name', 'kash-naturals'), $t_id),
+            'section'     => 'kash_testimonials_options',
+            'type'        => 'text',
+        ));
+
+        $wp_customize->add_setting("kash_testi{$t_id}_location", array(
+            'default'           => $t_def['location'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("kash_testi{$t_id}_location", array(
+            'label'       => sprintf(__('Card %d: Location / City', 'kash-naturals'), $t_id),
+            'section'     => 'kash_testimonials_options',
+            'type'        => 'text',
+        ));
+    }
 }
 add_action('customize_register', 'kash_naturals_customize_register');
 
