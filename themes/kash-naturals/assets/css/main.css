@@ -116,14 +116,55 @@ img {
     width: 100%;
 }
 
-/* Desktop layout: Clean, centered row across the bar */
+/* Desktop layout: Dynamic Responsive Grid based on number of active columns */
 .notice-bar-desktop {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(var(--notice-cols, 2), minmax(0, 1fr));
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.notice-bar-desktop .notice-bar-item {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: clamp(24px, 5vw, 70px);
+    gap: 10px;
+    white-space: nowrap;
+    text-align: center;
     width: 100%;
+    box-sizing: border-box;
+}
+
+/* 1 Column: Single centered announcement */
+.notice-bar-desktop.notice-cols-1 {
+    grid-template-columns: 1fr;
+    max-width: 650px;
+}
+
+/* 2 Columns: Wide, elegant spacing between items to distribute across the bar */
+.notice-bar-desktop.notice-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 1150px;
+    gap: clamp(40px, 8vw, 180px);
+    padding: 0 30px;
+}
+
+/* 3 Columns: 3 evenly spaced columns across the bar */
+.notice-bar-desktop.notice-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 1240px;
+    gap: clamp(20px, 3.5vw, 55px);
+    padding: 0 24px;
+}
+
+/* 4 Columns: 4 evenly spaced columns across full width */
+.notice-bar-desktop.notice-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: 1320px;
+    gap: clamp(14px, 2vw, 36px);
+    padding: 0 20px;
 }
 
 /* Mobile marquee hidden on desktop */

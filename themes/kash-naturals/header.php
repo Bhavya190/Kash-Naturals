@@ -26,59 +26,101 @@ if (!defined('ABSPATH')) {
     <?php if (get_theme_mod('kash_noticebar_enable', true)) : 
         $notice_bg = get_theme_mod('kash_noticebar_bg', '#0a331a');
         $notice_color = get_theme_mod('kash_noticebar_color', '#ffffff');
+
         $default_items = array(
             1 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Free Shipping Above - ₹499', 'link' => ''),
             2 => array('icon' => 'fa-solid fa-tag', 'text' => 'New User get 10% Welcome10 code', 'link' => ''),
+            3 => array('icon' => 'fa-solid fa-spa', 'text' => '', 'link' => ''),
+            4 => array('icon' => 'fa-brands fa-amazon', 'text' => '', 'link' => ''),
         );
 
-        $render_notice_items = function() use ($default_items) {
-            foreach ($default_items as $i => $item_def) :
-                $icon = get_theme_mod("kash_noticebar_item{$i}_icon", $item_def['icon']);
-                $text = get_theme_mod("kash_noticebar_item{$i}_text", $item_def['text']);
-                $link = get_theme_mod("kash_noticebar_item{$i}_link", $item_def['link']);
+        $active_notice_items = array();
+        for ($i = 1; $i <= 4; $i++) {
+            $def_icon = isset($default_items[$i]['icon']) ? $default_items[$i]['icon'] : '';
+            $def_text = isset($default_items[$i]['text']) ? $default_items[$i]['text'] : '';
+            $def_link = isset($default_items[$i]['link']) ? $default_items[$i]['link'] : '';
 
-                // Reset old defaults if still stored in theme_mods
-                if ($text === 'Natural Ingredients' || $text === 'Hygienically Manufactured' || $text === 'Pan India Delivery' || $text === 'Available on Amazon') {
-                    $text = $item_def['text'];
-                    $icon = $item_def['icon'];
-                }
+            $icon = get_theme_mod("kash_noticebar_item{$i}_icon", $def_icon);
+            $text = get_theme_mod("kash_noticebar_item{$i}_text", $def_text);
+            $link = get_theme_mod("kash_noticebar_item{$i}_link", $def_link);
 
-                if (!empty($text)) : ?>
-                    <div class="notice-bar-item">
-                        <?php if (!empty($link)) : ?>
-                            <a href="<?php echo esc_url($link); ?>" target="_blank" rel="noopener noreferrer" class="notice-link">
-                        <?php endif; ?>
-                            <?php if (!empty($icon)) : ?>
-                                <i class="<?php echo esc_attr($icon); ?> notice-icon"></i>
-                            <?php endif; ?>
-                            <span class="notice-text"><?php echo esc_html($text); ?></span>
-                        <?php if (!empty($link)) : ?>
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                <?php endif;
-            endforeach;
+            // Clean up old defaults from original theme version if still in DB
+            if ($text === 'Natural Ingredients') {
+                $text = 'Free Shipping Above - ₹499';
+                $icon = 'fa-solid fa-truck-fast';
+            } elseif ($text === 'Hygienically Manufactured') {
+                $text = 'New User get 10% Welcome10 code';
+                $icon = 'fa-solid fa-tag';
+            } elseif ($text === 'Pan India Delivery' || $text === 'Available on Amazon') {
+                $text = '';
+                $icon = '';
+            }
+
+            if (!empty($text)) {
+                $active_notice_items[] = array(
+                    'icon' => $icon,
+                    'text' => $text,
+                    'link' => $link,
+                );
+            }
+        }
+
+        $item_count = count($active_notice_items);
+        if ($item_count === 0) {
+            $active_notice_items = array(
+                array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Free Shipping Above - ₹499', 'link' => ''),
+                array('icon' => 'fa-solid fa-tag', 'text' => 'New User get 10% Welcome10 code', 'link' => ''),
+            );
+            $item_count = 2;
+        }
+
+        $render_single_notice_item = function($n_item) {
+            ?>
+            <div class="notice-bar-item">
+                <?php if (!empty($n_item['link'])) : ?>
+                    <a href="<?php echo esc_url($n_item['link']); ?>" target="_blank" rel="noopener noreferrer" class="notice-link">
+                <?php endif; ?>
+                    <?php if (!empty($n_item['icon'])) : ?>
+                        <i class="<?php echo esc_attr($n_item['icon']); ?> notice-icon"></i>
+                    <?php endif; ?>
+                    <span class="notice-text"><?php echo esc_html($n_item['text']); ?></span>
+                <?php if (!empty($n_item['link'])) : ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+            <?php
         };
     ?>
     <div class="top-notice-bar" style="background-color: <?php echo esc_attr($notice_bg); ?>; color: <?php echo esc_attr($notice_color); ?>;">
         <div class="container notice-bar-container">
-            <!-- Desktop Layout: Centered clean spaced row across the bar -->
-            <div class="notice-bar-desktop" id="noticeBarDesktop">
-                <?php $render_notice_items(); ?>
+            <!-- Desktop Layout: dynamically uses 1, 2, 3, or 4 columns based on array item count -->
+            <div class="notice-bar-desktop notice-bar-grid notice-cols-<?php echo esc_attr($item_count); ?>" id="noticeBarDesktop" style="--notice-cols: <?php echo intval($item_count); ?>;">
+                <?php foreach ($active_notice_items as $n_item) : ?>
+                    <?php $render_single_notice_item($n_item); ?>
+                <?php endforeach; ?>
             </div>
 
             <!-- Mobile Layout: Continuous moving line (infinite ticker marquee) -->
             <div class="notice-bar-mobile" id="noticeBarMobile">
                 <div class="notice-bar-marquee-track">
                     <div class="notice-bar-marquee-content">
-                        <?php $render_notice_items(); ?>
-                        <?php $render_notice_items(); ?>
-                        <?php $render_notice_items(); ?>
+                        <?php 
+                        $repeats = ($item_count <= 2) ? 3 : 2;
+                        for ($r = 0; $r < $repeats; $r++) :
+                            foreach ($active_notice_items as $n_item) :
+                                $render_single_notice_item($n_item);
+                            endforeach;
+                        endfor;
+                        ?>
                     </div>
                     <div class="notice-bar-marquee-content" aria-hidden="true">
-                        <?php $render_notice_items(); ?>
-                        <?php $render_notice_items(); ?>
-                        <?php $render_notice_items(); ?>
+                        <?php 
+                        for ($r = 0; $r < $repeats; $r++) :
+                            foreach ($active_notice_items as $n_item) :
+                                $render_single_notice_item($n_item);
+                            endforeach;
+                        endfor;
+                        ?>
                     </div>
                 </div>
             </div>

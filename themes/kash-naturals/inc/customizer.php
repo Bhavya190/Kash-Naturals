@@ -51,21 +51,25 @@ function kash_naturals_customize_register($wp_customize) {
         )));
     }
 
-    // Default Items Data (2 items: Free Shipping & Welcome Coupon)
+    // Default Items Data (Items 1 & 2 active by default, Items 3 & 4 optional for 3 or 4 column layout)
     $default_items = array(
         1 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Free Shipping Above - ₹499', 'link' => ''),
         2 => array('icon' => 'fa-solid fa-tag', 'text' => 'New User get 10% Welcome10 code', 'link' => ''),
+        3 => array('icon' => 'fa-solid fa-spa', 'text' => '', 'link' => ''),
+        4 => array('icon' => 'fa-brands fa-amazon', 'text' => '', 'link' => ''),
     );
 
     foreach ($default_items as $i => $item) {
+        $is_optional = ($i > 2) ? ' (Optional)' : '';
+
         // Icon Class
         $wp_customize->add_setting("kash_noticebar_item{$i}_icon", array(
             'default'           => $item['icon'],
             'sanitize_callback' => 'sanitize_text_field',
         ));
         $wp_customize->add_control("kash_noticebar_item{$i}_icon", array(
-            'label'       => sprintf(__('Item %d Icon (FontAwesome Class)', 'kash-naturals'), $i),
-            'description' => __('e.g., fa-solid fa-leaf, fa-solid fa-truck-fast, fa-brands fa-amazon', 'kash-naturals'),
+            'label'       => sprintf(__('Item %d Icon (FontAwesome Class)%s', 'kash-naturals'), $i, $is_optional),
+            'description' => __('e.g., fa-solid fa-truck-fast, fa-solid fa-tag, fa-solid fa-leaf, fa-brands fa-amazon', 'kash-naturals'),
             'section'     => 'kash_noticebar_options',
             'type'        => 'text',
         ));
@@ -76,9 +80,10 @@ function kash_naturals_customize_register($wp_customize) {
             'sanitize_callback' => 'sanitize_text_field',
         ));
         $wp_customize->add_control("kash_noticebar_item{$i}_text", array(
-            'label'   => sprintf(__('Item %d Text', 'kash-naturals'), $i),
-            'section' => 'kash_noticebar_options',
-            'type'    => 'text',
+            'label'       => sprintf(__('Item %d Text%s', 'kash-naturals'), $i, $is_optional),
+            'description' => ($i > 2) ? __('Leave empty if you only want 2 columns in the notice bar.', 'kash-naturals') : '',
+            'section'     => 'kash_noticebar_options',
+            'type'        => 'text',
         ));
 
         // Link
