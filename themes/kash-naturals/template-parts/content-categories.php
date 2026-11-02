@@ -14,51 +14,109 @@ $shop_url = home_url('/shop');
 
 $display_cats = array();
 
-// Query Dynamic Product Categories from WooCommerce
-if (class_exists('WooCommerce')) {
-    $wc_cats = get_terms(array(
-        'taxonomy'   => 'product_cat',
-        'hide_empty' => false,
-        'parent'     => 0,
-        'exclude'    => array(get_option('default_product_cat')),
-        'number'     => 4,
-    ));
+$badge_styles = array(
+    array('class' => 'badge-green', 'icon' => 'fa-solid fa-leaf'),
+    array('class' => 'badge-brown', 'icon' => 'fa-solid fa-cookie'),
+    array('class' => 'badge-gold',  'icon' => 'fa-solid fa-layer-group'),
+    array('class' => 'badge-green', 'icon' => 'fa-solid fa-gift'),
+);
 
-    if (!empty($wc_cats) && !is_wp_error($wc_cats)) {
-        $badge_styles = array(
-            array('class' => 'badge-green', 'icon' => 'fa-solid fa-leaf'),
-            array('class' => 'badge-brown', 'icon' => 'fa-solid fa-cookie'),
-            array('class' => 'badge-gold',  'icon' => 'fa-solid fa-layer-group'),
-            array('class' => 'badge-green', 'icon' => 'fa-solid fa-gift'),
-        );
+$default_cat_images = array(
+    $theme_uri . '/assets/images/mouth-fresheners.jpg',
+    $theme_uri . '/assets/images/chocolate-dragees.jpg',
+    $theme_uri . '/assets/images/kunafa-bars.jpg',
+    $theme_uri . '/assets/images/gift-combos.jpg',
+);
 
-        $default_cat_images = array(
-            $theme_uri . '/assets/images/mouth-fresheners.jpg',
-            $theme_uri . '/assets/images/chocolate-dragees.jpg',
-            $theme_uri . '/assets/images/kunafa-bars.jpg',
-            $theme_uri . '/assets/images/gift-combos.jpg',
-        );
-
-        foreach ($wc_cats as $idx => $term) {
-            $thumb_id = get_term_meta($term->term_id, 'thumbnail_id', true);
-            $img_url = $thumb_id ? wp_get_attachment_url($thumb_id) : $default_cat_images[$idx % 4];
-            $count_label = sprintf(_n('%s Item', '%s Items', $term->count, 'kash-naturals'), number_format_i18n($term->count));
-
-            $style = $badge_styles[$idx % 4];
-
-            $display_cats[] = array(
-                'title'       => strtoupper($term->name),
-                'subtitle'    => !empty($term->description) ? wp_trim_words($term->description, 6, '') : $count_label,
-                'image'       => $img_url,
-                'link'        => get_term_link($term),
-                'badge_class' => $style['class'],
-                'badge_icon'  => $style['icon'],
-            );
-        }
+// Check if specific categories were chosen in Appearance > Customize
+$custom_chosen_slugs = array();
+for ($i = 1; $i <= 4; $i++) {
+    $slug = get_theme_mod("kash_cat_slot_{$i}");
+    if (!empty($slug)) {
+        $custom_chosen_slugs[$i] = $slug;
     }
 }
 
-// If no categories in WooCommerce, keep empty and display clean empty state notice
+if (class_exists('WooCommerce')) {
+    $hide_empty = (bool) get_theme_mod('kash_cats_hide_empty', false);
+
+    // Case A: User explicitly picked 1 or more categories in WordPress Customizer
+    if (!empty($custom_chosen_slugs)) {
+        for ($slot = 1; $slot <= 4; $slot++) {
+            $slot_slug = isset($custom_chosen_slugs[$slot]) ? $custom_chosen_slugs[$slot] : '';
+            if (empty($slot_slug)) {
+                continue;
+            }
+            $term = get_term_by('slug', $slot_slug, 'product_cat');
+            if ($term && !is_wp_error($term)) {
+                $custom_img = get_theme_mod("kash_cat_image_{$slot}");
+                $custom_title = get_theme_mod("kash_cat_title_{$slot}");
+
+                $thumb_id = get_term_meta($term->term_id, 'thumbnail_id', true);
+                if (!empty($custom_img)) {
+                    $img_url = $custom_img;
+                } elseif ($thumb_id) {
+                    $img_url = wp_get_attachment_url($thumb_id);
+                } else {
+                    $img_url = $default_cat_images[($slot - 1) % 4];
+                }
+
+                $count_label = sprintf(_n('%s Item', '%s Items', $term->count, 'kash-naturals'), number_format_i18n($term->count));
+                $style = $badge_styles[($slot - 1) % 4];
+
+                $display_cats[] = array(
+                    'title'       => !empty($custom_title) ? strtoupper($custom_title) : strtoupper($term->name),
+                    'subtitle'    => !empty($term->description) ? wp_trim_words($term->description, 6, '') : $count_label,
+                    'image'       => $img_url,
+                    'link'        => get_term_link($term),
+                    'badge_class' => $style['class'],
+                    'badge_icon'  => $style['icon'],
+                );
+            }
+        }
+    }
+
+    // Case B: If no categories were manually assigned in Customizer, auto-query from WooCommerce
+    if (empty($display_cats)) {
+        $wc_cats = get_terms(array(
+            'taxonomy'   => 'product_cat',
+            'hide_empty' => $hide_empty,
+            'parent'     => 0,
+            'exclude'    => array(get_option('default_product_cat')),
+            'orderby'    => 'menu_order',
+            'order'      => 'ASC',
+            'number'     => 4,
+        ));
+
+        if (!empty($wc_cats) && !is_wp_error($wc_cats)) {
+            foreach ($wc_cats as $idx => $term) {
+                $custom_img = get_theme_mod("kash_cat_image_" . ($idx + 1));
+                $custom_title = get_theme_mod("kash_cat_title_" . ($idx + 1));
+
+                $thumb_id = get_term_meta($term->term_id, 'thumbnail_id', true);
+                if (!empty($custom_img)) {
+                    $img_url = $custom_img;
+                } elseif ($thumb_id) {
+                    $img_url = wp_get_attachment_url($thumb_id);
+                } else {
+                    $img_url = $default_cat_images[$idx % 4];
+                }
+
+                $count_label = sprintf(_n('%s Item', '%s Items', $term->count, 'kash-naturals'), number_format_i18n($term->count));
+                $style = $badge_styles[$idx % 4];
+
+                $display_cats[] = array(
+                    'title'       => !empty($custom_title) ? strtoupper($custom_title) : strtoupper($term->name),
+                    'subtitle'    => !empty($term->description) ? wp_trim_words($term->description, 6, '') : $count_label,
+                    'image'       => $img_url,
+                    'link'        => get_term_link($term),
+                    'badge_class' => $style['class'],
+                    'badge_icon'  => $style['icon'],
+                );
+            }
+        }
+    }
+}
 ?>
 
 <?php if (!empty($display_cats)) : ?>

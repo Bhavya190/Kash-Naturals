@@ -451,6 +451,85 @@ function kash_naturals_customize_register($wp_customize) {
     ));
 
     /* ==========================================================================
+       HOMEPAGE COLLECTION SHOWCASE (Categories Below Hero)
+       ========================================================================== */
+    $wp_customize->add_section('kash_collection_showcase_options', array(
+        'title'       => __('Homepage Category Showcase (Below Hero)', 'kash-naturals'),
+        'description' => __('Manage the 4 category collection cards displayed right below the hero banner without editing code.', 'kash-naturals'),
+        'priority'    => 28,
+    ));
+
+    // Hide Empty Categories Checkbox
+    $wp_customize->add_setting('kash_cats_hide_empty', array(
+        'default'           => false,
+        'sanitize_callback' => 'kash_sanitize_checkbox',
+    ));
+    $wp_customize->add_control('kash_cats_hide_empty', array(
+        'label'       => __('Hide Empty Categories (0 Products)', 'kash-naturals'),
+        'description' => __('Check to automatically exclude categories that have 0 products.', 'kash-naturals'),
+        'section'     => 'kash_collection_showcase_options',
+        'type'        => 'checkbox',
+    ));
+
+    // Fetch list of WooCommerce categories for the dropdown selectors
+    $cat_options = array(
+        '' => __('-- Auto: Use WooCommerce Order / Default --', 'kash-naturals'),
+    );
+    if (taxonomy_exists('product_cat')) {
+        $all_prod_terms = get_terms(array(
+            'taxonomy'   => 'product_cat',
+            'hide_empty' => false,
+            'parent'     => 0,
+        ));
+        if (!empty($all_prod_terms) && !is_wp_error($all_prod_terms)) {
+            foreach ($all_prod_terms as $term_obj) {
+                $cat_options[$term_obj->slug] = $term_obj->name . ' (' . $term_obj->count . ' items)';
+            }
+        }
+    }
+
+    // 4 Category Selectors
+    for ($c_i = 1; $c_i <= 4; $c_i++) {
+        // Dropdown to pick category
+        $wp_customize->add_setting("kash_cat_slot_{$c_i}", array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("kash_cat_slot_{$c_i}", array(
+            'label'       => sprintf(__('Card %d: Choose Category', 'kash-naturals'), $c_i),
+            'description' => __('Select a category or leave as Auto.', 'kash-naturals'),
+            'section'     => 'kash_collection_showcase_options',
+            'type'        => 'select',
+            'choices'     => $cat_options,
+        ));
+
+        // Optional Image Override
+        $wp_customize->add_setting("kash_cat_image_{$c_i}", array(
+            'default'           => '',
+            'sanitize_callback' => 'esc_url_raw',
+        ));
+        if (class_exists('WP_Customize_Image_Control')) {
+            $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, "kash_cat_image_{$c_i}", array(
+                'label'       => sprintf(__('Card %d: Custom Image (Optional)', 'kash-naturals'), $c_i),
+                'description' => __('Defaults to the category thumbnail uploaded in Products > Categories.', 'kash-naturals'),
+                'section'     => 'kash_collection_showcase_options',
+            )));
+        }
+
+        // Optional Title Override
+        $wp_customize->add_setting("kash_cat_title_{$c_i}", array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("kash_cat_title_{$c_i}", array(
+            'label'       => sprintf(__('Card %d: Custom Title (Optional)', 'kash-naturals'), $c_i),
+            'description' => __('Leave blank to use the category name from WooCommerce.', 'kash-naturals'),
+            'section'     => 'kash_collection_showcase_options',
+            'type'        => 'text',
+        ));
+    }
+
+    /* ==========================================================================
        CUSTOMER REVIEWS / TESTIMONIALS SECTION
        ========================================================================== */
     $wp_customize->add_section('kash_testimonials_options', array(
