@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
         $notice_bg = get_theme_mod('kash_noticebar_bg', '#0a331a');
         $notice_color = get_theme_mod('kash_noticebar_color', '#ffffff');
         $default_items = array(
-            1 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Free Shipping Above - 499', 'link' => ''),
+            1 => array('icon' => 'fa-solid fa-truck-fast', 'text' => 'Free Shipping Above - ₹499', 'link' => ''),
             2 => array('icon' => 'fa-solid fa-tag', 'text' => 'New User get 10% Welcome10 code', 'link' => ''),
         );
 
