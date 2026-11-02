@@ -183,9 +183,9 @@ function kash_handle_newsletter_subscribe() {
     }
 
     $name = isset($_POST['name']) ? sanitize_text_field(trim($_POST['name'])) : '';
-    $coupon = get_theme_mod('kash_newsletter_coupon', 'WELCOME15');
+    $coupon = get_theme_mod('kash_newsletter_coupon', 'WELCOME10');
     if (empty($coupon)) {
-        $coupon = 'WELCOME15';
+        $coupon = 'WELCOME10';
     }
 
     // Check if email is already registered

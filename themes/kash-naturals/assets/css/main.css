@@ -5861,8 +5861,18 @@ img {
    INTERACTIVE FEATURES: SEARCH, MY ACCOUNT, CART DRAWER, CHECKOUT
    ============================================================= */
 
+html.modal-open,
 body.modal-open {
     overflow: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+html.modal-open::-webkit-scrollbar,
+body.modal-open::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* Header Cart Count Bounce Animation */
@@ -11529,6 +11539,15 @@ img.amz-ref-logo {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s ease;
+    overflow: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.kash-newsletter-overlay::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .kash-newsletter-overlay.active {
@@ -11544,6 +11563,15 @@ img.amz-ref-logo {
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
     transform: translateY(25px) scale(0.96);
     transition: transform 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    overflow: hidden !important;
+    box-sizing: border-box;
+    scrollbar-width: none !important;
+}
+
+.kash-newsletter-dialog::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .kash-newsletter-overlay.active .kash-newsletter-dialog {
@@ -11552,36 +11580,56 @@ img.amz-ref-logo {
 
 .btn-newsletter-close {
     position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 36px;
-    height: 36px;
+    top: 16px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #FFFFFF;
+    background: rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #444444;
     font-size: 0.95rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 30;
-    transition: all 0.2s ease;
+    outline: none !important;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
 }
 
 .btn-newsletter-close:hover {
-    background: #E59A16;
-    border-color: #E59A16;
+    background: #D48B10;
+    border-color: #D48B10;
     color: #FFFFFF;
-    transform: rotate(90deg);
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(212, 139, 16, 0.38);
+}
+
+.btn-newsletter-close:focus,
+.btn-newsletter-close:active {
+    outline: none !important;
+    box-shadow: none;
 }
 
 .kash-newsletter-card {
     display: flex;
     background: #FAF7F2;
     border-radius: 28px;
-    overflow: hidden;
+    overflow: hidden !important;
     border: 1.5px solid rgba(212, 139, 16, 0.35);
+    box-sizing: border-box;
+    scrollbar-width: none !important;
+}
+
+.kash-newsletter-card::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* Left Media Column */
@@ -11638,6 +11686,18 @@ img.amz-ref-logo {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    background: #FAF7F2;
+    position: relative;
+    overflow: hidden !important;
+    box-sizing: border-box;
+    scrollbar-width: none !important;
+}
+
+.kash-newsletter-content-col::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
     background: #FAF7F2;
     position: relative;
 }
@@ -11888,26 +11948,49 @@ img.amz-ref-logo {
 @media (max-width: 768px) {
     .kash-newsletter-dialog {
         max-width: 440px;
+        overflow: hidden !important;
+        scrollbar-width: none !important;
+    }
+
+    .kash-newsletter-dialog::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 
     .kash-newsletter-card {
         flex-direction: column;
         max-height: 90vh;
-        overflow-y: auto;
+        overflow-y: auto !important;
         border-radius: 24px;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    .kash-newsletter-card::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 
     .kash-newsletter-media-col {
-        flex: 0 0 160px;
+        flex: 0 0 150px;
         max-width: 100%;
-        min-height: 160px;
-        height: 160px;
+        min-height: 150px;
+        height: 150px;
     }
 
     .kash-newsletter-content-col {
         flex: 0 0 100%;
         max-width: 100%;
-        padding: 26px 20px 22px;
+        padding: 24px 20px 20px;
+        scrollbar-width: none !important;
+    }
+
+    .kash-newsletter-content-col::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 
     .newsletter-modal-title {
@@ -11920,8 +12003,8 @@ img.amz-ref-logo {
     }
 
     .btn-newsletter-close {
-        top: 10px;
-        right: 10px;
+        top: 12px;
+        right: 12px;
         width: 32px;
         height: 32px;
         font-size: 0.85rem;

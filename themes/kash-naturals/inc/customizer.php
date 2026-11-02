@@ -933,7 +933,7 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Headline
     $wp_customize->add_setting('kash_newsletter_headline', array(
-        'default'           => __('Unlock 15% Off Your First Order', 'kash-naturals'),
+        'default'           => __('Unlock 10% Off Your First Order', 'kash-naturals'),
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('kash_newsletter_headline', array(
@@ -944,7 +944,7 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Description / Subtitle
     $wp_customize->add_setting('kash_newsletter_desc', array(
-        'default'           => __('Subscribe to receive an instant 15% discount code, secret seasonal drop alerts & authentic artisanal mukhwas recipes.', 'kash-naturals'),
+        'default'           => __('Subscribe to receive an instant 10% discount code, secret seasonal drop alerts & authentic artisanal mukhwas recipes.', 'kash-naturals'),
         'sanitize_callback' => 'sanitize_textarea_field',
     ));
     $wp_customize->add_control('kash_newsletter_desc', array(
@@ -955,7 +955,7 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Offer Badge on Image
     $wp_customize->add_setting('kash_newsletter_badge', array(
-        'default'           => __('SPECIAL 15% OFF', 'kash-naturals'),
+        'default'           => __('SPECIAL 10% OFF', 'kash-naturals'),
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('kash_newsletter_badge', array(
@@ -966,7 +966,7 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Coupon Code Given
     $wp_customize->add_setting('kash_newsletter_coupon', array(
-        'default'           => 'WELCOME15',
+        'default'           => 'WELCOME10',
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('kash_newsletter_coupon', array(
@@ -978,7 +978,7 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Button Text
     $wp_customize->add_setting('kash_newsletter_btn_text', array(
-        'default'           => __('CLAIM 15% DISCOUNT', 'kash-naturals'),
+        'default'           => __('CLAIM 10% DISCOUNT', 'kash-naturals'),
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('kash_newsletter_btn_text', array(

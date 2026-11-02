@@ -17,11 +17,11 @@ if (!$is_enabled) {
 
 $theme_uri    = get_template_directory_uri();
 $eyebrow      = get_theme_mod('kash_newsletter_eyebrow', __('🌿 ROYAL REWARDS CLUB', 'kash-naturals'));
-$headline     = get_theme_mod('kash_newsletter_headline', __('Unlock 15% Off Your First Order', 'kash-naturals'));
-$subtext      = get_theme_mod('kash_newsletter_desc', __('Subscribe to receive an instant 15% discount code, secret seasonal drop alerts & authentic artisanal mukhwas recipes.', 'kash-naturals'));
-$badge_text   = get_theme_mod('kash_newsletter_badge', __('SPECIAL 15% OFF', 'kash-naturals'));
-$coupon_code  = get_theme_mod('kash_newsletter_coupon', 'WELCOME15');
-$btn_text     = get_theme_mod('kash_newsletter_btn_text', __('CLAIM 15% DISCOUNT', 'kash-naturals'));
+$headline     = get_theme_mod('kash_newsletter_headline', __('Unlock 10% Off Your First Order', 'kash-naturals'));
+$subtext      = get_theme_mod('kash_newsletter_desc', __('Subscribe to receive an instant 10% discount code, secret seasonal drop alerts & authentic artisanal mukhwas recipes.', 'kash-naturals'));
+$badge_text   = get_theme_mod('kash_newsletter_badge', __('SPECIAL 10% OFF', 'kash-naturals'));
+$coupon_code  = get_theme_mod('kash_newsletter_coupon', 'WELCOME10');
+$btn_text     = get_theme_mod('kash_newsletter_btn_text', __('CLAIM 10% DISCOUNT', 'kash-naturals'));
 $popup_delay  = floatval(get_theme_mod('kash_newsletter_delay', 3.5));
 if ($popup_delay <= 0) {
     $popup_delay = 3.5;
@@ -41,11 +41,6 @@ if (!empty($custom_image)) {
 <!-- One-Time Welcome Newsletter Popup Modal -->
 <div class="kash-newsletter-overlay" id="kash-newsletter-modal" data-delay="<?php echo esc_attr($popup_delay); ?>" style="display:none;" aria-hidden="true" role="dialog" aria-labelledby="newsletter-title">
     <div class="kash-newsletter-dialog">
-        
-        <!-- Close Button (✕) -->
-        <button type="button" class="btn-newsletter-close" id="kash-newsletter-close" aria-label="<?php esc_attr_e('Close popup', 'kash-naturals'); ?>">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
 
         <div class="kash-newsletter-card">
             
@@ -61,6 +56,11 @@ if (!empty($custom_image)) {
 
             <!-- Right Side: Content & Interactive Subscription Form -->
             <div class="kash-newsletter-content-col">
+                
+                <!-- Close Button (✕) -->
+                <button type="button" class="btn-newsletter-close" id="kash-newsletter-close" aria-label="<?php esc_attr_e('Close popup', 'kash-naturals'); ?>">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
                 
                 <!-- 1. Form View -->
                 <div id="newsletter-form-container">
@@ -123,11 +123,11 @@ if (!empty($custom_image)) {
                         </button>
                     </div>
 
-                    <p class="coupon-use-hint"><?php esc_html_e('Apply this code at checkout to enjoy 15% off your entire order.', 'kash-naturals'); ?></p>
+                    <p class="coupon-use-hint"><?php esc_html_e('Apply this code at checkout to enjoy 10% off your entire first order.', 'kash-naturals'); ?></p>
 
                     <div class="newsletter-success-actions">
                         <a href="<?php echo esc_url(home_url('/shop')); ?>" class="btn-newsletter-shop-now">
-                            <span><?php esc_html_e('START SHOPPING WITH 15% OFF', 'kash-naturals'); ?></span>
+                            <span><?php esc_html_e('START SHOPPING WITH 10% OFF', 'kash-naturals'); ?></span>
                             <i class="fa-solid fa-bag-shopping"></i>
                         </a>
                     </div>
