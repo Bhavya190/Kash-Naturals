@@ -1607,29 +1607,45 @@ jQuery(document).ready(function ($) {
     });
 
     /* ==========================================================================
-       ONE-TIME WELCOME NEWSLETTER POPUP CONTROLLER
+       WELCOME NEWSLETTER POPUP CONTROLLER (Shows every time site is refreshed)
        ========================================================================== */
     const $newsletterModal = $('#kash-newsletter-modal');
     if ($newsletterModal.length > 0) {
-        const isDismissed = localStorage.getItem('kash_newsletter_dismissed');
-        const isSubscribed = localStorage.getItem('kash_newsletter_subscribed');
-
-        if (!isDismissed && !isSubscribed) {
-            const delaySec = parseFloat($newsletterModal.data('delay')) || 3.5;
-            setTimeout(function () {
-                if (!localStorage.getItem('kash_newsletter_dismissed') && !localStorage.getItem('kash_newsletter_subscribed')) {
-                    $newsletterModal.fadeIn(350).addClass('active');
-                    $('body').addClass('modal-open');
-                }
-            }, delaySec * 1000);
+        // Clear previous dismissal / subscription suppression flags so popup displays reliably on every refresh
+        try {
+            localStorage.removeItem('kash_newsletter_dismissed');
+            localStorage.removeItem('kash_newsletter_subscribed');
+            sessionStorage.removeItem('kash_newsletter_dismissed');
+            sessionStorage.removeItem('kash_newsletter_subscribed');
+        } catch (err) {
+            // Safe fallback if storage is disabled in private browsing
         }
+
+        const delaySec = Math.max(0.5, parseFloat($newsletterModal.data('delay')) || 2.0);
+
+        // Reset form and view state on page load/refresh
+        $('#newsletter-form-container').show();
+        $('#newsletter-success-container').hide();
+        $('#newsletter-error').hide().text('');
+        const $form = $('#kash-newsletter-form');
+        if ($form.length > 0 && $form[0].reset) {
+            $form[0].reset();
+        }
+
+        // Display popup on every refresh after the specified delay
+        setTimeout(function () {
+            $newsletterModal.fadeIn(350).addClass('active');
+            $('body').addClass('modal-open');
+            $('html').addClass('modal-open');
+        }, delaySec * 1000);
 
         function closeNewsletterPopup() {
             $newsletterModal.fadeOut(250, function () {
                 $newsletterModal.removeClass('active');
                 $('body').removeClass('modal-open');
+                $('html').removeClass('modal-open');
             });
-            localStorage.setItem('kash_newsletter_dismissed', 'true');
+            // Intentionally do NOT store dismissal flag so it will show again on next refresh
         }
 
         $(document).on('click', '#kash-newsletter-close, #btn-newsletter-dismiss', function (e) {
@@ -1698,9 +1714,7 @@ jQuery(document).ready(function ($) {
                     $btnText.text(originalBtnText);
 
                     if (res && res.success) {
-                        localStorage.setItem('kash_newsletter_subscribed', 'true');
-                        localStorage.setItem('kash_newsletter_dismissed', 'true');
-
+                        // Do not persist suppression to localStorage so popup continues to display on future refreshes
                         if (res.data && res.data.coupon_code) {
                             $('#newsletter-coupon-code').text(res.data.coupon_code);
                         }

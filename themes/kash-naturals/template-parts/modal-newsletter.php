@@ -1,6 +1,6 @@
 <?php
 /**
- * One-Time Welcome Newsletter Popup Modal Template Part
+ * Welcome Newsletter Popup Modal Template Part
  * Included in footer.php across the site
  *
  * @package KashNaturals

@@ -888,11 +888,11 @@ function kash_naturals_customize_register($wp_customize) {
     }
 
     /* ==========================================================================
-       ONE-TIME WELCOME NEWSLETTER POPUP MODAL
+       WELCOME NEWSLETTER POPUP MODAL
        ========================================================================== */
     $wp_customize->add_section('kash_newsletter_options', array(
         'title'       => __('Welcome Newsletter Popup Modal', 'kash-naturals'),
-        'description' => __('Configure the one-time welcome discount popup shown to first-time visitors.', 'kash-naturals'),
+        'description' => __('Configure the welcome discount popup shown to visitors on the website.', 'kash-naturals'),
         'priority'    => 40,
     ));
 
@@ -903,7 +903,7 @@ function kash_naturals_customize_register($wp_customize) {
     ));
     $wp_customize->add_control('kash_newsletter_enable', array(
         'label'       => __('Enable Newsletter Popup', 'kash-naturals'),
-        'description' => __('Shows only once to visitors when they first arrive on the website.', 'kash-naturals'),
+        'description' => __('Shows to visitors on website load and refresh.', 'kash-naturals'),
         'section'     => 'kash_newsletter_options',
         'type'        => 'checkbox',
     ));
