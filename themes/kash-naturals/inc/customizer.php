@@ -1045,14 +1045,14 @@ function kash_naturals_customize_register($wp_customize) {
         'type'        => 'textarea',
     ));
 
-    // Tooltip / Pill Badge Text
+    // Tooltip / Pill Badge Text (Optional)
     $wp_customize->add_setting('kash_whatsapp_tooltip', array(
-        'default'           => __('Chat with us', 'kash-naturals'),
+        'default'           => '',
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('kash_whatsapp_tooltip', array(
-        'label'       => __('Tooltip / Pill Text', 'kash-naturals'),
-        'description' => __('Badge text displayed beside the button (e.g. "Chat with us" or "Need help?"). Leave blank to hide.', 'kash-naturals'),
+        'label'       => __('Tooltip / Pill Text (Optional)', 'kash-naturals'),
+        'description' => __('Leave blank to show only the circular WhatsApp icon (default).', 'kash-naturals'),
         'section'     => 'kash_whatsapp_options',
         'type'        => 'text',
     ));

@@ -30,7 +30,7 @@ if (empty($clean_phone)) {
 }
 
 $message   = get_theme_mod('kash_whatsapp_message', __('Hello Kash Naturals! I have an inquiry about your artisanal mukhwas and products.', 'kash-naturals'));
-$tooltip   = get_theme_mod('kash_whatsapp_tooltip', __('Chat with us', 'kash-naturals'));
+$tooltip   = get_theme_mod('kash_whatsapp_tooltip', '');
 $position  = get_theme_mod('kash_whatsapp_position', 'right');
 $pos_class = ($position === 'left') ? 'pos-left' : 'pos-right';
 
@@ -42,17 +42,6 @@ if (!empty($message)) {
 
 <!-- Universal Floating WhatsApp Chat Widget -->
 <aside class="kash-whatsapp-widget <?php echo esc_attr($pos_class); ?>" aria-label="<?php esc_attr_e('WhatsApp Customer Support', 'kash-naturals'); ?>">
-    <?php if (!empty($tooltip)) : ?>
-        <a href="<?php echo esc_url($wa_url); ?>" 
-           target="_blank" 
-           rel="noopener noreferrer" 
-           class="kash-whatsapp-pill"
-           title="<?php echo esc_attr($tooltip); ?>">
-            <span class="kash-wa-dot"></span>
-            <span class="kash-wa-pill-text"><?php echo esc_html($tooltip); ?></span>
-        </a>
-    <?php endif; ?>
-
     <a href="<?php echo esc_url($wa_url); ?>" 
        target="_blank" 
        rel="noopener noreferrer" 
