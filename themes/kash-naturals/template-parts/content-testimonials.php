@@ -1,6 +1,6 @@
 <?php
 /**
- * Customer Testimonials Template Part (Modern Visual Review Cards with Image & Rating)
+ * Customer Testimonials Template Part (Unified Review Card with Integrated Image & Rating)
  *
  * @package KashNaturals
  */
@@ -69,12 +69,12 @@ $testimonials = array(
             <p class="testi-subtitle"><?php echo esc_html(get_theme_mod('kash_testi_desc', __('Read real experiences from food lovers who savor our authentic digestives', 'kash-naturals'))); ?></p>
         </div>
 
-        <!-- 3-Card Grid with Photo, Overlapping Glass Rating Badge, & Semi-Transparent Content -->
+        <!-- 3-Card Grid with Photo, Overlapping Glass Rating Badge, & Unified Review Content -->
         <div class="testi-cards-grid">
             <?php foreach ($testimonials as $item) : ?>
-                <div class="testi-card-wrapper" style="--testi-accent: <?php echo esc_attr($item['theme_color']); ?>;">
+                <div class="testi-review-card testi-card-wrapper" style="--testi-accent: <?php echo esc_attr($item['theme_color']); ?>;">
                     
-                    <!-- Top Featured Image Container -->
+                    <!-- Top Featured Image Container (Integrated in the SAME Card Div) -->
                     <div class="testi-card-media">
                         <img src="<?php echo esc_url($item['image']); ?>" alt="<?php echo esc_attr($item['title']); ?>" class="testi-card-img" loading="lazy">
                         
@@ -95,8 +95,8 @@ $testimonials = array(
                         <?php endif; ?>
                     </div>
 
-                    <!-- Semi-Transparent Overlapping Card Body with Name and Review -->
-                    <div class="testi-card-body">
+                    <!-- Review Content Area (Inside the EXACT SAME Card Div) -->
+                    <div class="testi-card-content testi-card-body">
                         
                         <!-- Review Title / Category Header -->
                         <div class="testi-title-wrap">
