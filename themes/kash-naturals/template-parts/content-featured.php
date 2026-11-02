@@ -85,9 +85,12 @@ if (class_exists('WooCommerce')) {
 }
 
 // If no products available in WooCommerce, keep empty and display clean empty state notice
+$prod_count = count($bestseller_products);
+$count_class = 'fav-count-' . $prod_count;
+$mode_class = ($prod_count < 5) ? 'fav-static-grid' : 'fav-slider-mode';
 ?>
 
-<section class="fav-carousel-section" id="customer-favorites">
+<section class="fav-carousel-section <?php echo esc_attr($count_class . ' ' . $mode_class); ?>" id="customer-favorites" data-item-count="<?php echo intval($prod_count); ?>">
     <div class="fav-section-container">
         
         <!-- Header Section with Green Pill Badge Title -->
@@ -101,7 +104,7 @@ if (class_exists('WooCommerce')) {
 
         <?php if (!empty($bestseller_products)) : ?>
             <!-- Carousel Wrapper with Side Navigation Arrows -->
-            <div class="fav-carousel-outer">
+            <div class="fav-carousel-outer <?php echo esc_attr($count_class); ?>">
                 
                 <!-- Left Prev Arrow Button -->
                 <button type="button" class="fav-arrow-btn fav-arrow-prev" id="favCarouselPrev" aria-label="<?php esc_attr_e('Previous Slide', 'kash-naturals'); ?>">
@@ -110,7 +113,7 @@ if (class_exists('WooCommerce')) {
 
                 <!-- Carousel Viewport & Track -->
                 <div class="fav-carousel-viewport" id="favCarouselViewport">
-                    <div class="fav-carousel-track" id="favCarouselTrack">
+                    <div class="fav-carousel-track <?php echo esc_attr($count_class . ' ' . $mode_class); ?>" id="favCarouselTrack" style="--fav-total: <?php echo intval($prod_count); ?>;">
                         <?php foreach ($bestseller_products as $index => $product) : 
                             $is_prod_in_stock = isset($product['in_stock']) ? !empty($product['in_stock']) : true;
                         ?>

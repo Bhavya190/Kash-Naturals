@@ -1348,17 +1348,37 @@ jQuery(document).ready(function ($) {
             return Math.max(0, scrollW - viewW);
         }
 
+        function isScrollable() {
+            return getMaxScroll() > 15;
+        }
+
         function getTotalSteps() {
             const stepWidth = getCardStepWidth();
             const maxScroll = getMaxScroll();
-            if (stepWidth <= 0 || maxScroll <= 0) return 1;
+            if (stepWidth <= 0 || maxScroll <= 15) return 0;
             return Math.ceil(maxScroll / stepWidth) + 1;
         }
 
         function buildPagination() {
             if (!$favPagination.length) return;
+            const maxScroll = getMaxScroll();
+            if (maxScroll <= 15) {
+                $favPagination.hide().empty();
+                $favPrevBtn.hide();
+                $favNextBtn.hide();
+                $favViewport.css('cursor', 'default');
+                stopAutoSlide();
+                $favTrack.css('transform', 'translateX(0px)');
+                return;
+            }
+            $favPagination.show();
+            $favViewport.css('cursor', 'grab');
             const total = getTotalSteps();
             $favPagination.empty();
+            if (total <= 1) {
+                $favPagination.hide();
+                return;
+            }
             for (let i = 0; i < total; i++) {
                 const $dot = $('<button>', {
                     type: 'button',
@@ -1372,7 +1392,10 @@ jQuery(document).ready(function ($) {
 
         function goToStep(index) {
             const total = getTotalSteps();
-            if (total <= 0) return;
+            if (total <= 0) {
+                $favTrack.css('transform', 'translateX(0px)');
+                return;
+            }
 
             // Cycle index smoothly
             currentIndex = ((index % total) + total) % total;
@@ -1403,6 +1426,7 @@ jQuery(document).ready(function ($) {
 
         function startAutoSlide() {
             stopAutoSlide();
+            if (!isScrollable()) return;
             autoSlideTimer = setInterval(function () {
                 nextSlide();
             }, AUTO_INTERVAL);
@@ -1423,7 +1447,25 @@ jQuery(document).ready(function ($) {
         // Initialize Pagination & Position
         buildPagination();
         goToStep(0);
-        startAutoSlide();
+        if (isScrollable()) {
+            startAutoSlide();
+        }
+
+        // Dynamic Resize Handler for Viewport and Product Count Changes
+        let favResizeTimer = null;
+        $(window).on('resize', function () {
+            clearTimeout(favResizeTimer);
+            favResizeTimer = setTimeout(function () {
+                buildPagination();
+                if (isScrollable()) {
+                    goToStep(currentIndex);
+                    startAutoSlide();
+                } else {
+                    $favTrack.css('transform', 'translateX(0px)');
+                    stopAutoSlide();
+                }
+            }, 150);
+        });
 
         // Pagination Dot Click
         $favPagination.on('click', '.fav-dot', function (e) {
