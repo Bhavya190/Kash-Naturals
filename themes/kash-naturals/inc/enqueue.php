@@ -107,8 +107,9 @@ function kash_naturals_scripts() {
         'checkout_url'    => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout'),
         'ajax_url'        => admin_url('admin-ajax.php'),
         'is_wc_active'    => class_exists('WooCommerce'),
-        'cart_nonce'      => wp_create_nonce('kash_cart_nonce'),
-        'currency_symbol' => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
+        'cart_nonce'       => wp_create_nonce('kash_cart_nonce'),
+        'newsletter_nonce' => wp_create_nonce('kash_newsletter_nonce'),
+        'currency_symbol'  => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
     ));
 
     // WooCommerce Custom JS

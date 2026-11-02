@@ -1605,4 +1605,156 @@ jQuery(document).ready(function ($) {
             }).first().addClass('current-menu-item active');
         }
     });
+
+    /* ==========================================================================
+       ONE-TIME WELCOME NEWSLETTER POPUP CONTROLLER
+       ========================================================================== */
+    const $newsletterModal = $('#kash-newsletter-modal');
+    if ($newsletterModal.length > 0) {
+        const isDismissed = localStorage.getItem('kash_newsletter_dismissed');
+        const isSubscribed = localStorage.getItem('kash_newsletter_subscribed');
+
+        if (!isDismissed && !isSubscribed) {
+            const delaySec = parseFloat($newsletterModal.data('delay')) || 3.5;
+            setTimeout(function () {
+                if (!localStorage.getItem('kash_newsletter_dismissed') && !localStorage.getItem('kash_newsletter_subscribed')) {
+                    $newsletterModal.fadeIn(350).addClass('active');
+                    $('body').addClass('modal-open');
+                }
+            }, delaySec * 1000);
+        }
+
+        function closeNewsletterPopup() {
+            $newsletterModal.fadeOut(250, function () {
+                $newsletterModal.removeClass('active');
+                $('body').removeClass('modal-open');
+            });
+            localStorage.setItem('kash_newsletter_dismissed', 'true');
+        }
+
+        $(document).on('click', '#kash-newsletter-close, #btn-newsletter-dismiss', function (e) {
+            e.preventDefault();
+            closeNewsletterPopup();
+        });
+
+        $(document).on('click', '#kash-newsletter-modal', function (e) {
+            if (e.target === this) {
+                closeNewsletterPopup();
+            }
+        });
+
+        $(document).on('keydown', function (e) {
+            if (e.key === 'Escape' && $newsletterModal.hasClass('active')) {
+                closeNewsletterPopup();
+            }
+        });
+
+        $('#kash-newsletter-form').on('submit', function (e) {
+            e.preventDefault();
+
+            const email = $.trim($('#newsletter-email').val());
+            const name = $.trim($('#newsletter-name').val());
+            const $submitBtn = $('#btn-newsletter-submit');
+            const $btnText = $submitBtn.find('.btn-submit-text');
+            const $btnIcon = $submitBtn.find('.btn-submit-icon');
+            const $btnSpinner = $submitBtn.find('.btn-submit-spinner');
+            const $errorBox = $('#newsletter-error');
+
+            $errorBox.hide().text('');
+
+            if (!email || email.indexOf('@') === -1) {
+                $errorBox.text('Please enter a valid email address.').fadeIn();
+                return;
+            }
+
+            $submitBtn.prop('disabled', true);
+            const originalBtnText = $btnText.text();
+            $btnText.text('Subscribing...');
+            $btnIcon.hide();
+            $btnSpinner.show();
+
+            const ajaxUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url)
+                ? kash_dynamic_data.ajax_url
+                : '/wp-admin/admin-ajax.php';
+
+            const nonce = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.newsletter_nonce)
+                ? kash_dynamic_data.newsletter_nonce
+                : '';
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'kash_newsletter_subscribe',
+                    email: email,
+                    name: name,
+                    nonce: nonce,
+                },
+                success: function (res) {
+                    $submitBtn.prop('disabled', false);
+                    $btnSpinner.hide();
+                    $btnIcon.show();
+                    $btnText.text(originalBtnText);
+
+                    if (res && res.success) {
+                        localStorage.setItem('kash_newsletter_subscribed', 'true');
+                        localStorage.setItem('kash_newsletter_dismissed', 'true');
+
+                        if (res.data && res.data.coupon_code) {
+                            $('#newsletter-coupon-code').text(res.data.coupon_code);
+                        }
+                        if (res.data && res.data.message) {
+                            $('#newsletter-success-msg').text(res.data.message);
+                        }
+
+                        $('#newsletter-form-container').slideUp(280, function () {
+                            $('#newsletter-success-container').fadeIn(320);
+                        });
+
+                        showToast('Welcome to the Royal Family! Coupon code ready.', 'success');
+                    } else {
+                        const errorMsg = (res && res.data && res.data.message) ? res.data.message : 'Subscription failed. Please try again.';
+                        $errorBox.text(errorMsg).fadeIn();
+                    }
+                },
+                error: function () {
+                    $submitBtn.prop('disabled', false);
+                    $btnSpinner.hide();
+                    $btnIcon.show();
+                    $btnText.text(originalBtnText);
+                    $errorBox.text('Network error. Please try again.').fadeIn();
+                }
+            });
+        });
+
+        // Copy Coupon Code handler
+        $(document).on('click', '#btn-copy-coupon', function (e) {
+            e.preventDefault();
+            const code = $.trim($('#newsletter-coupon-code').text());
+            if (!code) return;
+
+            function onCopied() {
+                const $btn = $('#btn-copy-coupon');
+                $btn.find('.copy-text').text('COPIED!');
+                $btn.find('i').removeClass('fa-copy').addClass('fa-check');
+                setTimeout(function () {
+                    $btn.find('.copy-text').text('COPY');
+                    $btn.find('i').removeClass('fa-check').addClass('fa-copy');
+                }, 2500);
+                showToast('Coupon code copied to clipboard!', 'success');
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(onCopied);
+            } else {
+                const tempInput = $('<input>');
+                $('body').append(tempInput);
+                tempInput.val(code).select();
+                document.execCommand('copy');
+                tempInput.remove();
+                onCopied();
+            }
+        });
+    }
 });

@@ -886,6 +886,119 @@ function kash_naturals_customize_register($wp_customize) {
             'type'        => 'text',
         ));
     }
+
+    /* ==========================================================================
+       ONE-TIME WELCOME NEWSLETTER POPUP MODAL
+       ========================================================================== */
+    $wp_customize->add_section('kash_newsletter_options', array(
+        'title'       => __('Welcome Newsletter Popup Modal', 'kash-naturals'),
+        'description' => __('Configure the one-time welcome discount popup shown to first-time visitors.', 'kash-naturals'),
+        'priority'    => 40,
+    ));
+
+    // Enable / Disable
+    $wp_customize->add_setting('kash_newsletter_enable', array(
+        'default'           => true,
+        'sanitize_callback' => 'wp_validate_boolean',
+    ));
+    $wp_customize->add_control('kash_newsletter_enable', array(
+        'label'       => __('Enable Newsletter Popup', 'kash-naturals'),
+        'description' => __('Shows only once to visitors when they first arrive on the website.', 'kash-naturals'),
+        'section'     => 'kash_newsletter_options',
+        'type'        => 'checkbox',
+    ));
+
+    // Delay in Seconds
+    $wp_customize->add_setting('kash_newsletter_delay', array(
+        'default'           => '3.5',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_newsletter_delay', array(
+        'label'       => __('Popup Trigger Delay (Seconds)', 'kash-naturals'),
+        'description' => __('Number of seconds to wait after page load before displaying the popup (e.g. 3 or 5).', 'kash-naturals'),
+        'section'     => 'kash_newsletter_options',
+        'type'        => 'number',
+    ));
+
+    // Eyebrow Tag
+    $wp_customize->add_setting('kash_newsletter_eyebrow', array(
+        'default'           => __('🌿 ROYAL REWARDS CLUB', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_newsletter_eyebrow', array(
+        'label'    => __('Eyebrow Tag', 'kash-naturals'),
+        'section'  => 'kash_newsletter_options',
+        'type'     => 'text',
+    ));
+
+    // Headline
+    $wp_customize->add_setting('kash_newsletter_headline', array(
+        'default'           => __('Unlock 15% Off Your First Order', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_newsletter_headline', array(
+        'label'    => __('Popup Headline', 'kash-naturals'),
+        'section'  => 'kash_newsletter_options',
+        'type'     => 'text',
+    ));
+
+    // Description / Subtitle
+    $wp_customize->add_setting('kash_newsletter_desc', array(
+        'default'           => __('Subscribe to receive an instant 15% discount code, secret seasonal drop alerts & authentic artisanal mukhwas recipes.', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('kash_newsletter_desc', array(
+        'label'    => __('Popup Subtitle / Description', 'kash-naturals'),
+        'section'  => 'kash_newsletter_options',
+        'type'     => 'textarea',
+    ));
+
+    // Offer Badge on Image
+    $wp_customize->add_setting('kash_newsletter_badge', array(
+        'default'           => __('SPECIAL 15% OFF', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_newsletter_badge', array(
+        'label'    => __('Image Floating Badge Text', 'kash-naturals'),
+        'section'  => 'kash_newsletter_options',
+        'type'     => 'text',
+    ));
+
+    // Coupon Code Given
+    $wp_customize->add_setting('kash_newsletter_coupon', array(
+        'default'           => 'WELCOME15',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_newsletter_coupon', array(
+        'label'       => __('Coupon Code to Give Subscribers', 'kash-naturals'),
+        'description' => __('This coupon code is displayed to the user immediately after they submit.', 'kash-naturals'),
+        'section'     => 'kash_newsletter_options',
+        'type'        => 'text',
+    ));
+
+    // Button Text
+    $wp_customize->add_setting('kash_newsletter_btn_text', array(
+        'default'           => __('CLAIM 15% DISCOUNT', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_newsletter_btn_text', array(
+        'label'    => __('Submit Button Text', 'kash-naturals'),
+        'section'  => 'kash_newsletter_options',
+        'type'     => 'text',
+    ));
+
+    // Left Banner Image
+    $wp_customize->add_setting('kash_newsletter_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    if (class_exists('WP_Customize_Image_Control')) {
+        $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'kash_newsletter_image', array(
+            'label'       => __('Popup Banner Image (Optional)', 'kash-naturals'),
+            'description' => __('Upload an image for the left side of the popup or leave blank to use the default luxury hamper image.', 'kash-naturals'),
+            'section'     => 'kash_newsletter_options',
+        )));
+    }
 }
 add_action('customize_register', 'kash_naturals_customize_register');
 

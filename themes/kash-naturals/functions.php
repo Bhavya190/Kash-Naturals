@@ -51,6 +51,7 @@ function kash_naturals_require_file($relative_path) {
 kash_naturals_require_file('inc/setup.php');
 kash_naturals_require_file('inc/enqueue.php');
 kash_naturals_require_file('inc/customizer.php');
+kash_naturals_require_file('inc/newsletter.php');
 
 if (class_exists('WooCommerce')) {
     kash_naturals_require_file('inc/woocommerce-custom.php');

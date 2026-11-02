@@ -497,6 +497,9 @@ if (!defined('ABSPATH')) {
     <!-- 6. TOAST NOTIFICATION CONTAINER -->
     <div class="kash-toast-container" id="kash-toast-container"></div>
 
+    <!-- 7. ONE-TIME WELCOME NEWSLETTER POPUP MODAL -->
+    <?php get_template_part('template-parts/modal', 'newsletter'); ?>
+
 </div><!-- #page -->
 
 <?php wp_footer(); ?>
