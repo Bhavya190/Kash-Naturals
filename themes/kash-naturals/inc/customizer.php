@@ -551,6 +551,201 @@ function kash_naturals_customize_register($wp_customize) {
     }
 
     /* ==========================================================================
+       HOMEPAGE PROMOTIONAL PRODUCT DEAL / SPOTLIGHT SECTION
+       ========================================================================== */
+    $wp_customize->add_section('kash_deal_promo_options', array(
+        'title'       => __('Homepage Product Deal & Promotion', 'kash-naturals'),
+        'description' => __('Promote a featured product with discount offer, countdown timer, and badges right after the Amazon section.', 'kash-naturals'),
+        'priority'    => 33,
+    ));
+
+    // Enable / Disable Section
+    $wp_customize->add_setting('kash_promo_enable', array(
+        'default'           => true,
+        'sanitize_callback' => 'wp_validate_boolean',
+    ));
+    $wp_customize->add_control('kash_promo_enable', array(
+        'label'       => __('Enable Promotional Deal Section', 'kash-naturals'),
+        'description' => __('Show this promotional product spotlight on the homepage.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'checkbox',
+    ));
+
+    // WooCommerce Products Choice Dropdown
+    $all_wc_products = array(
+        ''     => __('-- Auto: First On-Sale / Recent Product --', 'kash-naturals'),
+        'none' => __('-- Do Not Use Auto-Product (Manual Only) --', 'kash-naturals'),
+    );
+    if (class_exists('WooCommerce')) {
+        $found_prods = get_posts(array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => 100,
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        ));
+        if (!empty($found_prods)) {
+            foreach ($found_prods as $fp) {
+                $all_wc_products[$fp->ID] = $fp->post_title . ' (ID: ' . $fp->ID . ')';
+            }
+        }
+    }
+
+    $wp_customize->add_setting('kash_promo_product_id', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_product_id', array(
+        'label'       => __('Select Product to Promote', 'kash-naturals'),
+        'description' => __('Choose any WooCommerce product to automatically pull its title, image, price, sale price, and link.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'select',
+        'choices'     => $all_wc_products,
+    ));
+
+    // Eyebrow Tag
+    $wp_customize->add_setting('kash_promo_eyebrow', array(
+        'default'           => __('⚡ LIMITED TIME EXCLUSIVE OFFER', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_eyebrow', array(
+        'label'       => __('Eyebrow Tag', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Custom Title Override
+    $wp_customize->add_setting('kash_promo_title', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_title', array(
+        'label'       => __('Product Title (Optional Override)', 'kash-naturals'),
+        'description' => __('Leave blank to use the selected product name automatically.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Custom Description Override
+    $wp_customize->add_setting('kash_promo_desc', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('kash_promo_desc', array(
+        'label'       => __('Description / Flavor Profile (Optional Override)', 'kash-naturals'),
+        'description' => __('Leave blank to use the product excerpt automatically.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'textarea',
+    ));
+
+    // Discount Badge Text
+    $wp_customize->add_setting('kash_promo_badge', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_badge', array(
+        'label'       => __('Discount Badge Text (Optional)', 'kash-naturals'),
+        'description' => __('E.g. "FLAT 25% OFF" or "SAVE 30%". Leave blank to calculate automatically.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Deal Price (Sale Price) Override
+    $wp_customize->add_setting('kash_promo_deal_price', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_deal_price', array(
+        'label'       => __('Promotional Deal Price (Optional)', 'kash-naturals'),
+        'description' => __('E.g. "₹179". Leave blank to use WooCommerce sale price automatically.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Regular / Old Price Override
+    $wp_customize->add_setting('kash_promo_old_price', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_old_price', array(
+        'label'       => __('Original / Regular Price (Crossed Out)', 'kash-naturals'),
+        'description' => __('E.g. "₹249". Leave blank to use WooCommerce regular price automatically.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Savings Ribbon Text
+    $wp_customize->add_setting('kash_promo_save_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_save_text', array(
+        'label'       => __('Savings Ribbon Text (Optional)', 'kash-naturals'),
+        'description' => __('E.g. "SPECIAL OFFER • SAVE 28%". Leave blank to generate automatically.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Custom Image Override
+    $wp_customize->add_setting('kash_promo_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    if (class_exists('WP_Customize_Image_Control')) {
+        $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'kash_promo_image', array(
+            'label'       => __('Custom Product Image (Optional)', 'kash-naturals'),
+            'description' => __('Upload an image or leave blank to use the product image.', 'kash-naturals'),
+            'section'     => 'kash_deal_promo_options',
+        )));
+    }
+
+    // Urgency Note
+    $wp_customize->add_setting('kash_promo_urgency_text', array(
+        'default'           => __('🔥 High Demand: Only 14 packs left at this promotional discount!', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_urgency_text', array(
+        'label'       => __('Stock / Urgency Note', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Countdown Timer Hours
+    $wp_customize->add_setting('kash_promo_timer_hours', array(
+        'default'           => '24',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control('kash_promo_timer_hours', array(
+        'label'       => __('Countdown Timer Duration (Hours)', 'kash-naturals'),
+        'description' => __('Duration in hours for the limited-time offer countdown (e.g. 24 or 12).', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'number',
+    ));
+
+    // Button Text
+    $wp_customize->add_setting('kash_promo_btn_text', array(
+        'default'           => __('CLAIM OFFER & BUY NOW', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_promo_btn_text', array(
+        'label'       => __('Primary Button Text', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    // Custom Button Link (Optional)
+    $wp_customize->add_setting('kash_promo_btn_url', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control('kash_promo_btn_url', array(
+        'label'       => __('Custom Button URL (Optional)', 'kash-naturals'),
+        'description' => __('Leave blank to direct to product page or add to cart.', 'kash-naturals'),
+        'section'     => 'kash_deal_promo_options',
+        'type'        => 'text',
+    ));
+
+    /* ==========================================================================
        CUSTOMER REVIEWS / TESTIMONIALS SECTION
        ========================================================================== */
     $wp_customize->add_section('kash_testimonials_options', array(

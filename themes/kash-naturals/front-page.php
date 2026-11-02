@@ -30,6 +30,9 @@ get_header();
 <!-- Shop on Amazon Banner Section -->
 <?php get_template_part('template-parts/content', 'amazon-banner'); ?>
 
+<!-- Deal of the Day / Featured Product Promotion Section -->
+<?php get_template_part('template-parts/content', 'promo-deal'); ?>
+
 <!-- Customer Testimonials -->
 <?php get_template_part('template-parts/content', 'testimonials'); ?>
 
