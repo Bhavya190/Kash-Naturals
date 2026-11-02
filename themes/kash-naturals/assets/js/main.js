@@ -1105,6 +1105,221 @@ jQuery(document).ready(function ($) {
     });
 
     /* ==========================================================================
+       HERO CAROUSEL & SLIDER (Images + Video Backgrounds + Touch Gestures)
+       ========================================================================== */
+    const $heroSection = $('#heroCarouselSection');
+    const $heroSlides = $heroSection.find('.hero-slide');
+    const $heroPrevBtn = $('#heroPrevBtn');
+    const $heroNextBtn = $('#heroNextBtn');
+    const $heroDots = $('#heroProgressDots .hero-dot');
+    const $heroCurrentNum = $('#heroCurrentSlideNum');
+    const $heroAutoplayToggle = $('#heroAutoplayToggle');
+
+    if ($heroSlides.length) {
+        let currentSlide = 0;
+        const totalSlides = $heroSlides.length;
+        const SLIDE_DURATION = parseInt($heroSection.data('autoplay-speed'), 10) || 5500;
+        let progressAnimationId = null;
+        let progressStartTime = 0;
+        let isPaused = false;
+        let isUserHovered = false;
+
+        function updateSlide(nextIndex) {
+            currentSlide = (nextIndex + totalSlides) % totalSlides;
+
+            // Update active slide class
+            $heroSlides.removeClass('active');
+            const $activeSlide = $heroSlides.eq(currentSlide).addClass('active');
+
+            // Handle Video autoplay / pause
+            $heroSlides.each(function (i) {
+                const vid = $(this).find('video')[0];
+                if (vid) {
+                    if (i === currentSlide) {
+                        try {
+                            vid.currentTime = 0;
+                            const playPromise = vid.play();
+                            if (playPromise !== undefined) {
+                                playPromise.catch(function () {});
+                            }
+                        } catch (err) {}
+                    } else {
+                        try {
+                            vid.pause();
+                        } catch (err) {}
+                    }
+                }
+            });
+
+            // Update dots
+            $heroDots.removeClass('active');
+            $heroDots.find('.dot-progress-fill').css('width', '0%');
+            $heroDots.eq(currentSlide).addClass('active');
+
+            // Update counter
+            if ($heroCurrentNum.length) {
+                $heroCurrentNum.text(String(currentSlide + 1).padStart(2, '0'));
+            }
+
+            // Restart progress bar & autoplay
+            startSlideProgress();
+        }
+
+        function startSlideProgress() {
+            stopSlideProgress();
+            if (isPaused || isUserHovered) return;
+
+            progressStartTime = performance.now();
+            const $activeFill = $heroDots.eq(currentSlide).find('.dot-progress-fill');
+
+            function stepProgress(now) {
+                if (isPaused || isUserHovered) return;
+                const elapsed = now - progressStartTime;
+                const progressPct = Math.min(100, (elapsed / SLIDE_DURATION) * 100);
+                $activeFill.css('width', progressPct + '%');
+
+                if (elapsed >= SLIDE_DURATION) {
+                    updateSlide(currentSlide + 1);
+                } else {
+                    progressAnimationId = requestAnimationFrame(stepProgress);
+                }
+            }
+
+            progressAnimationId = requestAnimationFrame(stepProgress);
+        }
+
+        function stopSlideProgress() {
+            if (progressAnimationId) {
+                cancelAnimationFrame(progressAnimationId);
+                progressAnimationId = null;
+            }
+        }
+
+        // Arrow Controls
+        $heroPrevBtn.on('click', function (e) {
+            e.preventDefault();
+            updateSlide(currentSlide - 1);
+        });
+
+        $heroNextBtn.on('click', function (e) {
+            e.preventDefault();
+            updateSlide(currentSlide + 1);
+        });
+
+        // Dot Navigation Click
+        $heroDots.on('click', function (e) {
+            e.preventDefault();
+            const targetIdx = parseInt($(this).data('slide-target'), 10);
+            if (!isNaN(targetIdx) && targetIdx !== currentSlide) {
+                updateSlide(targetIdx);
+            }
+        });
+
+        // Autoplay Pause / Play Toggle Button
+        $heroAutoplayToggle.on('click', function (e) {
+            e.preventDefault();
+            isPaused = !isPaused;
+            $(this).find('i').toggleClass('fa-pause fa-play');
+            $(this).attr('aria-label', isPaused ? 'Resume Slideshow' : 'Pause Slideshow');
+            if (isPaused) {
+                stopSlideProgress();
+            } else {
+                startSlideProgress();
+            }
+        });
+
+        // Pause on Hover (Desktop)
+        $heroSection.on('mouseenter', function () {
+            isUserHovered = true;
+            stopSlideProgress();
+        }).on('mouseleave', function () {
+            isUserHovered = false;
+            if (!isPaused) {
+                startSlideProgress();
+            }
+        });
+
+        // Video Audio & Playback Controls inside Slide
+        $heroSection.on('click', '.btn-video-audio', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const $btn = $(this);
+            const $video = $btn.closest('.hero-slide').find('video');
+            if ($video.length) {
+                const vid = $video[0];
+                vid.muted = !vid.muted;
+                $btn.find('i').toggleClass('fa-volume-xmark fa-volume-high');
+            }
+        });
+
+        $heroSection.on('click', '.btn-video-playback', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const $btn = $(this);
+            const $video = $btn.closest('.hero-slide').find('video');
+            if ($video.length) {
+                const vid = $video[0];
+                if (vid.paused) {
+                    vid.play();
+                    $btn.find('i').removeClass('fa-play').addClass('fa-pause');
+                } else {
+                    vid.pause();
+                    $btn.find('i').removeClass('fa-pause').addClass('fa-play');
+                }
+            }
+        });
+
+        // Touch Swipe Navigation for Mobile/Tablets
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        $heroSection.on('touchstart', function (e) {
+            if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length === 1) {
+                touchStartX = e.originalEvent.touches[0].clientX;
+                touchStartY = e.originalEvent.touches[0].clientY;
+            }
+        });
+
+        $heroSection.on('touchend', function (e) {
+            if (e.originalEvent && e.originalEvent.changedTouches && e.originalEvent.changedTouches.length === 1) {
+                touchEndX = e.originalEvent.changedTouches[0].clientX;
+                touchEndY = e.originalEvent.changedTouches[0].clientY;
+
+                const diffX = touchStartX - touchEndX;
+                const diffY = touchStartY - touchEndY;
+
+                // Horizontal swipe with minimum 45px distance
+                if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 0) {
+                        updateSlide(currentSlide + 1);
+                    } else {
+                        updateSlide(currentSlide - 1);
+                    }
+                }
+            }
+        });
+
+        // Keyboard Navigation (Left / Right Arrow Keys)
+        $(document).on('keydown', function (e) {
+            if (!$heroSection.length) return;
+            const rect = $heroSection[0].getBoundingClientRect();
+            const inViewport = (rect.top < window.innerHeight && rect.bottom > 0);
+            if (!inViewport) return;
+
+            if (e.key === 'ArrowLeft') {
+                updateSlide(currentSlide - 1);
+            } else if (e.key === 'ArrowRight') {
+                updateSlide(currentSlide + 1);
+            }
+        });
+
+        // Initialize Carousel
+        updateSlide(0);
+    }
+
+    /* ==========================================================================
        CUSTOMER FAVORITES CAROUSEL SLIDER CONTROLS (Auto-Next + Bottom Dots)
        ========================================================================== */
     const $favTrack = $('#favCarouselTrack');
