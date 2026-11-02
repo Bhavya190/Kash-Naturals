@@ -28,10 +28,19 @@ $default_cat_images = array(
     $theme_uri . '/assets/images/gift-combos.jpg',
 );
 
+// Check desired number of categories to show (from Customizer setting)
+$max_cats = intval(get_theme_mod('kash_cats_count', 4));
+if ($max_cats <= 0) {
+    $max_cats = 4;
+}
+
 // Check if specific categories were chosen in Appearance > Customize
 $custom_chosen_slugs = array();
-for ($i = 1; $i <= 4; $i++) {
+for ($i = 1; $i <= $max_cats; $i++) {
     $slug = get_theme_mod("kash_cat_slot_{$i}");
+    if ($slug === 'none') {
+        continue;
+    }
     if (!empty($slug)) {
         $custom_chosen_slugs[$i] = $slug;
     }
@@ -42,13 +51,18 @@ if (class_exists('WooCommerce')) {
 
     // Case A: User explicitly picked 1 or more categories in WordPress Customizer
     if (!empty($custom_chosen_slugs)) {
-        for ($slot = 1; $slot <= 4; $slot++) {
+        for ($slot = 1; $slot <= $max_cats; $slot++) {
             $slot_slug = isset($custom_chosen_slugs[$slot]) ? $custom_chosen_slugs[$slot] : '';
-            if (empty($slot_slug)) {
+            if (empty($slot_slug) || $slot_slug === 'none') {
                 continue;
             }
             $term = get_term_by('slug', $slot_slug, 'product_cat');
             if ($term && !is_wp_error($term)) {
+                // If hide_empty is enabled and count is 0, skip
+                if ($hide_empty && intval($term->count) === 0) {
+                    continue;
+                }
+
                 $custom_img = get_theme_mod("kash_cat_image_{$slot}");
                 $custom_title = get_theme_mod("kash_cat_title_{$slot}");
 
@@ -85,7 +99,7 @@ if (class_exists('WooCommerce')) {
             'exclude'    => array(get_option('default_product_cat')),
             'orderby'    => 'menu_order',
             'order'      => 'ASC',
-            'number'     => 4,
+            'number'     => $max_cats,
         ));
 
         if (!empty($wc_cats) && !is_wp_error($wc_cats)) {
@@ -117,12 +131,14 @@ if (class_exists('WooCommerce')) {
         }
     }
 }
+
+$actual_cat_count = count($display_cats);
 ?>
 
 <?php if (!empty($display_cats)) : ?>
 <section class="section-padding home-category-showcase">
     <div class="container">
-        <div class="category-cards-grid">
+        <div class="category-cards-grid cat-grid-cols-<?php echo intval($actual_cat_count); ?>" style="--cat-cols: <?php echo intval($actual_cat_count); ?>;">
             <?php foreach ($display_cats as $cat) : ?>
                 <div class="cat-exact-card">
                     <div class="cat-card-image-wrap">

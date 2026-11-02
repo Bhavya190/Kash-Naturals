@@ -455,8 +455,28 @@ function kash_naturals_customize_register($wp_customize) {
        ========================================================================== */
     $wp_customize->add_section('kash_collection_showcase_options', array(
         'title'       => __('Homepage Category Showcase (Below Hero)', 'kash-naturals'),
-        'description' => __('Manage the 4 category collection cards displayed right below the hero banner without editing code.', 'kash-naturals'),
+        'description' => __('Manage the category collection cards displayed right below the hero banner. Choose how many cards to show, select specific categories, or let WooCommerce show them automatically.', 'kash-naturals'),
         'priority'    => 28,
+    ));
+
+    // Number of Categories to Show (Select dropdown)
+    $wp_customize->add_setting('kash_cats_count', array(
+        'default'           => '4',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_cats_count', array(
+        'label'       => __('Number of Category Cards to Show', 'kash-naturals'),
+        'description' => __('Choose how many cards to show on the homepage. The grid automatically expands evenly so no empty space appears.', 'kash-naturals'),
+        'section'     => 'kash_collection_showcase_options',
+        'type'        => 'select',
+        'choices'     => array(
+            '1' => __('1 Card (Centered)', 'kash-naturals'),
+            '2' => __('2 Cards (2 Equal Columns)', 'kash-naturals'),
+            '3' => __('3 Cards (3 Equal Columns)', 'kash-naturals'),
+            '4' => __('4 Cards (4 Equal Columns - Default)', 'kash-naturals'),
+            '5' => __('5 Cards (5 Columns)', 'kash-naturals'),
+            '6' => __('6 Cards (2 Rows of 3)', 'kash-naturals'),
+        ),
     ));
 
     // Hide Empty Categories Checkbox
@@ -473,7 +493,8 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Fetch list of WooCommerce categories for the dropdown selectors
     $cat_options = array(
-        '' => __('-- Auto: Use WooCommerce Order / Default --', 'kash-naturals'),
+        ''     => __('-- Auto: Use Next Available Category --', 'kash-naturals'),
+        'none' => __('-- Do Not Show (Hide This Slot) --', 'kash-naturals'),
     );
     if (taxonomy_exists('product_cat')) {
         $all_prod_terms = get_terms(array(
@@ -488,8 +509,8 @@ function kash_naturals_customize_register($wp_customize) {
         }
     }
 
-    // 4 Category Selectors
-    for ($c_i = 1; $c_i <= 4; $c_i++) {
+    // Up to 6 Category Slots
+    for ($c_i = 1; $c_i <= 6; $c_i++) {
         // Dropdown to pick category
         $wp_customize->add_setting("kash_cat_slot_{$c_i}", array(
             'default'           => '',
@@ -497,7 +518,7 @@ function kash_naturals_customize_register($wp_customize) {
         ));
         $wp_customize->add_control("kash_cat_slot_{$c_i}", array(
             'label'       => sprintf(__('Card %d: Choose Category', 'kash-naturals'), $c_i),
-            'description' => __('Select a category or leave as Auto.', 'kash-naturals'),
+            'description' => __('Select a category, leave as Auto, or choose Do Not Show to hide this slot.', 'kash-naturals'),
             'section'     => 'kash_collection_showcase_options',
             'type'        => 'select',
             'choices'     => $cat_options,

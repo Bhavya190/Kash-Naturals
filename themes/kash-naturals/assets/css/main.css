@@ -4829,9 +4829,44 @@ img {
 
 .category-cards-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(var(--cat-cols, 4), 1fr);
     gap: 24px;
     align-items: stretch;
+    width: 100%;
+}
+
+.category-cards-grid.cat-grid-cols-1 {
+    grid-template-columns: 1fr;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.category-cards-grid.cat-grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.category-cards-grid.cat-grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+}
+
+.category-cards-grid.cat-grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+}
+
+.category-cards-grid.cat-grid-cols-5 {
+    grid-template-columns: repeat(5, 1fr);
+    width: 100%;
+}
+
+.category-cards-grid.cat-grid-cols-6 {
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
 }
 
 .cat-exact-card {
@@ -4964,16 +4999,35 @@ img {
     transform: translateX(4px);
 }
 
-@media (max-width: 1024px) {
-    .category-cards-grid {
+@media (max-width: 1100px) {
+    .category-cards-grid,
+    .category-cards-grid.cat-grid-cols-4,
+    .category-cards-grid.cat-grid-cols-5 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 860px) {
+    .category-cards-grid.cat-grid-cols-3,
+    .category-cards-grid.cat-grid-cols-6 {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
 }
 
 @media (max-width: 600px) {
-    .category-cards-grid {
-        grid-template-columns: 1fr;
+    .category-cards-grid,
+    .category-cards-grid.cat-grid-cols-1,
+    .category-cards-grid.cat-grid-cols-2,
+    .category-cards-grid.cat-grid-cols-3,
+    .category-cards-grid.cat-grid-cols-4,
+    .category-cards-grid.cat-grid-cols-5,
+    .category-cards-grid.cat-grid-cols-6 {
+        grid-template-columns: 1fr !important;
+        max-width: 420px;
+        margin-left: auto !important;
+        margin-right: auto !important;
         gap: 24px;
     }
 }
