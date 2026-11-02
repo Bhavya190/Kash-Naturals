@@ -12,19 +12,31 @@ if (!defined('ABSPATH')) {
 
 $theme_uri = get_template_directory_uri();
 
-// Default Hero Carousel Slides (Images & Videos)
+// Helper to resolve media IDs or direct URLs with fallback
+$get_kash_media_url = function($setting_val, $default_fallback) {
+    if (empty($setting_val)) {
+        return $default_fallback;
+    }
+    if (is_numeric($setting_val)) {
+        $attachment_url = wp_get_attachment_url($setting_val);
+        return !empty($attachment_url) ? $attachment_url : $default_fallback;
+    }
+    return $setting_val;
+};
+
+// Hero Carousel Slides (Customizable via Appearance > Customize > Homepage Hero Carousel Options)
 $default_slides = array(
     array(
         'id'          => 'slide-1',
         'type'        => 'image',
-        'badge'       => __('AUTHENTIC • 100% NATURAL • HYGIENIC', 'kash-naturals'),
-        'title_top'   => __('Freshness', 'kash-naturals'),
-        'title_bottom'=> __('Crafted by Nature', 'kash-naturals'),
-        'subtitle'    => __('Premium Handcrafted Mouth Fresheners, Chocolate Dragees &amp; Kunafa Delights.', 'kash-naturals'),
-        'image'       => get_theme_mod('kash_hero_slide1_image', $theme_uri . '/assets/images/hero-banner.jpg'),
+        'badge'       => get_theme_mod('kash_hero_slide1_badge', __('AUTHENTIC • 100% NATURAL • HYGIENIC', 'kash-naturals')),
+        'title_top'   => get_theme_mod('kash_hero_slide1_title_top', __('Freshness', 'kash-naturals')),
+        'title_bottom'=> get_theme_mod('kash_hero_slide1_title_bottom', __('Crafted by Nature', 'kash-naturals')),
+        'subtitle'    => get_theme_mod('kash_hero_slide1_subtitle', __('Premium Handcrafted Mouth Fresheners, Chocolate Dragees &amp; Kunafa Delights.', 'kash-naturals')),
+        'image'       => $get_kash_media_url(get_theme_mod('kash_hero_slide1_image'), $theme_uri . '/assets/images/hero-banner.jpg'),
         'video_url'   => '',
         'btn_primary_text'   => __('SHOP NOW', 'kash-naturals'),
-        'btn_primary_link'   => home_url('/shop'),
+        'btn_primary_link'   => get_theme_mod('kash_hero_slide1_btn1_link') ? get_theme_mod('kash_hero_slide1_btn1_link') : home_url('/shop'),
         'btn_secondary_text' => __('EXPLORE COMBOS', 'kash-naturals'),
         'btn_secondary_link' => home_url('/combos/'),
         'show_amazon' => true,
@@ -32,14 +44,14 @@ $default_slides = array(
     array(
         'id'          => 'slide-2',
         'type'        => 'video',
-        'badge'       => __('LUXURY BELGIAN CACAO &amp; KUNAFA', 'kash-naturals'),
-        'title_top'   => __('Belgian Chocolate', 'kash-naturals'),
-        'title_bottom'=> __('Roasted Dragees', 'kash-naturals'),
-        'subtitle'    => __('Whole slow-roasted Californian almonds &amp; hazelnuts enrobed in smooth velvety dark and milk chocolate.', 'kash-naturals'),
-        'image'       => get_theme_mod('kash_hero_slide2_image', $theme_uri . '/assets/images/chocolate-dragees.jpg'),
-        'video_url'   => get_theme_mod('kash_hero_slide2_video', 'https://assets.mixkit.co/videos/preview/mixkit-liquid-chocolate-being-poured-over-hazelnuts-41554-large.mp4'),
+        'badge'       => get_theme_mod('kash_hero_slide2_badge', __('LUXURY BELGIAN CACAO &amp; KUNAFA', 'kash-naturals')),
+        'title_top'   => get_theme_mod('kash_hero_slide2_title_top', __('Belgian Chocolate', 'kash-naturals')),
+        'title_bottom'=> get_theme_mod('kash_hero_slide2_title_bottom', __('Roasted Dragees', 'kash-naturals')),
+        'subtitle'    => get_theme_mod('kash_hero_slide2_subtitle', __('Whole slow-roasted Californian almonds &amp; hazelnuts enrobed in smooth velvety dark and milk chocolate.', 'kash-naturals')),
+        'image'       => $get_kash_media_url(get_theme_mod('kash_hero_slide2_image'), $theme_uri . '/assets/images/chocolate-dragees.jpg'),
+        'video_url'   => $get_kash_media_url(get_theme_mod('kash_hero_slide2_video'), 'https://assets.mixkit.co/videos/preview/mixkit-liquid-chocolate-being-poured-over-hazelnuts-41554-large.mp4'),
         'btn_primary_text'   => __('DISCOVER CHOCOLATES', 'kash-naturals'),
-        'btn_primary_link'   => home_url('/product-category/chocolates/'),
+        'btn_primary_link'   => get_theme_mod('kash_hero_slide2_btn1_link') ? get_theme_mod('kash_hero_slide2_btn1_link') : home_url('/product-category/chocolates/'),
         'btn_secondary_text' => __('OUR STORY', 'kash-naturals'),
         'btn_secondary_link' => home_url('/our-story/'),
         'show_amazon' => false,
@@ -47,14 +59,14 @@ $default_slides = array(
     array(
         'id'          => 'slide-3',
         'type'        => 'image',
-        'badge'       => __('FESTIVE CELEBRATIONS &amp; GIFTING', 'kash-naturals'),
-        'title_top'   => __('Celebration Packs', 'kash-naturals'),
-        'title_bottom'=> __('Curated Gift Hampers', 'kash-naturals'),
-        'subtitle'    => __('Make every festival and wedding unforgettable with custom luxury hampers and value combo sets.', 'kash-naturals'),
-        'image'       => get_theme_mod('kash_hero_slide3_image', $theme_uri . '/assets/images/gift-combos.jpg'),
+        'badge'       => get_theme_mod('kash_hero_slide3_badge', __('FESTIVE CELEBRATIONS &amp; GIFTING', 'kash-naturals')),
+        'title_top'   => get_theme_mod('kash_hero_slide3_title_top', __('Celebration Packs', 'kash-naturals')),
+        'title_bottom'=> get_theme_mod('kash_hero_slide3_title_bottom', __('Curated Gift Hampers', 'kash-naturals')),
+        'subtitle'    => get_theme_mod('kash_hero_slide3_subtitle', __('Make every festival and wedding unforgettable with custom luxury hampers and value combo sets.', 'kash-naturals')),
+        'image'       => $get_kash_media_url(get_theme_mod('kash_hero_slide3_image'), $theme_uri . '/assets/images/gift-combos.jpg'),
         'video_url'   => '',
         'btn_primary_text'   => __('VIEW GIFT HAMPERS', 'kash-naturals'),
-        'btn_primary_link'   => home_url('/product-category/gift-hampers/'),
+        'btn_primary_link'   => get_theme_mod('kash_hero_slide3_btn1_link') ? get_theme_mod('kash_hero_slide3_btn1_link') : home_url('/product-category/gift-hampers/'),
         'btn_secondary_text' => __('BULK ORDERS', 'kash-naturals'),
         'btn_secondary_link' => home_url('/bulk-order/'),
         'show_amazon' => false,
@@ -62,14 +74,14 @@ $default_slides = array(
     array(
         'id'          => 'slide-4',
         'type'        => 'image',
-        'badge'       => __('ROYAL INDIAN AFTER-MEAL DIGESTIVES', 'kash-naturals'),
-        'title_top'   => __('Royal Mukhwas', 'kash-naturals'),
-        'title_bottom'=> __('Calcutta Paan &amp; Saunf', 'kash-naturals'),
-        'subtitle'    => __('Aromatic silver-coated cardamom, sweet fennel, and betel leaf blends prepared under cleanroom standards.', 'kash-naturals'),
-        'image'       => get_theme_mod('kash_hero_slide4_image', $theme_uri . '/assets/images/mouth-fresheners.jpg'),
+        'badge'       => get_theme_mod('kash_hero_slide4_badge', __('ROYAL INDIAN AFTER-MEAL DIGESTIVES', 'kash-naturals')),
+        'title_top'   => get_theme_mod('kash_hero_slide4_title_top', __('Royal Mukhwas', 'kash-naturals')),
+        'title_bottom'=> get_theme_mod('kash_hero_slide4_title_bottom', __('Calcutta Paan &amp; Saunf', 'kash-naturals')),
+        'subtitle'    => get_theme_mod('kash_hero_slide4_subtitle', __('Aromatic silver-coated cardamom, sweet fennel, and betel leaf blends prepared under cleanroom standards.', 'kash-naturals')),
+        'image'       => $get_kash_media_url(get_theme_mod('kash_hero_slide4_image'), $theme_uri . '/assets/images/mouth-fresheners.jpg'),
         'video_url'   => '',
         'btn_primary_text'   => __('SHOP MUKHWAS', 'kash-naturals'),
-        'btn_primary_link'   => home_url('/product-category/mukhwas/'),
+        'btn_primary_link'   => get_theme_mod('kash_hero_slide4_btn1_link') ? get_theme_mod('kash_hero_slide4_btn1_link') : home_url('/product-category/mukhwas/'),
         'btn_secondary_text' => __('ALL PRODUCTS', 'kash-naturals'),
         'btn_secondary_link' => home_url('/shop'),
         'show_amazon' => true,
