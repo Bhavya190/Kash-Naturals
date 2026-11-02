@@ -701,7 +701,7 @@ img {
     visibility: hidden;
     display: flex;
     align-items: center;
-    padding: 15px 0 65px;
+    padding: 20px 0 25px;
     box-sizing: border-box;
     transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.75s ease;
     z-index: 1;
@@ -951,8 +951,9 @@ img {
     right: 24px;
 }
 
-/* Bottom Navigation Bar (Centered Luxury Glass Capsule) */
+/* Bottom Navigation Bar (Centered Luxury Glass Capsule - Temporarily hidden) */
 .hero-carousel-nav-bar {
+    display: none;
     position: absolute;
     bottom: 20px;
     left: 0;

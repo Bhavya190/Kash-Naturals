@@ -180,7 +180,8 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
         <i class="fa-solid fa-chevron-right"></i>
     </button>
 
-    <!-- Bottom Carousel Navigation Bar (Progress Dots + Autoplay Toggle) -->
+    <!-- Bottom Carousel Navigation Bar (Progress Dots + Autoplay Toggle) - Temporarily hidden per user request -->
+    <?php if (false) : ?>
     <div class="hero-carousel-nav-bar">
         <div class="container hero-nav-bar-inner">
             <div class="hero-carousel-nav-capsule">
@@ -205,5 +206,6 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
 </section>
