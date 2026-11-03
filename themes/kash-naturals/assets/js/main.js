@@ -450,9 +450,9 @@ jQuery(document).ready(function ($) {
                         id: dbProduct.id,
                         key: item.key || '',
                         variation_id: item.variation_id || 0,
-                        name: dbProduct.name,
-                        price: dbProduct.price,
-                        image: dbProduct.image || item.image,
+                        name: item.name || dbProduct.name,
+                        price: (typeof item.price !== 'undefined') ? item.price : dbProduct.price,
+                        image: item.image || dbProduct.image,
                         qty: item.qty > 0 ? item.qty : 1,
                         in_stock: isItemInStock,
                         stock_status: dbProduct.stock_status || (isItemInStock ? 'instock' : 'outofstock'),
@@ -503,6 +503,9 @@ jQuery(document).ready(function ($) {
 
     // Sync with WooCommerce native cart session if active
     function syncWithWooCommerceCart() {
+        if (window.kashAddToCartPending) {
+            return;
+        }
         if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
             $.ajax({
                 type: 'POST',
@@ -510,6 +513,7 @@ jQuery(document).ready(function ($) {
                 data: { action: 'kash_get_cart' },
                 dataType: 'json',
                 success: function (res) {
+                    if (window.kashAddToCartPending) return;
                     if (res && res.success && res.data && Array.isArray(res.data.items)) {
                         const wcCart = res.data;
                         if (wcCart.items.length > 0) {
@@ -527,14 +531,11 @@ jQuery(document).ready(function ($) {
                             }));
                             localStorage.setItem('kash_cart', JSON.stringify(syncedCart));
                             updateCartCountBadge();
-                            renderCartDrawer();
                         } else {
-                            // WC cart empty, ensure local cart reflects this completely
-                            localStorage.removeItem('kash_cart');
-                            updateCartCountBadge();
-                            renderCartDrawer();
-                            if (typeof window.renderCartPageUI === 'function') {
-                                window.renderCartPageUI();
+                            const localItems = getCart();
+                            if (!localItems || localItems.length === 0) {
+                                localStorage.removeItem('kash_cart');
+                                updateCartCountBadge();
                             }
                         }
                     }
@@ -546,6 +547,7 @@ jQuery(document).ready(function ($) {
 
     function syncAddToCartWooCommerce(productId, quantity, variationId, variationData) {
         if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
+            window.kashAddToCartPending = true;
             const postPayload = {
                 action: 'kash_add_to_cart',
                 product_id: productId,
@@ -563,9 +565,38 @@ jQuery(document).ready(function ($) {
                 data: postPayload,
                 dataType: 'json',
                 success: function (res) {
-                    if (res && !res.success && res.data && res.data.message) {
+                    window.kashAddToCartPending = false;
+                    if (res && res.success && res.data) {
+                        if (res.data.cart && Array.isArray(res.data.cart.items)) {
+                            const syncedCart = res.data.cart.items.map(item => ({
+                                id: item.id,
+                                key: item.key,
+                                variation_id: item.variation_id || 0,
+                                name: item.name,
+                                price: item.price,
+                                image: item.image,
+                                qty: item.qty,
+                                in_stock: (item.in_stock !== false && item.stock_status !== 'outofstock'),
+                                stock_status: item.stock_status,
+                                stock_quantity: item.stock_quantity
+                            }));
+                            localStorage.setItem('kash_cart', JSON.stringify(syncedCart));
+                        }
+                        if (res.data.cart && typeof res.data.cart.count !== 'undefined') {
+                            const $badge = $('#mini-cart-count');
+                            $badge.text(res.data.cart.count);
+                            if (res.data.cart.count > 0) {
+                                $badge.addClass('bounce');
+                                setTimeout(() => $badge.removeClass('bounce'), 400);
+                            }
+                        }
+                        $(document.body).trigger('wc_fragment_refresh');
+                    } else if (res && !res.success && res.data && res.data.message) {
                         showToast(res.data.message, 'info');
                     }
+                },
+                error: function () {
+                    window.kashAddToCartPending = false;
                 }
             });
         }
@@ -785,7 +816,6 @@ jQuery(document).ready(function ($) {
 
         saveCart(cart);
         showToast(`Added "${varName}" to your shopping bag!`);
-        openCartDrawer();
         syncAddToCartWooCommerce(product.id, qty, variant.id, variant.attributes || {});
     }
     window.addVariantToCart = addVariantToCart;
@@ -871,7 +901,6 @@ jQuery(document).ready(function ($) {
 
         saveCart(cart);
         showToast(`Added "${product.name}" to your shopping bag!`);
-        openCartDrawer();
         syncAddToCartWooCommerce(product.id, qty);
     };
 
@@ -925,13 +954,10 @@ jQuery(document).ready(function ($) {
         addToCart(match.id, 1);
     });
 
-    // Open/Close Cart Drawer
+    // Open/Close Cart Drawer (Disabled per user request: user navigates directly to cart page)
     function openCartDrawer() {
-        renderCartDrawer();
-        $cartDrawer.addClass('active');
-        $cartOverlay.addClass('active');
-        $('body').addClass('modal-open');
-        syncWithWooCommerceCart();
+        // Pop-up hidden per user requirement: user navigates to cart page himself
+        return;
     }
 
     function closeCartDrawer() {
@@ -940,9 +966,10 @@ jQuery(document).ready(function ($) {
         $('body').removeClass('modal-open');
     }
 
-    $(document).on('click', '#mini-cart-toggle, .cart-drawer-trigger', function (e) {
-        e.preventDefault();
-        openCartDrawer();
+    $(document).on('click', '#mini-cart-toggle, .cart-drawer-trigger, #header-cart-icon', function (e) {
+        // User requested: user will go on cart page himself by clicking on cart icon
+        const cartUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.cart_url) ? kash_dynamic_data.cart_url : '/cart';
+        window.location.href = cartUrl;
     });
 
     $('#close-cart-drawer, #cart-drawer-overlay, #btn-close-cart-continue').on('click', function () {

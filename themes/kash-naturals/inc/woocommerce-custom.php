@@ -682,18 +682,48 @@ function kash_naturals_ajax_add_to_cart() {
         }
     }
 
-    if (function_exists('WC') && WC()->cart) {
-        if ($variation_id) {
-            $parent_id = $product_id ? $product_id : $target_product->get_parent_id();
-            WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations);
-        } else {
-            WC()->cart->add_to_cart($product_id, $quantity);
+    if (!function_exists('WC') || !WC()->cart) {
+        wp_send_json_error(array('message' => __('WooCommerce cart not initialized.', 'kash-naturals')));
+    }
+
+    // Ensure session is initialized for guest users so cookies persist
+    if (null === WC()->session) {
+        $session_class = apply_filters('woocommerce_session_handler', 'WC_Session_Handler');
+        WC()->session = new $session_class();
+        WC()->session->init();
+    }
+    if (method_exists(WC()->session, 'has_session') && !WC()->session->has_session()) {
+        WC()->session->set_customer_session_cookie(true);
+    }
+
+    $parent_id = $product_id ? $product_id : $target_product->get_parent_id();
+    if ($variation_id) {
+        $cart_item_key = WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations);
+    } else {
+        $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity);
+    }
+
+    if ($cart_item_key) {
+        WC()->cart->calculate_totals();
+        if (method_exists(WC()->cart, 'maybe_set_cart_cookies')) {
+            WC()->cart->maybe_set_cart_cookies();
         }
+        if (WC()->session && method_exists(WC()->session, 'set_customer_session_cookie')) {
+            WC()->session->set_customer_session_cookie(true);
+        }
+    } else {
+        $wc_notices = function_exists('wc_get_notices') ? wc_get_notices('error') : array();
+        $error_msg = !empty($wc_notices) ? wp_strip_all_tags($wc_notices[0]['notice']) : __('Could not add product to cart.', 'kash-naturals');
+        if (function_exists('wc_clear_notices')) {
+            wc_clear_notices();
+        }
+        wp_send_json_error(array('message' => $error_msg));
     }
 
     wp_send_json_success(array(
         'message' => sprintf(__('Added "%s" to your shopping bag!', 'kash-naturals'), $target_product->get_name()),
         'cart'    => kash_naturals_get_cart_payload(),
+        'count'   => WC()->cart->get_cart_contents_count(),
     ));
 }
 add_action('wp_ajax_kash_add_to_cart', 'kash_naturals_ajax_add_to_cart');

@@ -7665,12 +7665,15 @@ body.modal-open::-webkit-scrollbar {
     z-index: 9980;
     opacity: 0;
     visibility: hidden;
+    display: none !important;
+    pointer-events: none !important;
     transition: all 0.3s ease;
 }
 
 .cart-drawer-overlay.active {
-    opacity: 1;
-    visibility: visible;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    display: none !important;
 }
 
 .cart-drawer-panel {
@@ -7683,14 +7686,17 @@ body.modal-open::-webkit-scrollbar {
     background: #0d2316;
     z-index: 9985;
     box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateX(100%) !important;
     transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .cart-drawer-panel.active {
-    transform: translateX(0);
+    display: none !important;
+    visibility: hidden !important;
+    transform: translateX(100%) !important;
 }
 
 .cart-drawer-header {
