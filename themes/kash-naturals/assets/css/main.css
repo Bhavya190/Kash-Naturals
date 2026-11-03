@@ -12011,6 +12011,173 @@ img.amz-ref-logo {
     line-height: 1.6;
 }
 
+/* Clean Product Short Intro beside image */
+.clean-product-intro {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #4A5568;
+    margin-bottom: 22px;
+}
+
+/* 2-Column Luxury Specifications Grid Card */
+.kash-specs-grid-card {
+    background: #FAF7F2;
+    border: 1px solid rgba(44, 95, 62, 0.12);
+    border-radius: 18px;
+    padding: 26px 30px;
+    margin-bottom: 30px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.kash-specs-two-col-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 30px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.kash-spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.kash-spec-item .spec-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2C5F3E;
+}
+
+.kash-spec-item .spec-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1C2B1F;
+    padding-left: 2px;
+}
+
+/* About Item Bullets Wrapper */
+.about-item-bullets-wrapper {
+    background: #FAF7F2;
+    border-radius: 18px;
+    padding: 24px 28px;
+    border: 1px solid rgba(44, 95, 62, 0.12);
+    margin-bottom: 35px;
+    box-sizing: border-box;
+}
+
+.about-item-bullets-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.about-item-bullets-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: #334155;
+}
+
+.about-item-bullets-list li i {
+    color: #2C5F3E;
+    font-size: 1.1rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* Reviews Summary Dashboard */
+.reviews-summary-dashboard {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 35px;
+    align-items: center;
+    background: #FAF7F2;
+    padding: 26px 30px;
+    border-radius: 18px;
+    border: 1px solid rgba(44, 95, 62, 0.12);
+    margin-bottom: 30px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.rating-large-stat {
+    text-align: center;
+    border-right: 1px solid rgba(44, 95, 62, 0.15);
+    padding-right: 25px;
+}
+
+.rating-big-num {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: #1C2B1F;
+    line-height: 1;
+}
+
+.stars-gold-big {
+    color: #c49a56;
+    font-size: 1.15rem;
+    margin: 8px 0;
+}
+
+.based-on-txt {
+    font-size: 0.84rem;
+    color: #666666;
+}
+
+/* Empty Reviews State */
+.kash-empty-reviews-box {
+    text-align: center;
+    padding: 45px 24px;
+    background: #FAF7F2;
+    border-radius: 18px;
+    border: 1px dashed rgba(44, 95, 62, 0.25);
+    margin-bottom: 25px;
+}
+
+@media (max-width: 768px) {
+    .kash-specs-two-col-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    .kash-specs-grid-card {
+        padding: 20px 16px !important;
+    }
+    .about-item-bullets-wrapper {
+        padding: 18px 16px !important;
+    }
+    .reviews-summary-dashboard {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        padding: 20px 16px !important;
+    }
+    .rating-large-stat {
+        border-right: none !important;
+        border-bottom: 1px solid rgba(44, 95, 62, 0.15) !important;
+        padding-right: 0 !important;
+        padding-bottom: 20px !important;
+    }
+    .story-grid-icons {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    .ingredients-nutrition-grid {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+}
+
 /* Related Products */
 .related-products-section {
     margin-top: 40px;

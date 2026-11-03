@@ -37,11 +37,11 @@ function kash_naturals_woocommerce_header_add_to_cart_fragment($fragments) {
 add_filter('woocommerce_add_to_cart_fragments', 'kash_naturals_woocommerce_header_add_to_cart_fragment');
 
 /**
- * Add Custom "Artisanal Specs & Nutrition" Tab to WooCommerce Product Data in WP Admin
+ * Add Custom "Product Details & Tabs Specs" Tab to WooCommerce Product Data in WP Admin
  */
 function kash_naturals_add_product_data_tab($tabs) {
     $tabs['kash_artisanal_specs'] = array(
-        'label'    => __('Artisanal Specs & Nutrition', 'kash-naturals'),
+        'label'    => __('Product Details & Tabs Specs', 'kash-naturals'),
         'target'   => 'kash_artisanal_specs_panel',
         'class'    => array('show_if_simple', 'show_if_variable'),
         'priority' => 65,
@@ -51,7 +51,7 @@ function kash_naturals_add_product_data_tab($tabs) {
 add_filter('woocommerce_product_data_tabs', 'kash_naturals_add_product_data_tab');
 
 /**
- * Render Custom Fields in the "Artisanal Specs & Nutrition" Panel
+ * Render Custom Fields in the "Product Details & Tabs Specs" Panel
  */
 function kash_naturals_render_product_data_panel() {
     global $post;
@@ -61,21 +61,49 @@ function kash_naturals_render_product_data_panel() {
     ?>
     <div id="kash_artisanal_specs_panel" class="panel woocommerce_options_panel hidden" style="padding: 15px 20px;">
         
-        <div style="background: #f0f7f2; border: 1px solid #c2dec9; border-left: 4px solid #2C5F3E; padding: 12px 18px; margin-bottom: 20px; border-radius: 6px;">
+        <div style="background: #f0f7f2; border: 1px solid #c2dec9; border-left: 4px solid #2C5F3E; padding: 14px 18px; margin-bottom: 22px; border-radius: 6px;">
             <strong style="color: #2C5F3E; font-size: 14px; display: block; margin-bottom: 4px;">
-                <i class="dashicons dashicons-info"></i> <?php esc_html_e('Dynamic Product Details & Variations Guide', 'kash-naturals'); ?>
+                <i class="dashicons dashicons-info"></i> <?php esc_html_e('Product Detail Tabs & Specifications Settings', 'kash-naturals'); ?>
             </strong>
             <p style="margin: 0; color: #333; font-size: 13px; line-height: 1.6;">
-                <strong><?php esc_html_e('Variable Products (e.g. 200 GM, 500 GM):', 'kash-naturals'); ?></strong> <?php esc_html_e('Manage pack weights, prices, stock, and photos under the "Variations" tab on the left. The product detail page automatically detects all variations and switches prices, regular prices, stock, and images in real time.', 'kash-naturals'); ?><br>
-                <strong><?php esc_html_e('Artisanal Details:', 'kash-naturals'); ?></strong> <?php esc_html_e('Use the fields below to add custom Highlights, Ingredients, Nutrition facts, Storage, and Product Video dynamically.', 'kash-naturals'); ?>
+                <?php esc_html_e('Configure data for the 3 product tabs: "About This Item" (with the 3 static heritage cards), "Top Highlights" (the full specifications grid), and "Customer Reviews" (dynamically pulls approved customer reviews).', 'kash-naturals'); ?>
             </p>
         </div>
 
-        <h3 style="margin-top: 10px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
-            <i class="dashicons dashicons-star-filled"></i> <?php esc_html_e('Top Highlights & Artisanal Profiling', 'kash-naturals'); ?>
+        <!-- 1. About This Item Tab Settings -->
+        <h3 style="margin-top: 15px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
+            <i class="dashicons dashicons-text-page"></i> <?php esc_html_e('1. "About This Item" Tab Content', 'kash-naturals'); ?>
         </h3>
         <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
-            <?php esc_html_e('Featured highlights displayed prominently under the product price and in the product story.', 'kash-naturals'); ?>
+            <?php esc_html_e('Custom product story and bullet points for the "About This Item" tab. The 3 static heritage cards (Small-Batch Artisan Made, Food-Grade Glass Packaging, Digestive Wellness) display here automatically.', 'kash-naturals'); ?>
+        </p>
+
+        <?php
+        woocommerce_wp_textarea_input(array(
+            'id'          => '_about_this_item',
+            'label'       => __('About / Story Description', 'kash-naturals'),
+            'placeholder' => __('Leave empty to use main product description from editor above.', 'kash-naturals'),
+            'desc_tip'    => true,
+            'description' => __('Custom story or editorial overview shown in the "About This Item" tab.', 'kash-naturals'),
+            'style'       => 'height: 100px; width: 75%;',
+        ));
+
+        woocommerce_wp_textarea_input(array(
+            'id'          => '_about_bullets',
+            'label'       => __('About This Item Bullets', 'kash-naturals'),
+            'placeholder' => __("TRADITIONAL MUKHWAS: Premium quality mouth freshener made with fennel and aromatic spices\nNATURAL INGREDIENTS: Crafted with carefully selected whole spices\nCONVENIENT PACKAGING: Sealed in airtight glass jar to maintain aroma and crunch", 'kash-naturals'),
+            'desc_tip'    => true,
+            'description' => __('Enter bullet points (one per line) for "About this item".', 'kash-naturals'),
+            'style'       => 'height: 110px; width: 75%;',
+        ));
+        ?>
+
+        <!-- 2. Top Highlights & Specifications Grid -->
+        <h3 style="margin-top: 30px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
+            <i class="dashicons dashicons-list-view"></i> <?php esc_html_e('2. "Top Highlights" & Specifications Grid', 'kash-naturals'); ?>
+        </h3>
+        <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
+            <?php esc_html_e('Values for the luxury Specifications Grid card shown in the "Top Highlights" tab. Fill in what applies to this product.', 'kash-naturals'); ?>
         </p>
 
         <?php
@@ -84,25 +112,106 @@ function kash_naturals_render_product_data_panel() {
             'label'       => __('Key Highlights / Bullets', 'kash-naturals'),
             'placeholder' => __("Authentic Heritage Recipe\n100% All-Natural Ingredients\nZero Chemical Preservatives\nAirtight Glass Jar Packaging", 'kash-naturals'),
             'desc_tip'    => true,
-            'description' => __('Enter top highlights or key bullet points (one per line) to display on the product detail page.', 'kash-naturals'),
-            'style'       => 'height: 90px; width: 70%;',
+            'description' => __('Enter top key highlights (one per line) displayed in the Top Highlights tab.', 'kash-naturals'),
+            'style'       => 'height: 85px; width: 75%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_flavour',
+            'label'       => __('Flavour', 'kash-naturals'),
+            'placeholder' => 'Sweet, Minty, Tangy & Crisp',
+            'desc_tip'    => true,
+            'description' => __('Flavour profile for the specifications table.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_brand',
+            'label'       => __('Brand', 'kash-naturals'),
+            'placeholder' => 'Kash Natural',
+            'desc_tip'    => true,
+            'description' => __('Brand name for specifications.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
         ));
 
         woocommerce_wp_text_input(array(
             'id'          => '_dietary_type',
-            'label'       => __('Dietary / Speciality', 'kash-naturals'),
-            'placeholder' => __('e.g. 100% Vegetarian, Preservative Free', 'kash-naturals'),
+            'label'       => __('Speciality / Dietary', 'kash-naturals'),
+            'placeholder' => 'Vegetarian, 100% Natural, Preservative Free',
             'desc_tip'    => true,
-            'description' => __('Speciality dietary classification (e.g. Vegetarian, Vegan, Gluten Free).', 'kash-naturals'),
+            'description' => __('Speciality dietary classification.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_item_weight',
+            'label'       => __('Item Weight', 'kash-naturals'),
+            'placeholder' => '200 Grams',
+            'desc_tip'    => true,
+            'description' => __('Item weight text (leave empty to use product weight).', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_package_info',
+            'label'       => __('Package Information', 'kash-naturals'),
+            'placeholder' => 'Airtight Food-Grade Glass Jar / Bag',
+            'desc_tip'    => true,
+            'description' => __('Container / package info.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_package_weight',
+            'label'       => __('Package Weight', 'kash-naturals'),
+            'placeholder' => '200 Grams',
+            'desc_tip'    => true,
+            'description' => __('Total package weight including container.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_number_of_pieces',
+            'label'       => __('Number of Pieces', 'kash-naturals'),
+            'placeholder' => '1',
+            'desc_tip'    => true,
+            'description' => __('Pieces count (e.g. 1 jar or 2 pieces).', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_net_quantity',
+            'label'       => __('Net Quantity', 'kash-naturals'),
+            'placeholder' => '200.0 Grams',
+            'desc_tip'    => true,
+            'description' => __('Net product content quantity.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_cocoa_origin',
+            'label'       => __('Region / Country of Origin', 'kash-naturals'),
+            'placeholder' => 'Asia, India',
+            'desc_tip'    => true,
+            'description' => __('Origin of product or ingredients.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_spec_claim',
+            'label'       => __('Cultivation / Quality Claim', 'kash-naturals'),
+            'placeholder' => 'No Chemical Fertilizers, Artisanal Batch',
+            'desc_tip'    => true,
+            'description' => __('Purity or cultivation claim.', 'kash-naturals'),
             'style'       => 'width: 70%;',
         ));
 
         woocommerce_wp_text_input(array(
             'id'          => '_flavor_notes',
-            'label'       => __('Tasting / Flavor Notes', 'kash-naturals'),
+            'label'       => __('Tasting / Flavor Tags', 'kash-naturals'),
             'placeholder' => 'Sweet, Minty, Rose Aroma, Crispy',
             'desc_tip'    => true,
-            'description' => __('Highlights displayed as tags under product title.', 'kash-naturals'),
+            'description' => __('Pills displayed under product price.', 'kash-naturals'),
             'style'       => 'width: 70%;',
         ));
 
@@ -113,26 +222,14 @@ function kash_naturals_render_product_data_panel() {
             'desc_tip'    => true,
             'description' => __('Optional cacao percentage tag.', 'kash-naturals'),
         ));
-
-        woocommerce_wp_text_input(array(
-            'id'          => '_cocoa_origin',
-            'label'       => __('Origin Region', 'kash-naturals'),
-            'placeholder' => 'Ecuador, Single Origin / Rajasthan, India',
-            'desc_tip'    => true,
-            'description' => __('Origin of cacao or spices.', 'kash-naturals'),
-            'style'       => 'width: 70%;',
-        ));
         ?>
 
-        <h3 style="margin-top: 25px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
-            <i class="dashicons dashicons-carrot"></i> <?php esc_html_e('Ingredients & Allergen Information', 'kash-naturals'); ?>
+        <!-- 3. Ingredients & Nutrition -->
+        <h3 style="margin-top: 30px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
+            <i class="dashicons dashicons-carrot"></i> <?php esc_html_e('3. Ingredients & Nutrition Facts', 'kash-naturals'); ?>
         </h3>
-        <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
-            <?php esc_html_e('Displayed in the "Ingredients & Nutrition" tab on the product detail page. Leave empty to use default artisanal ingredients.', 'kash-naturals'); ?>
-        </p>
 
         <?php
-        // Ingredients List
         woocommerce_wp_textarea_input(array(
             'id'          => '_ingredients',
             'label'       => __('Ingredients List', 'kash-naturals'),
@@ -142,7 +239,6 @@ function kash_naturals_render_product_data_panel() {
             'style'       => 'height: 90px; width: 70%;',
         ));
 
-        // Allergen Advice
         woocommerce_wp_text_input(array(
             'id'          => '_allergen_advice',
             'label'       => __('Allergen Advice', 'kash-naturals'),
@@ -151,16 +247,7 @@ function kash_naturals_render_product_data_panel() {
             'description' => __('Specific allergen advisory warnings for customers.', 'kash-naturals'),
             'style'       => 'width: 70%;',
         ));
-        ?>
 
-        <h3 style="margin-top: 25px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
-            <i class="dashicons dashicons-chart-bar"></i> <?php esc_html_e('Nutritional Facts (Per 100g approx.)', 'kash-naturals'); ?>
-        </h3>
-        <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
-            <?php esc_html_e('Leave empty to display standard balanced nutritional values.', 'kash-naturals'); ?>
-        </p>
-
-        <?php
         woocommerce_wp_text_input(array(
             'id'          => '_nutrition_energy',
             'label'       => __('Energy Value', 'kash-naturals'),
@@ -208,16 +295,7 @@ function kash_naturals_render_product_data_panel() {
             'desc_tip'    => true,
             'description' => __('Total Fat in grams per 100g.', 'kash-naturals'),
         ));
-        ?>
 
-        <h3 style="margin-top: 25px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
-            <i class="dashicons dashicons-archive"></i> <?php esc_html_e('Storage & Shelf Life', 'kash-naturals'); ?>
-        </h3>
-        <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
-            <?php esc_html_e('Displayed in the "Storage & Shelf Life" tab on the product detail page.', 'kash-naturals'); ?>
-        </p>
-
-        <?php
         woocommerce_wp_text_input(array(
             'id'          => '_shelf_life',
             'label'       => __('Shelf Life', 'kash-naturals'),
@@ -237,11 +315,12 @@ function kash_naturals_render_product_data_panel() {
         ));
         ?>
 
-        <h3 style="margin-top: 25px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
-            <i class="dashicons dashicons-screenoptions"></i> <?php esc_html_e('Simple Product Pack Sizes (Only if not using Variations)', 'kash-naturals'); ?>
+        <!-- 4. Simple Product Pack Sizes -->
+        <h3 style="margin-top: 30px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
+            <i class="dashicons dashicons-screenoptions"></i> <?php esc_html_e('4. Simple Product Pack Sizes (If not using Variable Product)', 'kash-naturals'); ?>
         </h3>
         <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
-            <?php esc_html_e('For Variable Products with variations like 200 GM / 500 GM, please use the "Variations" tab instead. These fields below are for Simple Products only.', 'kash-naturals'); ?>
+            <?php esc_html_e('For Variable Products (with variations like 200 GM, 500 GM), manage variations in the "Variations" tab on the left. These fields below are for Simple Products only.', 'kash-naturals'); ?>
         </p>
 
         <?php
@@ -271,14 +350,14 @@ function kash_naturals_render_product_data_panel() {
         ));
         ?>
 
-        <h3 style="margin-top: 25px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
-            <i class="dashicons dashicons-video-alt3"></i> <?php esc_html_e('Product Video (MP4 / YouTube / Vimeo)', 'kash-naturals'); ?>
+        <!-- 5. Product Video -->
+        <h3 style="margin-top: 30px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
+            <i class="dashicons dashicons-video-alt3"></i> <?php esc_html_e('5. Product Video (MP4 / YouTube / Vimeo)', 'kash-naturals'); ?>
         </h3>
         <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
             <?php esc_html_e('Add a product video that displays alongside product images in the gallery on the product detail page.', 'kash-naturals'); ?>
         </p>
         <?php
-
         woocommerce_wp_text_input(array(
             'id'          => '_product_video_url',
             'label'       => __('Product Video URL', 'kash-naturals'),
@@ -308,26 +387,36 @@ add_action('woocommerce_product_data_panels', 'kash_naturals_render_product_data
  */
 function kash_naturals_save_custom_product_fields($post_id) {
     $fields = array(
-        '_product_highlights'   => 'textarea',
-        '_dietary_type'         => 'text',
-        '_ingredients'          => 'textarea',
-        '_allergen_advice'      => 'text',
-        '_nutrition_energy'     => 'text',
-        '_nutrition_protein'    => 'text',
-        '_nutrition_carbs'      => 'text',
-        '_nutrition_sugars'     => 'text',
-        '_nutrition_fiber'      => 'text',
-        '_nutrition_fat'        => 'text',
-        '_shelf_life'           => 'text',
-        '_storage_instructions' => 'textarea',
-        '_flavor_notes'         => 'text',
-        '_cacao_percentage'     => 'text',
-        '_cocoa_origin'         => 'text',
-        '_pack_size_1_label'    => 'text',
-        '_pack_size_2_label'    => 'text',
-        '_pack_size_2_price'    => 'text',
-        '_product_video_url'    => 'text',
-        '_product_video_poster' => 'text',
+        '_about_this_item'       => 'textarea',
+        '_about_bullets'         => 'textarea',
+        '_product_highlights'    => 'textarea',
+        '_spec_flavour'          => 'text',
+        '_spec_brand'            => 'text',
+        '_dietary_type'          => 'text',
+        '_spec_item_weight'      => 'text',
+        '_spec_package_info'     => 'text',
+        '_spec_package_weight'   => 'text',
+        '_spec_number_of_pieces' => 'text',
+        '_spec_net_quantity'     => 'text',
+        '_cocoa_origin'          => 'text',
+        '_spec_claim'            => 'text',
+        '_flavor_notes'          => 'text',
+        '_cacao_percentage'      => 'text',
+        '_ingredients'           => 'textarea',
+        '_allergen_advice'       => 'text',
+        '_nutrition_energy'      => 'text',
+        '_nutrition_protein'     => 'text',
+        '_nutrition_carbs'       => 'text',
+        '_nutrition_sugars'      => 'text',
+        '_nutrition_fiber'       => 'text',
+        '_nutrition_fat'         => 'text',
+        '_shelf_life'            => 'text',
+        '_storage_instructions'  => 'textarea',
+        '_pack_size_1_label'     => 'text',
+        '_pack_size_2_label'     => 'text',
+        '_pack_size_2_price'     => 'text',
+        '_product_video_url'     => 'text',
+        '_product_video_poster'  => 'text',
     );
 
     foreach ($fields as $field => $type) {

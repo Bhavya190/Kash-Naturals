@@ -255,10 +255,32 @@ if ($product && is_a($product, 'WC_Product')) {
         $discount_percent = ($reg_raw > $price_raw && $reg_raw > 0) ? round((($reg_raw - $price_raw) / $reg_raw) * 100) : 0;
     }
 
-    // Ratings & Reviews
-    $avg_rating = $product->get_average_rating();
-    $rating_num_str = ($avg_rating > 0) ? number_format((float)$avg_rating, 1) : '5.0';
-    $review_count = $product->get_review_count() ?: 0;
+    // Real WooCommerce Customer Reviews & Dynamic Rating
+    $approved_reviews = array();
+    if (function_exists('get_comments')) {
+        $approved_reviews = get_comments(array(
+            'post_id' => $product_id,
+            'status'  => 'approve',
+        ));
+    }
+    $real_review_count = count($approved_reviews);
+    $rating_counts = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
+    $sum_ratings = 0;
+    if ($real_review_count > 0) {
+        foreach ($approved_reviews as $rev_item) {
+            $r_val = intval(get_comment_meta($rev_item->comment_ID, 'rating', true));
+            if ($r_val < 1 || $r_val > 5) $r_val = 5;
+            $rating_counts[$r_val]++;
+            $sum_ratings += $r_val;
+        }
+        $display_avg_rating = round($sum_ratings / $real_review_count, 1);
+        $rating_num_str = number_format($display_avg_rating, 1);
+    } else {
+        $wc_avg = $product->get_average_rating();
+        $display_avg_rating = ($wc_avg > 0) ? (float)$wc_avg : 5.0;
+        $rating_num_str = number_format($display_avg_rating, 1);
+    }
+    $review_count = $real_review_count;
 
     // Stock Status
     if ($default_variation_data) {
@@ -323,31 +345,171 @@ if ($product && is_a($product, 'WC_Product')) {
     }
     $sku_str = ($default_variation_data && !empty($default_variation_data['sku'])) ? $default_variation_data['sku'] : ($product->get_sku() ?: ('KASH-' . $product_id));
 
-    $custom_highlights = get_post_meta($product_id, '_product_highlights', true);
-    $dietary_type      = get_post_meta($product_id, '_dietary_type', true);
-    $custom_ing        = get_post_meta($product_id, '_ingredients', true);
-    $allergen_advice   = get_post_meta($product_id, '_allergen_advice', true);
-    $shelf_life        = get_post_meta($product_id, '_shelf_life', true);
-    $storage_inst      = get_post_meta($product_id, '_storage_instructions', true);
+    // Custom Tabs Backend Meta
+    $meta_about_item        = get_post_meta($product_id, '_about_this_item', true);
+    $meta_about_bullets     = get_post_meta($product_id, '_about_bullets', true);
+    $meta_highlights        = get_post_meta($product_id, '_product_highlights', true);
 
-    $nutri_energy = get_post_meta($product_id, '_nutrition_energy', true) ?: '385 kcal';
-    $nutri_protein = get_post_meta($product_id, '_nutrition_protein', true) ?: '4.2 g';
-    $nutri_carbs = get_post_meta($product_id, '_nutrition_carbs', true) ?: '78.5 g';
-    $nutri_sugars = get_post_meta($product_id, '_nutrition_sugars', true) ?: '32.0 g';
-    $nutri_fiber = get_post_meta($product_id, '_nutrition_fiber', true) ?: '12.4 g';
-    $nutri_fat = get_post_meta($product_id, '_nutrition_fat', true) ?: '2.1 g';
+    $meta_flavour           = get_post_meta($product_id, '_spec_flavour', true);
+    $meta_brand             = get_post_meta($product_id, '_spec_brand', true);
+    $meta_item_weight       = get_post_meta($product_id, '_spec_item_weight', true);
+    $meta_package_info      = get_post_meta($product_id, '_spec_package_info', true);
+    $dietary_type           = get_post_meta($product_id, '_dietary_type', true);
+    $meta_package_weight    = get_post_meta($product_id, '_spec_package_weight', true);
+    $meta_number_of_pieces  = get_post_meta($product_id, '_spec_number_of_pieces', true);
+    $meta_net_quantity      = get_post_meta($product_id, '_spec_net_quantity', true);
+    $cocoa_origin           = get_post_meta($product_id, '_cocoa_origin', true);
+    $meta_claim             = get_post_meta($product_id, '_spec_claim', true);
+    $flavor_notes           = get_post_meta($product_id, '_flavor_notes', true);
+    $cacao_pct              = get_post_meta($product_id, '_cacao_percentage', true);
 
-    $cacao_pct = get_post_meta($product_id, '_cacao_percentage', true);
-    $flavor_notes = get_post_meta($product_id, '_flavor_notes', true);
-    $cocoa_origin = get_post_meta($product_id, '_cocoa_origin', true);
+    $custom_ing             = get_post_meta($product_id, '_ingredients', true);
+    $allergen_advice        = get_post_meta($product_id, '_allergen_advice', true);
+    $shelf_life             = get_post_meta($product_id, '_shelf_life', true);
+    $storage_inst           = get_post_meta($product_id, '_storage_instructions', true);
 
-    $pack_2_label = get_post_meta($product_id, '_pack_size_2_label', true);
-    $pack_2_price = floatval(get_post_meta($product_id, '_pack_size_2_price', true)) ?: ($price_raw * 2.2);
+    $nutri_energy           = get_post_meta($product_id, '_nutrition_energy', true) ?: '385 kcal';
+    $nutri_protein          = get_post_meta($product_id, '_nutrition_protein', true) ?: '4.2 g';
+    $nutri_carbs            = get_post_meta($product_id, '_nutrition_carbs', true) ?: '78.5 g';
+    $nutri_sugars           = get_post_meta($product_id, '_nutrition_sugars', true) ?: '32.0 g';
+    $nutri_fiber            = get_post_meta($product_id, '_nutrition_fiber', true) ?: '12.4 g';
+    $nutri_fat              = get_post_meta($product_id, '_nutrition_fat', true) ?: '2.1 g';
 
-    $ingredients_display = !empty($custom_ing) ? $custom_ing : __('Authentic fennel seeds (saunf), natural menthol, cardamom (elaichi), silver foil (varak), pure rose petals, dates, betel leaves extract, rock sugar, Permitted Natural Flavors.', 'kash-naturals');
-    $allergen_display = !empty($allergen_advice) ? $allergen_advice : __('Allergen Advice: Processed in a clean facility that also handles tree nuts, sesame, and pure dairy.', 'kash-naturals');
-    $shelf_life_display = !empty($shelf_life) ? $shelf_life : __('9 Months from the date of manufacturing when kept sealed in the original glass container.', 'kash-naturals');
-    $storage_display = !empty($storage_inst) ? $storage_inst : __('Store in a cool, dry place away from direct sunlight, heat, and moisture. Always use a dry spoon and close lid securely after opening.', 'kash-naturals');
+    $pack_2_label           = get_post_meta($product_id, '_pack_size_2_label', true);
+    $pack_2_price           = floatval(get_post_meta($product_id, '_pack_size_2_price', true)) ?: ($price_raw * 2.2);
+
+    $ingredients_display    = !empty($custom_ing) ? $custom_ing : __('Authentic fennel seeds (saunf), natural menthol, cardamom (elaichi), silver foil (varak), pure rose petals, dates, betel leaves extract, rock sugar, Permitted Natural Flavors.', 'kash-naturals');
+    $allergen_display       = !empty($allergen_advice) ? $allergen_advice : __('Allergen Advice: Processed in a clean facility that also handles tree nuts, sesame, and pure dairy.', 'kash-naturals');
+    $shelf_life_display     = !empty($shelf_life) ? $shelf_life : __('9 Months from the date of manufacturing when kept sealed in the original glass container.', 'kash-naturals');
+    $storage_display        = !empty($storage_inst) ? $storage_inst : __('Store in a cool, dry place away from direct sunlight, heat, and moisture. Always use a dry spoon and close lid securely after opening.', 'kash-naturals');
+
+    // Smart Fallback Parser for Imported Catalog Products
+    $raw_combined_desc = $short_desc . "\n" . $full_desc;
+    $parsed_specs = array();
+    $parsed_bullets = array();
+    $clean_short_intro = '';
+
+    if (stripos($raw_combined_desc, 'Top highlights') !== false) {
+        $before_top = trim(substr($short_desc, 0, stripos($short_desc, 'Top highlights')));
+        if (!empty($before_top) && strlen($before_top) > 15) {
+            $clean_short_intro = wp_strip_all_tags($before_top);
+        }
+
+        preg_match('/Top highlights\s+(.*?)(?:About this item\s*(.*))?$/is', $raw_combined_desc, $matches);
+        $specs_raw = isset($matches[1]) ? trim($matches[1]) : '';
+        $about_raw = isset($matches[2]) ? trim($matches[2]) : '';
+
+        $spec_labels = array('Flavour', 'Brand', 'Item Weight', 'Package Information', 'Speciality', 'Package Weight', 'Number of Pieces', 'Net Quantity', 'Region of Origin', 'Cultivation Method Claim', 'Diet Type', 'Country of Origin');
+        $pattern = '/(?=' . implode('|', array_map('preg_quote', $spec_labels)) . ')/i';
+        $parts = preg_split($pattern, $specs_raw, -1, PREG_SPLIT_NO_EMPTY);
+        if (!empty($parts)) {
+            foreach ($parts as $part) {
+                foreach ($spec_labels as $lbl) {
+                    if (stripos($part, $lbl) === 0) {
+                        $val = trim(substr($part, strlen($lbl)));
+                        $val = ltrim($val, ': ');
+                        if (!empty($val)) {
+                            $parsed_specs[$lbl] = $val;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!empty($about_raw)) {
+            $bullet_split = preg_split('/(?:\r\n|\r|\n|\x{2022}|\x{25E6}|\x{25AA}|\*|•)/u', $about_raw);
+            if (!empty($bullet_split)) {
+                foreach ($bullet_split as $bs) {
+                    $bs = trim($bs);
+                    if (!empty($bs) && strlen($bs) > 6 && $bs !== '...') {
+                        $parsed_bullets[] = $bs;
+                    }
+                }
+            }
+        }
+    }
+
+    if (empty($clean_short_intro)) {
+        if (stripos($short_desc, 'Top highlights') === false && stripos($short_desc, 'About this item') === false && strlen(trim($short_desc)) > 10) {
+            $clean_short_intro = wp_strip_all_tags($short_desc);
+        } else {
+            $clean_short_intro = sprintf(__('Exquisite artisanal %s handcrafted using authentic royal heritage recipes, natural seeds, and soothing digestive herbs for pure freshness and crisp crunch.', 'kash-naturals'), esc_html($product_name));
+        }
+    }
+
+    // Story Description for Tab 1
+    if (!empty($meta_about_item)) {
+        $display_about_text = $meta_about_item;
+    } else {
+        if (stripos($full_desc, 'Top highlights') !== false) {
+            $clean_full = trim(substr($full_desc, 0, stripos($full_desc, 'Top highlights')));
+            $display_about_text = !empty($clean_full) ? $clean_full : $clean_short_intro;
+        } else {
+            $display_about_text = $full_desc;
+        }
+    }
+
+    // Bullets for Tab 1 ("About This Item")
+    $final_bullets = array();
+    if (!empty($meta_about_bullets)) {
+        $bl_lines = explode("\n", str_replace("\r", "", $meta_about_bullets));
+        foreach ($bl_lines as $b_line) {
+            $b_line = trim($b_line);
+            if (!empty($b_line)) {
+                $final_bullets[] = $b_line;
+            }
+        }
+    }
+    if (empty($final_bullets) && !empty($parsed_bullets)) {
+        $final_bullets = $parsed_bullets;
+    }
+    if (empty($final_bullets)) {
+        $final_bullets = array(
+            __('AUTHENTIC RECIPE: Handcrafted following time-honored Indian royal formulations with zero artificial chemicals.', 'kash-naturals'),
+            __('NATURAL INGREDIENTS: Meticulously selected whole fennel, coriander seeds, and refreshing botanicals.', 'kash-naturals'),
+            __('AIRTIGHT GLASS PACKAGING: Preserves natural essential oils, delightful aroma, and signature crisp crunch.', 'kash-naturals'),
+            __('DIGESTIVE WELLNESS: Naturally enriched with traditional digestive spices that soothe digestion after every meal.', 'kash-naturals'),
+            __('ROYAL FLAVOR: Perfectly balanced sweet and savory after-meal indulgence loved across generations.', 'kash-naturals'),
+        );
+    }
+
+    // Specifications Grid for Tab 2 ("Top Highlights") - Exactly 10 slots matching 2-column screenshot
+    $spec_flavour_val = !empty($meta_flavour) ? $meta_flavour : (!empty($parsed_specs['Flavour']) ? $parsed_specs['Flavour'] : __('Sweet, Tangy & Crisp', 'kash-naturals'));
+    $spec_brand_val   = !empty($meta_brand) ? $meta_brand : (!empty($parsed_specs['Brand']) ? $parsed_specs['Brand'] : 'Kash Natural');
+    $spec_weight_val  = !empty($meta_item_weight) ? $meta_item_weight : (!empty($parsed_specs['Item Weight']) ? $parsed_specs['Item Weight'] : $weight_str);
+    $spec_pkg_info    = !empty($meta_package_info) ? $meta_package_info : (!empty($parsed_specs['Package Information']) ? $parsed_specs['Package Information'] : __('Food-Grade Glass Jar', 'kash-naturals'));
+    $spec_speciality  = !empty($dietary_type) ? $dietary_type : (!empty($parsed_specs['Speciality']) ? $parsed_specs['Speciality'] : (!empty($parsed_specs['Diet Type']) ? $parsed_specs['Diet Type'] : __('Vegetarian', 'kash-naturals')));
+    $spec_pkg_weight  = !empty($meta_package_weight) ? $meta_package_weight : (!empty($parsed_specs['Package Weight']) ? $parsed_specs['Package Weight'] : $weight_str);
+    $spec_pieces      = !empty($meta_number_of_pieces) ? $meta_number_of_pieces : (!empty($parsed_specs['Number of Pieces']) ? $parsed_specs['Number of Pieces'] : '1');
+    $spec_net_qty     = !empty($meta_net_quantity) ? $meta_net_quantity : (!empty($parsed_specs['Net Quantity']) ? $parsed_specs['Net Quantity'] : $weight_str);
+    $spec_origin      = !empty($cocoa_origin) ? $cocoa_origin : (!empty($parsed_specs['Region of Origin']) ? $parsed_specs['Region of Origin'] : (!empty($parsed_specs['Country of Origin']) ? $parsed_specs['Country of Origin'] : 'India'));
+    $spec_claim_val   = !empty($meta_claim) ? $meta_claim : (!empty($parsed_specs['Cultivation Method Claim']) ? $parsed_specs['Cultivation Method Claim'] : __('No Chemical Fertilizers', 'kash-naturals'));
+
+    $final_specs = array(
+        array('label' => __('FLAVOUR', 'kash-naturals'), 'val' => $spec_flavour_val, 'icon' => 'fa-solid fa-wand-magic-sparkles'),
+        array('label' => __('BRAND', 'kash-naturals'), 'val' => $spec_brand_val, 'icon' => 'fa-solid fa-crown'),
+        array('label' => __('ITEM WEIGHT', 'kash-naturals'), 'val' => $spec_weight_val, 'icon' => 'fa-solid fa-scale-balanced'),
+        array('label' => __('PACKAGE INFORMATION', 'kash-naturals'), 'val' => $spec_pkg_info, 'icon' => 'fa-solid fa-box-archive'),
+        array('label' => __('SPECIALITY', 'kash-naturals'), 'val' => $spec_speciality, 'icon' => 'fa-solid fa-leaf'),
+        array('label' => __('PACKAGE WEIGHT', 'kash-naturals'), 'val' => $spec_pkg_weight, 'icon' => 'fa-solid fa-scale-balanced'),
+        array('label' => __('NUMBER OF PIECES', 'kash-naturals'), 'val' => $spec_pieces, 'icon' => 'fa-solid fa-circle-check'),
+        array('label' => __('NET QUANTITY', 'kash-naturals'), 'val' => $spec_net_qty, 'icon' => 'fa-solid fa-scale-balanced'),
+        array('label' => __('REGION OF ORIGIN', 'kash-naturals'), 'val' => $spec_origin, 'icon' => 'fa-solid fa-location-dot'),
+        array('label' => __('CULTIVATION METHOD CLAIM', 'kash-naturals'), 'val' => $spec_claim_val, 'icon' => 'fa-solid fa-circle-check'),
+    );
+
+    // Custom Highlights Bullets List
+    $custom_highlights_list = array();
+    if (!empty($meta_highlights)) {
+        $hl_lines = explode("\n", str_replace("\r", "", $meta_highlights));
+        foreach ($hl_lines as $hl_l) {
+            $hl_l = trim($hl_l);
+            if (!empty($hl_l)) {
+                $custom_highlights_list[] = $hl_l;
+            }
+        }
+    }
 
     // Related Products Query
     $related_products = array();
@@ -406,8 +568,12 @@ if ($product && is_a($product, 'WC_Product')) {
     $reg_formatted = '₹300';
     $discount_percent = 40;
     $avg_rating = 5.0;
+    $display_avg_rating = 5.0;
     $rating_num_str = '5.0';
-    $review_count = 48;
+    $review_count = 0;
+    $real_review_count = 0;
+    $approved_reviews = array();
+    $rating_counts = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
     $is_in_stock = true;
     $stock_status = 'instock';
     $stock_qty = 5;
@@ -415,11 +581,51 @@ if ($product && is_a($product, 'WC_Product')) {
     $badge = 'Special Offer';
     $short_desc = 'A royal traditional blend of crispy fennel seeds, silver coated cardamom, sweet roasted coriander seeds (dhana dal), and digestive herbs.';
     $full_desc = 'Crafted from age-old royal Indian recipes, Kash Natural Raj Ratan Mukhwas is an exquisite mouth freshener celebrating authentic after-meal traditions. Every jar contains meticulously hand-selected fennel seeds, silver-coated cardamom seeds, naturally aromatic rose extract, and digestive seeds roasted to crispy perfection in small artisanal batches.';
+    $clean_short_intro = $short_desc;
+    $display_about_text = $full_desc;
     $weight_str = '200g Glass Jar';
     $sku_str = 'KASH-RR-200';
     $cacao_pct = '';
     $flavor_notes = 'Sweet, Minty, Rose Aroma, Crispy';
     $ingredients_display = 'Fennel seeds (Saunf), Roasted coriander seeds (Dhana dal), Cardamom seeds (Elaichi), Silver foil (Varak), Natural rose extract, Menthol, Vegetable oil, Permitted food colors & natural flavoring.';
+    $allergen_display = 'Allergen Advice: Processed in a clean facility that handles tree nuts, sesame, and pure dairy.';
+    $shelf_life_display = '9 Months from the date of manufacturing when kept sealed in the original glass container.';
+    $storage_display = 'Store in a cool, dry place away from direct sunlight, heat, and moisture. Always use a dry spoon and close lid securely after opening.';
+    $nutri_energy = '385 kcal';
+    $nutri_protein = '4.2 g';
+    $nutri_carbs = '78.5 g';
+    $nutri_sugars = '32.0 g';
+    $nutri_fiber = '12.4 g';
+    $nutri_fat = '2.1 g';
+
+    $final_bullets = array(
+        'AUTHENTIC MUKHWAS: Premium quality traditional mouth freshener crafted with aromatic Indian spices.',
+        'NATURAL INGREDIENTS: Meticulously sourced fennel, dhana dal, and soothing herbs with zero chemical preservatives.',
+        'CONVENIENT PACKAGING: Sealed in an airtight glass jar to maintain optimal crispness, essential oils, and aroma.',
+        'DIGESTIVE WELLNESS: Naturally rich in digestive seeds that gently soothe the stomach after heavy meals.',
+        'ROYAL TASTE: Perfect blend of time-honored heritage craftsmanship for a refreshing post-meal experience.',
+    );
+
+    $final_specs = array(
+        array('label' => 'FLAVOUR', 'val' => 'Sweet, Minty & Crispy', 'icon' => 'fa-solid fa-wand-magic-sparkles'),
+        array('label' => 'BRAND', 'val' => 'Kash Natural', 'icon' => 'fa-solid fa-crown'),
+        array('label' => 'ITEM WEIGHT', 'val' => '200 Grams', 'icon' => 'fa-solid fa-scale-balanced'),
+        array('label' => 'PACKAGE INFORMATION', 'val' => 'Airtight Glass Jar', 'icon' => 'fa-solid fa-box-archive'),
+        array('label' => 'SPECIALITY', 'val' => 'Vegetarian', 'icon' => 'fa-solid fa-leaf'),
+        array('label' => 'PACKAGE WEIGHT', 'val' => '200 Grams', 'icon' => 'fa-solid fa-scale-balanced'),
+        array('label' => 'NUMBER OF PIECES', 'val' => '1', 'icon' => 'fa-solid fa-circle-check'),
+        array('label' => 'NET QUANTITY', 'val' => '200.0 Grams', 'icon' => 'fa-solid fa-scale-balanced'),
+        array('label' => 'REGION OF ORIGIN', 'val' => 'India', 'icon' => 'fa-solid fa-location-dot'),
+        array('label' => 'CULTIVATION METHOD CLAIM', 'val' => 'Artisanal Batch, Preservative Free', 'icon' => 'fa-solid fa-circle-check'),
+    );
+
+    $custom_highlights_list = array(
+        'Prepared using royal heritage recipes from Rajasthan and Gujarat',
+        '100% natural fennel seeds, silver coated cardamom, and coriander seeds',
+        'No artificial colors, saccharin, or chemical preservatives',
+        'Delivered fresh in eco-friendly protective packaging',
+    );
+
     $related_products = array(
         array(
             'id' => 2,
@@ -625,8 +831,20 @@ if ($product && is_a($product, 'WC_Product')) {
                 <!-- Rating & Stock Status -->
                 <div class="product-rating-stock-row">
                     <div class="star-rating-box">
-                        <div class="stars-gold">★★★★★</div>
-                        <span class="rating-num"><strong><?php echo esc_html($rating_num_str); ?></strong> (<?php echo esc_html($review_count); ?> <?php esc_html_e('Customer Reviews', 'kash-naturals'); ?>)</span>
+                        <div class="stars-gold">
+                            <?php
+                            $st_full = floor($display_avg_rating);
+                            for ($si = 0; $si < $st_full; $si++) echo '<i class="fa-solid fa-star"></i>';
+                            if (($display_avg_rating - $st_full) >= 0.5) echo '<i class="fa-solid fa-star-half-stroke"></i>';
+                            for ($si = 0; $si < (5 - ceil($display_avg_rating)); $si++) echo '<i class="fa-regular fa-star"></i>';
+                            ?>
+                        </div>
+                        <span class="rating-num">
+                            <strong><?php echo esc_html($rating_num_str); ?></strong> 
+                            <a href="#tab-reviews" class="rating-count-link" onclick="openReviewsTab(event)" style="color: inherit; text-decoration: none;">
+                                (<?php echo esc_html($real_review_count); ?> <?php esc_html_e('Customer Reviews', 'kash-naturals'); ?>)
+                            </a>
+                        </span>
                     </div>
                     <div class="stock-status-badge <?php echo $is_in_stock ? 'in-stock' : 'out-of-stock'; ?>" id="productStockBadge">
                         <i class="fa-solid <?php echo $is_in_stock ? 'fa-circle-check' : 'fa-circle-xmark'; ?>"></i> 
@@ -671,98 +889,9 @@ if ($product && is_a($product, 'WC_Product')) {
                     </div>
                 <?php endif; ?>
 
-                <!-- Short Editorial Description & Highlights -->
+                <!-- Short Editorial Description (Clean 1-2 Sentences, Specifications moved to Tabs below) -->
                 <div class="product-editorial-desc">
-                    <?php
-                    // Helper to format highlights and description cleanly
-                    if (!function_exists('kash_display_editorial_content')) {
-                        function kash_display_editorial_content($s_desc, $pid, $cust_highlights) {
-                            if (stripos($s_desc, 'Top highlights') !== false) {
-                                preg_match('/Top highlights\s+(.*?)(?:About this item\s*(.*))?$/is', $s_desc, $matches);
-                                $specs_str = isset($matches[1]) ? trim($matches[1]) : '';
-                                $about_str = isset($matches[2]) ? trim($matches[2]) : '';
-
-                                $labels = array('Flavour', 'Brand', 'Item Weight', 'Package Information', 'Speciality', 'Package Weight', 'Number of Pieces', 'Net Quantity', 'Region of Origin', 'Cultivation Method Claim', 'Diet Type', 'Country of Origin');
-                                $pattern = '/(?=' . implode('|', array_map('preg_quote', $labels)) . ')/i';
-                                $parts = preg_split($pattern, $specs_str, -1, PREG_SPLIT_NO_EMPTY);
-
-                                $specs = array();
-                                if (!empty($parts)) {
-                                    foreach ($parts as $part) {
-                                        foreach ($labels as $label) {
-                                            if (stripos($part, $label) === 0) {
-                                                $val = trim(substr($part, strlen($label)));
-                                                $val = ltrim($val, ': ');
-                                                if (!empty($val)) {
-                                                    $specs[$label] = $val;
-                                                }
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                echo '<div class="kash-parsed-highlights-card" style="margin-bottom: 18px;">';
-                                if (!empty($specs)) {
-                                    echo '<div class="kash-specs-grid-table" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: #FAF7F2; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(44, 95, 62, 0.12); margin-bottom: 14px;">';
-                                    foreach ($specs as $s_label => $s_val) {
-                                        $icon = 'fa-solid fa-circle-check';
-                                        if ($s_label === 'Flavour') $icon = 'fa-solid fa-wand-magic-sparkles';
-                                        elseif ($s_label === 'Brand') $icon = 'fa-solid fa-crown';
-                                        elseif (strpos($s_label, 'Weight') !== false || $s_label === 'Net Quantity') $icon = 'fa-solid fa-scale-balanced';
-                                        elseif ($s_label === 'Speciality' || $s_label === 'Diet Type') $icon = 'fa-solid fa-leaf';
-                                        elseif ($s_label === 'Package Information') $icon = 'fa-solid fa-box-archive';
-                                        elseif ($s_label === 'Region of Origin' || $s_label === 'Country of Origin') $icon = 'fa-solid fa-location-dot';
-
-                                        echo '<div class="kash-spec-grid-item" style="display:flex; flex-direction:column; gap:2px;">';
-                                        echo '<span class="spec-label" style="font-size: 0.76rem; color: #666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;"><i class="' . esc_attr($icon) . '" style="color:#2C5F3E;"></i> ' . esc_html($s_label) . '</span>';
-                                        echo '<span class="spec-value" style="font-size: 0.9rem; color: #1C2B1F; font-weight:700;">' . esc_html($s_val) . '</span>';
-                                        echo '</div>';
-                                    }
-                                    echo '</div>';
-                                }
-
-                                if (!empty($about_str)) {
-                                    echo '<div class="kash-about-item-block">';
-                                    echo '<h4 style="font-size: 0.92rem; font-weight:700; color:#1C2B1F; margin: 0 0 8px;"><i class="fa-solid fa-circle-info" style="color:#2C5F3E;"></i> ' . esc_html__('About This Item:', 'kash-naturals') . '</h4>';
-                                    $points = preg_split('/(?<=[.!?])\s+(?=[A-Z])|\[|\]/', $about_str, -1, PREG_SPLIT_NO_EMPTY);
-                                    if (count($points) > 1) {
-                                        echo '<ul class="kash-about-bullets-list" style="margin:0 0 14px; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:6px;">';
-                                        foreach ($points as $pt) {
-                                            $pt = trim($pt);
-                                            if (!empty($pt) && strlen($pt) > 4) {
-                                                echo '<li style="display:flex; align-items:flex-start; gap:8px; font-size:0.9rem; color:#444; line-height:1.5;"><i class="fa-solid fa-circle-check" style="color:#2C5F3E; font-size:0.8rem; margin-top:4px; flex-shrink:0;"></i> <span>' . esc_html($pt) . '</span></li>';
-                                            }
-                                        }
-                                        echo '</ul>';
-                                    } else {
-                                        echo '<p style="font-size:0.92rem; color:#444; line-height:1.6; margin:0 0 12px;">' . esc_html($about_str) . '</p>';
-                                    }
-                                    echo '</div>';
-                                }
-                                echo '</div>';
-                                return;
-                            }
-
-                            if (!empty($cust_highlights)) {
-                                $lines = explode("\n", str_replace("\r", "", $cust_highlights));
-                                echo '<div class="kash-custom-highlights-card" style="margin-bottom: 14px;">';
-                                echo '<ul class="kash-about-bullets-list" style="margin:0 0 14px; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:6px;">';
-                                foreach ($lines as $line) {
-                                    $line = trim($line);
-                                    if (!empty($line)) {
-                                        echo '<li style="display:flex; align-items:flex-start; gap:8px; font-size:0.9rem; color:#444; line-height:1.5;"><i class="fa-solid fa-circle-check" style="color:#2C5F3E; font-size:0.8rem; margin-top:4px; flex-shrink:0;"></i> <span>' . esc_html($line) . '</span></li>';
-                                    }
-                                }
-                                echo '</ul>';
-                                echo '</div>';
-                            }
-
-                            echo wpautop(wp_kses_post($s_desc));
-                        }
-                    }
-                    kash_display_editorial_content($short_desc, $product_id, $custom_highlights);
-                    ?>
+                    <p class="clean-product-intro"><?php echo esc_html($clean_short_intro); ?></p>
                 </div>
 
                 <!-- Weight / Size Selection Pills -->
@@ -871,21 +1000,38 @@ if ($product && is_a($product, 'WC_Product')) {
         <!-- Product Detailed Tabs Section -->
         <div class="product-tabs-section">
             <div class="tabs-header-nav">
-                <button type="button" class="tab-btn active" onclick="switchProductTab(this, 'tab-description')"><?php esc_html_e('Full Description & Story', 'kash-naturals'); ?></button>
-                <button type="button" class="tab-btn" onclick="switchProductTab(this, 'tab-ingredients')"><?php esc_html_e('Ingredients & Nutrition', 'kash-naturals'); ?></button>
-                <button type="button" class="tab-btn" onclick="switchProductTab(this, 'tab-storage')"><?php esc_html_e('Storage & Shelf Life', 'kash-naturals'); ?></button>
-                <button type="button" class="tab-btn" onclick="switchProductTab(this, 'tab-reviews')"><?php esc_html_e('Verified Customer Reviews', 'kash-naturals'); ?> (<?php echo esc_html($review_count); ?>)</button>
+                <button type="button" class="tab-btn active" onclick="switchProductTab(this, 'tab-about-item')"><?php esc_html_e('About This Item', 'kash-naturals'); ?></button>
+                <button type="button" class="tab-btn" onclick="switchProductTab(this, 'tab-top-highlights')"><?php esc_html_e('Top Highlights', 'kash-naturals'); ?></button>
+                <button type="button" class="tab-btn" onclick="switchProductTab(this, 'tab-reviews')"><?php esc_html_e('Customer Reviews', 'kash-naturals'); ?> (<?php echo esc_html($real_review_count); ?>)</button>
             </div>
 
             <div class="tabs-content-viewport">
 
-                <!-- Tab 1: Description -->
-                <div id="tab-description" class="tab-pane-content active">
+                <!-- Tab 1: About This Item -->
+                <div id="tab-about-item" class="tab-pane-content active">
                     <div class="tab-story-card">
                         <h2><?php esc_html_e('Craftsmanship & Heritage', 'kash-naturals'); ?></h2>
-                        <div class="tab-story-text" style="font-size: 1.02rem; line-height: 1.8; color: #444; margin-bottom: 30px;">
-                            <?php echo wpautop(wp_kses_post($full_desc)); ?>
+                        <div class="tab-story-text" style="font-size: 1.02rem; line-height: 1.8; color: #444; margin-bottom: 25px;">
+                            <?php echo wpautop(wp_kses_post($display_about_text)); ?>
                         </div>
+
+                        <?php if (!empty($final_bullets)) : ?>
+                        <div class="about-item-bullets-wrapper" style="margin-bottom: 35px; background: #FAF7F2; border-radius: 18px; padding: 24px 28px; border: 1px solid rgba(44, 95, 62, 0.12);">
+                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; color: #1C2B1F; margin-bottom: 16px;">
+                                <i class="fa-solid fa-list-check" style="color: #2C5F3E;"></i> <?php esc_html_e('About This Item', 'kash-naturals'); ?>
+                            </h3>
+                            <ul class="about-item-bullets-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+                                <?php foreach ($final_bullets as $bullet) : ?>
+                                    <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 0.98rem; line-height: 1.6; color: #334155;">
+                                        <i class="fa-solid fa-circle-check" style="color: #2C5F3E; font-size: 1.1rem; margin-top: 3px; flex-shrink: 0;"></i>
+                                        <span><?php echo esc_html($bullet); ?></span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                        <?php endif; ?>
+
+                        <!-- 3 Static Heritage Cards (Small-Batch Artisan Made, Food-Grade Glass Packaging, Digestive Wellness) -->
                         <div class="story-grid-icons">
                             <div class="story-icon-box">
                                 <i class="fa-solid fa-mortar-pestle"></i>
@@ -906,140 +1052,197 @@ if ($product && is_a($product, 'WC_Product')) {
                     </div>
                 </div>
 
-                <!-- Tab 2: Ingredients & Nutrition -->
-                <div id="tab-ingredients" class="tab-pane-content">
-                    <div class="ingredients-nutrition-grid">
-                        <div class="ing-card">
-                            <h3><i class="fa-solid fa-seedling"></i> <?php esc_html_e('Complete Ingredients List', 'kash-naturals'); ?></h3>
-                            <p class="ing-text"><?php echo esc_html($ingredients_display); ?></p>
-                            <span class="allergen-note"><?php echo esc_html($allergen_display); ?></span>
-                        </div>
+                <!-- Tab 2: Top Highlights & Specifications Grid -->
+                <div id="tab-top-highlights" class="tab-pane-content">
+                    <div class="tab-highlights-card">
+                        <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.6rem; color: #1C2B1F; margin-bottom: 20px;">
+                            <?php esc_html_e('Product Specifications & Highlights', 'kash-naturals'); ?>
+                        </h2>
 
-                        <div class="nutri-table-card">
-                            <h3><i class="fa-solid fa-table-list"></i> <?php esc_html_e('Nutritional Facts (Per 100g approx.)', 'kash-naturals'); ?></h3>
-                            <table class="nutri-table">
-                                <tbody>
-                                    <tr><th><?php esc_html_e('Energy Value', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_energy); ?></td></tr>
-                                    <tr><th><?php esc_html_e('Protein', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_protein); ?></td></tr>
-                                    <tr><th><?php esc_html_e('Carbohydrates', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_carbs); ?></td></tr>
-                                    <tr><th><?php esc_html_e('Total Sugars', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_sugars); ?></td></tr>
-                                    <tr><th><?php esc_html_e('Dietary Fiber', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_fiber); ?></td></tr>
-                                    <tr><th><?php esc_html_e('Total Fat', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_fat); ?></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 3: Storage -->
-                <div id="tab-storage" class="tab-pane-content">
-                    <div class="storage-info-box">
-                        <div class="storage-row">
-                            <i class="fa-solid fa-calendar-check"></i>
-                            <div>
-                                <h4><?php esc_html_e('Shelf Life', 'kash-naturals'); ?></h4>
-                                <p><?php echo esc_html($shelf_life_display); ?></p>
-                            </div>
-                        </div>
-                        <div class="storage-row">
-                            <i class="fa-solid fa-temperature-arrow-down"></i>
-                            <div>
-                                <h4><?php esc_html_e('Storage Instructions', 'kash-naturals'); ?></h4>
-                                <p><?php echo esc_html($storage_display); ?></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 4: Customer Reviews -->
-                <div id="tab-reviews" class="tab-pane-content">
-                    <div class="reviews-summary-row">
-                        <div class="review-score-box">
-                            <div class="big-rating-num"><?php echo esc_html($rating_num_str); ?></div>
-                            <div class="stars-gold">★★★★★</div>
-                            <p><?php printf(esc_html__('Based on %d verified customer reviews', 'kash-naturals'), $review_count); ?></p>
-                        </div>
-                        <div class="review-bars-box">
-                            <div class="bar-row"><span>5 Stars</span><div class="bar-fill"><div class="fill-inner" style="width: 92%;"></div></div><span>92%</span></div>
-                            <div class="bar-row"><span>4 Stars</span><div class="bar-fill"><div class="fill-inner" style="width: 6%;"></div></div><span>6%</span></div>
-                            <div class="bar-row"><span>3 Stars</span><div class="bar-fill"><div class="fill-inner" style="width: 2%;"></div></div><span>2%</span></div>
-                        </div>
-                    </div>
-
-                    <?php
-                    // Fetch real approved comments/reviews for this product
-                    $wc_reviews = function_exists('get_comments') ? get_comments(array(
-                        'post_id' => $product_id,
-                        'status'  => 'approve',
-                    )) : array();
-                    ?>
-
-                    <div class="reviews-cards-list">
-                        <?php if (!empty($wc_reviews)) : ?>
-                            <?php foreach ($wc_reviews as $rev) :
-                                $c_rating = intval(get_comment_meta($rev->comment_ID, 'rating', true)) ?: 5;
-                                $stars_display = str_repeat('★', $c_rating) . str_repeat('☆', max(0, 5 - $c_rating));
-                                $c_author = $rev->comment_author ?: __('Connoisseur', 'kash-naturals');
-                                $c_date = function_exists('human_time_diff') ? (human_time_diff(strtotime($rev->comment_date), current_time('timestamp')) . ' ago') : 'Recent';
-                                $c_body = $rev->comment_content;
-                                $is_ver = function_exists('wc_review_is_from_verified_owner') ? wc_review_is_from_verified_owner($rev->comment_ID) : true;
-                            ?>
-                                <div class="review-card">
-                                    <div class="review-header">
-                                        <strong><?php echo esc_html($c_author); ?></strong>
-                                        <?php if ($is_ver) : ?>
-                                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> <?php esc_html_e('Verified Purchase', 'kash-naturals'); ?></span>
-                                        <?php endif; ?>
-                                        <span class="review-date"><?php echo esc_html($c_date); ?></span>
+                        <!-- 2-Column Luxury Specifications Grid Card -->
+                        <div class="kash-specs-grid-card" style="background: #FAF7F2; border: 1px solid rgba(44, 95, 62, 0.12); border-radius: 18px; padding: 26px 30px; margin-bottom: 30px;">
+                            <div class="kash-specs-two-col-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 30px;">
+                                <?php foreach ($final_specs as $spec_row) : ?>
+                                    <div class="kash-spec-item" style="display: flex; flex-direction: column; gap: 4px;">
+                                        <span class="spec-label" style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #2C5F3E;">
+                                            <i class="<?php echo esc_attr($spec_row['icon']); ?>" style="font-size: 0.95rem;"></i>
+                                            <?php echo esc_html($spec_row['label']); ?>
+                                        </span>
+                                        <span class="spec-value" style="font-size: 1.05rem; font-weight: 700; color: #1C2B1F; padding-left: 2px;">
+                                            <?php echo esc_html($spec_row['val']); ?>
+                                        </span>
                                     </div>
-                                    <div class="stars-gold"><?php echo esc_html($stars_display); ?></div>
-                                    <p class="review-body"><?php echo esc_html($c_body); ?></p>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else : ?>
-                            <div class="review-card">
-                                <div class="review-header">
-                                    <strong>Priya Sharma</strong>
-                                    <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> <?php esc_html_e('Verified Purchase', 'kash-naturals'); ?></span>
-                                    <span class="review-date">2 days ago</span>
-                                </div>
-                                <div class="stars-gold">★★★★★</div>
-                                <h4 class="review-headline">Unbelievable natural aroma & crisp crunch!</h4>
-                                <p class="review-body">Ordered this handcrafted mouth freshener and it tastes remarkably fresh! The airtight glass jar packaging is completely premium. Delivered promptly.</p>
+                                <?php endforeach; ?>
                             </div>
-                            <div class="review-card">
-                                <div class="review-header">
-                                    <strong>Rohan Mehta</strong>
-                                    <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> <?php esc_html_e('Verified Purchase', 'kash-naturals'); ?></span>
-                                    <span class="review-date">1 week ago</span>
-                                </div>
-                                <div class="stars-gold">★★★★★</div>
-                                <h4 class="review-headline">Pure luxury in every bite</h4>
-                                <p class="review-body">Remarkable essential oil flavor. Perfect digestive after rich dinners. My entire family loved the authentic taste without any chemical aftertaste.</p>
-                            </div>
+                        </div>
+
+                        <?php if (!empty($custom_highlights_list)) : ?>
+                        <!-- Key Highlights Bullets (if configured in backend) -->
+                        <div class="kash-custom-highlights-box" style="margin-bottom: 30px; background: #ffffff; border: 1px solid #EBF3EC; border-radius: 16px; padding: 22px 26px;">
+                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.25rem; color: #1C2B1F; margin-bottom: 14px;">
+                                <i class="fa-solid fa-star" style="color: #c49a56;"></i> <?php esc_html_e('Key Highlights', 'kash-naturals'); ?>
+                            </h3>
+                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                                <?php foreach ($custom_highlights_list as $kh) : ?>
+                                    <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.96rem; line-height: 1.55; color: #334155;">
+                                        <i class="fa-solid fa-check" style="color: #c49a56; font-size: 1rem; margin-top: 3px; flex-shrink: 0;"></i>
+                                        <span><?php echo esc_html($kh); ?></span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
                         <?php endif; ?>
-                    </div>
 
-                    <!-- Leave a Verified Review Form Section -->
-                    <div class="leave-review-section-luxury" style="margin-top: 35px; padding: 28px; background: #FAF7F2; border-radius: 18px; border: 1px solid rgba(44, 95, 62, 0.15);">
-                        <h3 style="font-family: 'Playfair Display', Georgia, serif; color: #1C2B1F; font-size: 1.4rem; margin-bottom: 14px;">
-                            <i class="fa-solid fa-pen-to-square" style="color: #c49a56;"></i> <?php esc_html_e('Share Your Experience', 'kash-naturals'); ?>
-                        </h3>
-                        <?php
-                        if (function_exists('comments_open') && comments_open($product_id) && function_exists('comment_form')) {
-                            comment_form(array(
-                                'title_reply'          => '',
-                                'title_reply_to'       => __('Leave a Reply to %s', 'kash-naturals'),
-                                'comment_notes_after'  => '',
-                                'class_submit'         => 'btn-buy-now-green',
-                                'label_submit'         => __('Submit Verified Review', 'kash-naturals'),
-                            ), $product_id);
-                        } else {
-                            echo '<p style="color: #666; margin: 0;">' . esc_html__('Verified customer reviews are open for all purchased orders.', 'kash-naturals') . '</p>';
-                        }
-                        ?>
-                    </div>
+                        <!-- Ingredients & Nutrition Grid -->
+                        <div class="ingredients-nutrition-grid">
+                            <div class="ing-card">
+                                <h3><i class="fa-solid fa-seedling"></i> <?php esc_html_e('Complete Ingredients List', 'kash-naturals'); ?></h3>
+                                <p class="ing-text"><?php echo esc_html($ingredients_display); ?></p>
+                                <span class="allergen-note"><?php echo esc_html($allergen_display); ?></span>
 
+                                <div class="storage-info-subbox" style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed rgba(44, 95, 62, 0.15);">
+                                    <h4 style="font-size: 1.05rem; color: #1C2B1F; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-clock-rotate-left" style="color: #2C5F3E;"></i> <?php esc_html_e('Shelf Life & Freshness', 'kash-naturals'); ?>
+                                    </h4>
+                                    <p style="font-size: 0.92rem; color: #555; line-height: 1.6; margin-bottom: 10px;">
+                                        <?php echo esc_html($shelf_life_display); ?>
+                                    </p>
+                                    <p style="font-size: 0.9rem; color: #666; line-height: 1.5; margin: 0;">
+                                        <i class="fa-solid fa-shield-halved" style="color: #c49a56;"></i> <?php echo esc_html($storage_display); ?>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="nutri-table-card">
+                                <h3><i class="fa-solid fa-table-list"></i> <?php esc_html_e('Nutritional Facts (Per 100g approx.)', 'kash-naturals'); ?></h3>
+                                <table class="nutri-table">
+                                    <tbody>
+                                        <tr><th><?php esc_html_e('Energy Value', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_energy); ?></td></tr>
+                                        <tr><th><?php esc_html_e('Protein', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_protein); ?></td></tr>
+                                        <tr><th><?php esc_html_e('Carbohydrates', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_carbs); ?></td></tr>
+                                        <tr><th><?php esc_html_e('Total Sugars', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_sugars); ?></td></tr>
+                                        <tr><th><?php esc_html_e('Dietary Fiber', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_fiber); ?></td></tr>
+                                        <tr><th><?php esc_html_e('Total Fat', 'kash-naturals'); ?></th><td><?php echo esc_html($nutri_fat); ?></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Dynamic Customer Reviews (100% Real Reviews, Zero Fake Reviews) -->
+                <div id="tab-reviews" class="tab-pane-content">
+                    <div class="tab-reviews-card">
+                        <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.6rem; color: #1C2B1F; margin-bottom: 24px;">
+                            <?php esc_html_e('Customer Reviews', 'kash-naturals'); ?> (<?php echo esc_html($real_review_count); ?>)
+                        </h2>
+
+                        <!-- Overall Rating Summary & Progress Breakdown -->
+                        <div class="reviews-summary-dashboard" style="display: grid; grid-template-columns: 200px 1fr; gap: 35px; align-items: center; background: #FAF7F2; padding: 26px 30px; border-radius: 18px; border: 1px solid rgba(44, 95, 62, 0.12); margin-bottom: 30px;">
+                            <div class="rating-large-stat" style="text-align: center; border-right: 1px solid rgba(44, 95, 62, 0.15); padding-right: 25px;">
+                                <span class="rating-big-num" style="font-size: 3.2rem; font-weight: 800; color: #1C2B1F; line-height: 1;"><?php echo esc_html($rating_num_str); ?></span>
+                                <div class="stars-gold-big" style="color: #c49a56; font-size: 1.15rem; margin: 8px 0;">
+                                    <?php
+                                    $full_s = floor($display_avg_rating);
+                                    $half_s = ($display_avg_rating - $full_s) >= 0.5 ? 1 : 0;
+                                    $empty_s = 5 - $full_s - $half_s;
+                                    for ($i = 0; $i < $full_s; $i++) echo '<i class="fa-solid fa-star"></i> ';
+                                    if ($half_s) echo '<i class="fa-solid fa-star-half-stroke"></i> ';
+                                    for ($i = 0; $i < $empty_s; $i++) echo '<i class="fa-regular fa-star"></i> ';
+                                    ?>
+                                </div>
+                                <span class="based-on-txt" style="font-size: 0.84rem; color: #666;">
+                                    <?php printf(esc_html(_n('Based on %d review', 'Based on %d reviews', $real_review_count, 'kash-naturals')), $real_review_count); ?>
+                                </span>
+                            </div>
+
+                            <div class="rating-progress-breakdown">
+                                <?php
+                                for ($star = 5; $star >= 1; $star--) {
+                                    $cnt = isset($rating_counts[$star]) ? $rating_counts[$star] : 0;
+                                    $pct = ($real_review_count > 0) ? round(($cnt / $real_review_count) * 100) : ($star === 5 ? 100 : 0);
+                                    ?>
+                                    <div class="progress-bar-row" style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                        <span style="font-size: 0.85rem; font-weight: 600; color: #1C2B1F; width: 45px;"><?php echo $star; ?> <?php esc_html_e('Star', 'kash-naturals'); ?></span>
+                                        <div style="flex-grow: 1; height: 8px; background: #E2EFE3; border-radius: 10px; overflow: hidden;">
+                                            <div style="width: <?php echo esc_attr($pct); ?>%; height: 100%; background: #2C5F3E; border-radius: 10px;"></div>
+                                        </div>
+                                        <span style="font-size: 0.82rem; color: #666; width: 35px; text-align: right;"><?php echo esc_html($pct); ?>%</span>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                        </div>
+
+                        <!-- Real Reviews List or Clean Empty State (Zero Fake Dummy Reviews) -->
+                        <div class="real-reviews-list-container">
+                            <?php if (!empty($approved_reviews)) : ?>
+                                <?php foreach ($approved_reviews as $rev) :
+                                    $c_author = $rev->comment_author;
+                                    $c_date   = human_time_diff(strtotime($rev->comment_date), current_time('timestamp')) . ' ' . __('ago', 'kash-naturals');
+                                    $c_body   = $rev->comment_content;
+                                    $c_rating = intval(get_comment_meta($rev->comment_ID, 'rating', true)) ?: 5;
+                                    $is_ver   = function_exists('wc_review_is_from_verified_owner') ? wc_review_is_from_verified_owner($rev->comment_ID) : true;
+                                ?>
+                                    <div class="review-card" style="background: #ffffff; border: 1px solid #EBF3EC; border-radius: 18px; padding: 22px 26px; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.02);">
+                                        <div class="review-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 36px; height: 36px; border-radius: 50%; background: #2C5F3E; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem;">
+                                                    <?php echo esc_html(strtoupper(substr($c_author, 0, 1))); ?>
+                                                </div>
+                                                <div>
+                                                    <strong style="color: #1C2B1F; font-size: 1rem;"><?php echo esc_html($c_author); ?></strong>
+                                                    <?php if ($is_ver) : ?>
+                                                        <span class="verified-badge" style="display: inline-block; background: rgba(44, 95, 62, 0.1); color: #2C5F3E; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: 6px;">
+                                                            <i class="fa-solid fa-circle-check"></i> <?php esc_html_e('Verified Purchase', 'kash-naturals'); ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <span class="review-date" style="font-size: 0.85rem; color: #888;"><?php echo esc_html($c_date); ?></span>
+                                        </div>
+                                        <div class="stars-gold" style="color: #c49a56; font-size: 0.95rem; margin-bottom: 10px;">
+                                            <?php for ($i = 0; $i < $c_rating; $i++) echo '<i class="fa-solid fa-star"></i> '; ?>
+                                        </div>
+                                        <p class="review-body" style="font-size: 0.96rem; line-height: 1.65; color: #4A5568; margin: 0;"><?php echo esc_html($c_body); ?></p>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <!-- Clean Empty State (Zero Dummy Reviews) -->
+                                <div class="kash-empty-reviews-box" style="text-align: center; padding: 45px 24px; background: #FAF7F2; border-radius: 18px; border: 1px dashed rgba(44, 95, 62, 0.25); margin-bottom: 25px;">
+                                    <div style="font-size: 2.8rem; color: #c49a56; margin-bottom: 12px;">
+                                        <i class="fa-regular fa-comments"></i>
+                                    </div>
+                                    <h4 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.4rem; color: #1C2B1F; margin-bottom: 8px;">
+                                        <?php esc_html_e('No Reviews Yet', 'kash-naturals'); ?>
+                                    </h4>
+                                    <p style="color: #666; font-size: 0.95rem; max-width: 480px; margin: 0 auto;">
+                                        <?php esc_html_e('Be the first to review this royal artisanal creation! Share your tasting experience with the Kash Naturals community.', 'kash-naturals'); ?>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Leave a Verified Review Form Section -->
+                        <div class="leave-review-section-luxury" style="margin-top: 35px; padding: 28px; background: #FAF7F2; border-radius: 18px; border: 1px solid rgba(44, 95, 62, 0.15);">
+                            <h3 style="font-family: 'Playfair Display', Georgia, serif; color: #1C2B1F; font-size: 1.4rem; margin-bottom: 14px;">
+                                <i class="fa-solid fa-pen-to-square" style="color: #c49a56;"></i> <?php esc_html_e('Share Your Experience', 'kash-naturals'); ?>
+                            </h3>
+                            <?php
+                            if (function_exists('comments_open') && comments_open($product_id) && function_exists('comment_form')) {
+                                comment_form(array(
+                                    'title_reply'          => '',
+                                    'title_reply_to'       => __('Leave a Reply to %s', 'kash-naturals'),
+                                    'comment_notes_after'  => '',
+                                    'class_submit'         => 'btn-buy-now-green',
+                                    'label_submit'         => __('Submit Verified Review', 'kash-naturals'),
+                                ), $product_id);
+                            } else {
+                                echo '<p style="color: #666; margin: 0;">' . esc_html__('Verified customer reviews are open for all purchased orders.', 'kash-naturals') . '</p>';
+                            }
+                            ?>
+                        </div>
+
+                    </div>
                 </div>
 
             </div>
@@ -1378,6 +1581,18 @@ function switchProductTab(btn, tabId) {
     btn.classList.add('active');
     const activePane = document.getElementById(tabId);
     if (activePane) activePane.classList.add('active');
+}
+
+function openReviewsTab(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const reviewsBtn = document.querySelector('.tab-btn[onclick*="tab-reviews"]');
+    if (reviewsBtn) {
+        reviewsBtn.click();
+        const tabSec = document.querySelector('.product-tabs-section');
+        if (tabSec) {
+            tabSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
 }
 
 function checkDeliveryPincode() {
