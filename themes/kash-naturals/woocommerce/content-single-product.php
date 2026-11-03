@@ -383,56 +383,153 @@ if ($product && is_a($product, 'WC_Product')) {
     $shelf_life_display     = !empty($shelf_life) ? $shelf_life : __('9 Months from the date of manufacturing when kept sealed in the original glass container.', 'kash-naturals');
     $storage_display        = !empty($storage_inst) ? $storage_inst : __('Store in a cool, dry place away from direct sunlight, heat, and moisture. Always use a dry spoon and close lid securely after opening.', 'kash-naturals');
 
-    // Smart Fallback Parser for Imported Catalog Products
+    // Smart Fallback Parser for Imported Catalog Products & HTML Tables
     $raw_combined_desc = $short_desc . "\n" . $full_desc;
     $parsed_specs = array();
     $parsed_bullets = array();
     $clean_short_intro = '';
 
-    if (stripos($raw_combined_desc, 'Top highlights') !== false) {
-        $before_top = trim(substr($short_desc, 0, stripos($short_desc, 'Top highlights')));
-        if (!empty($before_top) && strlen($before_top) > 15) {
-            $clean_short_intro = wp_strip_all_tags($before_top);
-        }
+    $spec_labels = array(
+        'Flavour', 'Brand', 'Item Weight', 'Package Information', 'Speciality', 
+        'Package Weight', 'Number of Pieces', 'Net Quantity', 'Region of Origin', 
+        'Cultivation Method Claim', 'Diet Type', 'Country of Origin'
+    );
 
-        preg_match('/Top highlights\s+(.*?)(?:About this item\s*(.*))?$/is', $raw_combined_desc, $matches);
-        $specs_raw = isset($matches[1]) ? trim($matches[1]) : '';
-        $about_raw = isset($matches[2]) ? trim($matches[2]) : '';
+    // 1. Parse HTML <table> rows if an HTML table exists in content (e.g. Amazon specs table)
+    if (stripos($raw_combined_desc, '<table') !== false) {
+        if (preg_match_all('/<tr\b[^>]*>(.*?)<\/tr>/is', $raw_combined_desc, $tr_matches, PREG_SET_ORDER)) {
+            foreach ($tr_matches as $tr_match) {
+                $tr_tag = $tr_match[0];
+                $tr_inner = $tr_match[1];
+                
+                // Match by row class if Amazon specific (e.g. po-flavor, po-brand, po-item_weight, po-container.type)
+                $target_label = '';
+                if (stripos($tr_tag, 'po-flavor') !== false) $target_label = 'Flavour';
+                elseif (stripos($tr_tag, 'po-brand') !== false) $target_label = 'Brand';
+                elseif (stripos($tr_tag, 'po-item_weight') !== false) $target_label = 'Item Weight';
+                elseif (stripos($tr_tag, 'po-container.type') !== false || stripos($tr_tag, 'po-package_information') !== false) $target_label = 'Package Information';
+                elseif (stripos($tr_tag, 'po-speciality') !== false || stripos($tr_tag, 'po-diet_type') !== false) $target_label = 'Speciality';
+                elseif (stripos($tr_tag, 'po-package_weight') !== false) $target_label = 'Package Weight';
+                elseif (stripos($tr_tag, 'po-number_of_pieces') !== false) $target_label = 'Number of Pieces';
+                elseif (stripos($tr_tag, 'po-net_quantity') !== false) $target_label = 'Net Quantity';
+                elseif (stripos($tr_tag, 'po-region_of_origin') !== false || stripos($tr_tag, 'po-country_of_origin') !== false) $target_label = 'Region of Origin';
+                elseif (stripos($tr_tag, 'po-cultivation_method_claim') !== false) $target_label = 'Cultivation Method Claim';
 
-        $spec_labels = array('Flavour', 'Brand', 'Item Weight', 'Package Information', 'Speciality', 'Package Weight', 'Number of Pieces', 'Net Quantity', 'Region of Origin', 'Cultivation Method Claim', 'Diet Type', 'Country of Origin');
-        $pattern = '/(?=' . implode('|', array_map('preg_quote', $spec_labels)) . ')/i';
-        $parts = preg_split($pattern, $specs_raw, -1, PREG_SPLIT_NO_EMPTY);
-        if (!empty($parts)) {
-            foreach ($parts as $part) {
-                foreach ($spec_labels as $lbl) {
-                    if (stripos($part, $lbl) === 0) {
-                        $val = trim(substr($part, strlen($lbl)));
-                        $val = ltrim($val, ': ');
-                        if (!empty($val)) {
-                            $parsed_specs[$lbl] = $val;
+                if (preg_match_all('/<(?:td|th)\b[^>]*>(.*?)<\/(?:td|th)>/is', $tr_inner, $cell_matches)) {
+                    $cells = $cell_matches[1];
+                    if (count($cells) >= 2) {
+                        $cell_k = trim(wp_strip_all_tags($cells[0]));
+                        $cell_v = trim(wp_strip_all_tags($cells[1]));
+                        if (!empty($cell_v)) {
+                            if (!empty($target_label)) {
+                                $parsed_specs[$target_label] = $cell_v;
+                            } else {
+                                foreach ($spec_labels as $slbl) {
+                                    if (strcasecmp($cell_k, $slbl) === 0 || stripos($cell_k, $slbl) !== false) {
+                                        $parsed_specs[$slbl] = $cell_v;
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!empty($about_raw)) {
-            $bullet_split = preg_split('/(?:\r\n|\r|\n|\x{2022}|\x{25E6}|\x{25AA}|\*|•)/u', $about_raw);
-            if (!empty($bullet_split)) {
-                foreach ($bullet_split as $bs) {
-                    $bs = trim($bs);
-                    if (!empty($bs) && strlen($bs) > 6 && $bs !== '...') {
-                        $parsed_bullets[] = $bs;
+                    } elseif (count($cells) === 1 && !empty($target_label)) {
+                        $cell_v = trim(wp_strip_all_tags($cells[0]));
+                        if (!empty($cell_v)) {
+                            $parsed_specs[$target_label] = $cell_v;
+                        }
                     }
                 }
             }
         }
     }
 
+    // 2. Also parse plain-text "Top highlights" if present
+    if (stripos($raw_combined_desc, 'Top highlights') !== false) {
+        $before_top = trim(substr($short_desc, 0, stripos($short_desc, 'Top highlights')));
+        if (!empty($before_top) && strlen($before_top) > 15) {
+            $clean_short_intro = trim(wp_strip_all_tags($before_top));
+        }
+
+        preg_match('/Top highlights\s+(.*?)(?:About this item\s*(.*))?$/is', $raw_combined_desc, $matches);
+        $specs_raw = isset($matches[1]) ? trim($matches[1]) : '';
+        // Only parse if not raw HTML table
+        if (stripos($specs_raw, '<table') === false) {
+            $pattern = '/(?=' . implode('|', array_map('preg_quote', $spec_labels)) . ')/i';
+            $parts = preg_split($pattern, $specs_raw, -1, PREG_SPLIT_NO_EMPTY);
+            if (!empty($parts)) {
+                foreach ($parts as $part) {
+                    foreach ($spec_labels as $lbl) {
+                        if (stripos($part, $lbl) === 0) {
+                            $val = trim(substr($part, strlen($lbl)));
+                            $val = ltrim($val, ': ');
+                            if (!empty($val) && empty($parsed_specs[$lbl])) {
+                                $parsed_specs[$lbl] = trim(wp_strip_all_tags($val));
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. Extract Clean Bullet Points (Completely stripped of any tables or HTML markup)
+    $clean_for_bullets = $raw_combined_desc;
+    // Strip all tables so table rows/cells can NEVER become bullet points
+    $clean_for_bullets = preg_replace('/<table\b[^>]*>.*?<\/table>/is', '', $clean_for_bullets);
+    $clean_for_bullets = preg_replace('/<h[1-6]\b[^>]*>.*?<\/h[1-6]>/is', '', $clean_for_bullets);
+    $clean_for_bullets = preg_replace('/<div\b[^>]*id="productOverview[^"]*"[^>]*>.*?<\/div>/is', '', $clean_for_bullets);
+    $clean_for_bullets = preg_replace('/<a\b[^>]*class="[^"]*expander[^"]*"[^>]*>.*?<\/a>/is', '', $clean_for_bullets);
+    $clean_for_bullets = preg_replace('/\{[^{}]*"(?:allowLinkDefault|expand_prompt|collapse_prompt)"[^{}]*\}/is', '', $clean_for_bullets);
+    $clean_for_bullets = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $clean_for_bullets);
+    $clean_for_bullets = preg_replace('/<style\b[^>]*>.*?<\/style>/is', '', $clean_for_bullets);
+
+    // Look for <li> tags first
+    if (preg_match_all('/<li\b[^>]*>(.*?)<\/li>/is', $clean_for_bullets, $li_matches)) {
+        foreach ($li_matches[1] as $li_candidate) {
+            $cleaned_li = trim(wp_strip_all_tags($li_candidate));
+            $cleaned_li = html_entity_decode($cleaned_li, ENT_QUOTES, 'UTF-8');
+            $cleaned_li = trim(preg_replace('/^[\s\-•*–—:;]+/u', '', $cleaned_li));
+            if (!empty($cleaned_li) && strlen($cleaned_li) > 8 && !preg_match('/(?:role=|aria-|class=|po-|allowLinkDefault|<|>|\{|\}|table|tbody|tr\b|td\b)/i', $cleaned_li)) {
+                $parsed_bullets[] = $cleaned_li;
+            }
+        }
+    }
+
+    // If no <li> found, extract lines after "About this item" or from description
+    if (empty($parsed_bullets)) {
+        $about_chunk = '';
+        if (stripos($clean_for_bullets, 'About this item') !== false) {
+            $about_chunk = substr($clean_for_bullets, stripos($clean_for_bullets, 'About this item') + strlen('About this item'));
+        } else {
+            $about_chunk = $clean_for_bullets;
+        }
+
+        $lines = preg_split('/(?:\r\n|\r|\n|\x{2022}|\x{25E6}|\x{25AA}|\*|•)/u', $about_chunk);
+        if (!empty($lines)) {
+            foreach ($lines as $ln) {
+                $clean_ln = trim(wp_strip_all_tags($ln));
+                $clean_ln = html_entity_decode($clean_ln, ENT_QUOTES, 'UTF-8');
+                $clean_ln = trim(preg_replace('/^[\s\-•*–—:;]+/u', '', $clean_ln));
+                if (!empty($clean_ln) && strlen($clean_ln) > 10 && !preg_match('/(?:role=|aria-|class=|po-|allowLinkDefault|<|>|\{|\}|table|tbody|tr\b|td\b|^\[\.+\]$|^\.+$)/i', $clean_ln)) {
+                    // Make sure it is not just heading
+                    if (!preg_match('/^(?:top highlights|about this item|product description|specifications)[\s:]*$/i', $clean_ln)) {
+                        $parsed_bullets[] = $clean_ln;
+                    }
+                }
+            }
+        }
+    }
+
+    // Clean short intro beside image
     if (empty($clean_short_intro)) {
-        if (stripos($short_desc, 'Top highlights') === false && stripos($short_desc, 'About this item') === false && strlen(trim($short_desc)) > 10) {
-            $clean_short_intro = wp_strip_all_tags($short_desc);
+        $clean_cand = $short_desc;
+        $clean_cand = preg_replace('/<table\b[^>]*>.*?<\/table>/is', '', $clean_cand);
+        $clean_cand = preg_replace('/Top highlights.*$/is', '', $clean_cand);
+        $clean_cand = preg_replace('/About this item.*$/is', '', $clean_cand);
+        $clean_cand = trim(wp_strip_all_tags($clean_cand));
+        if (!empty($clean_cand) && strlen($clean_cand) > 15) {
+            $clean_short_intro = $clean_cand;
         } else {
             $clean_short_intro = sprintf(__('Exquisite artisanal %s handcrafted using authentic royal heritage recipes, natural seeds, and soothing digestive herbs for pure freshness and crisp crunch.', 'kash-naturals'), esc_html($product_name));
         }
@@ -442,11 +539,16 @@ if ($product && is_a($product, 'WC_Product')) {
     if (!empty($meta_about_item)) {
         $display_about_text = $meta_about_item;
     } else {
-        if (stripos($full_desc, 'Top highlights') !== false) {
-            $clean_full = trim(substr($full_desc, 0, stripos($full_desc, 'Top highlights')));
-            $display_about_text = !empty($clean_full) ? $clean_full : $clean_short_intro;
-        } else {
-            $display_about_text = $full_desc;
+        $display_about_text = $full_desc;
+        // Strip duplicate Amazon Top highlights table from story text, because it is displayed in Tab 2
+        $display_about_text = preg_replace('/<div\b[^>]*id="productOverview[^"]*"[^>]*>.*?<\/div>/is', '', $display_about_text);
+        $display_about_text = preg_replace('/<table\b[^>]*class="[^"]*a-normal[^"]*"[^>]*>.*?<\/table>/is', '', $display_about_text);
+        $display_about_text = preg_replace('/<h[1-6]\b[^>]*>.*?Top highlights.*?<\/h[1-6]>/is', '', $display_about_text);
+        $display_about_text = preg_replace('/Top highlights\s+(?:Flavour|Brand).*?(?=(About this item|$))/is', '', $display_about_text);
+        $display_about_text = preg_replace('/About this item[\s:]*/i', '', $display_about_text);
+        $display_about_text = trim($display_about_text);
+        if (empty($display_about_text)) {
+            $display_about_text = $clean_short_intro;
         }
     }
 
@@ -455,9 +557,9 @@ if ($product && is_a($product, 'WC_Product')) {
     if (!empty($meta_about_bullets)) {
         $bl_lines = explode("\n", str_replace("\r", "", $meta_about_bullets));
         foreach ($bl_lines as $b_line) {
-            $b_line = trim($b_line);
-            if (!empty($b_line)) {
-                $final_bullets[] = $b_line;
+            $clean_bl = trim(wp_strip_all_tags($b_line));
+            if (!empty($clean_bl) && strlen($clean_bl) > 6 && !preg_match('/(?:role=|aria-|class=|po-|allowLinkDefault|<|>|\{|\}|table|tbody|tr\b|td\b)/i', $clean_bl)) {
+                $final_bullets[] = $clean_bl;
             }
         }
     }
@@ -1012,7 +1114,13 @@ if ($product && is_a($product, 'WC_Product')) {
                     <div class="tab-story-card">
                         <h2><?php esc_html_e('Craftsmanship & Heritage', 'kash-naturals'); ?></h2>
                         <div class="tab-story-text" style="font-size: 1.02rem; line-height: 1.8; color: #444; margin-bottom: 25px;">
-                            <?php echo wpautop(wp_kses_post($display_about_text)); ?>
+                            <?php 
+                            if (stripos($display_about_text, '<table') !== false) {
+                                echo wp_kses_post($display_about_text);
+                            } else {
+                                echo wpautop(wp_kses_post($display_about_text));
+                            }
+                            ?>
                         </div>
 
                         <?php if (!empty($final_bullets)) : ?>
@@ -1021,10 +1129,13 @@ if ($product && is_a($product, 'WC_Product')) {
                                 <i class="fa-solid fa-list-check" style="color: #2C5F3E;"></i> <?php esc_html_e('About This Item', 'kash-naturals'); ?>
                             </h3>
                             <ul class="about-item-bullets-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
-                                <?php foreach ($final_bullets as $bullet) : ?>
+                                <?php foreach ($final_bullets as $bullet) : 
+                                    $clean_bullet_text = trim(wp_strip_all_tags($bullet));
+                                    if (empty($clean_bullet_text) || strlen($clean_bullet_text) < 6 || preg_match('/(?:<|>|table|tbody|tr\b|td\b|aria-|role=|class=)/i', $clean_bullet_text)) continue;
+                                ?>
                                     <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 0.98rem; line-height: 1.6; color: #334155;">
                                         <i class="fa-solid fa-circle-check" style="color: #2C5F3E; font-size: 1.1rem; margin-top: 3px; flex-shrink: 0;"></i>
-                                        <span><?php echo esc_html($bullet); ?></span>
+                                        <span><?php echo esc_html($clean_bullet_text); ?></span>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>

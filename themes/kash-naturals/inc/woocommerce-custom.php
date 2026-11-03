@@ -421,7 +421,25 @@ function kash_naturals_save_custom_product_fields($post_id) {
 
     foreach ($fields as $field => $type) {
         if (isset($_POST[$field])) {
-            $val = ($type === 'textarea') ? sanitize_textarea_field($_POST[$field]) : sanitize_text_field($_POST[$field]);
+            if ($field === '_about_this_item' || $field === '_ingredients') {
+                $val = wp_kses_post(wp_unslash($_POST[$field]));
+            } elseif ($field === '_about_bullets' || $field === '_product_highlights') {
+                $raw = wp_unslash($_POST[$field]);
+                $raw = preg_replace('/<table\b[^>]*>.*?<\/table>/is', '', $raw);
+                $lines = explode("\n", str_replace("\r", "", $raw));
+                $cleaned = array();
+                foreach ($lines as $line) {
+                    $clean_line = trim(wp_strip_all_tags($line));
+                    if (!empty($clean_line) && strlen($clean_line) > 3) {
+                        $cleaned[] = $clean_line;
+                    }
+                }
+                $val = implode("\n", $cleaned);
+            } elseif ($type === 'textarea') {
+                $val = sanitize_textarea_field(wp_unslash($_POST[$field]));
+            } else {
+                $val = sanitize_text_field(wp_unslash($_POST[$field]));
+            }
             update_post_meta($post_id, $field, $val);
         }
     }

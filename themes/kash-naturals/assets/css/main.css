@@ -12178,6 +12178,72 @@ img.amz-ref-logo {
     }
 }
 
+/* Custom Product Tables (Gutenberg, TinyMCE, or Custom HTML Tables) */
+.tab-story-text table,
+.tab-pane-content table:not(.nutri-table),
+.single-product-details-section .tab-story-card table {
+    width: 100%;
+    margin: 22px 0 28px 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #FAF7F2;
+    border: 1px solid rgba(44, 95, 62, 0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.tab-story-text table th,
+.tab-pane-content table:not(.nutri-table) th,
+.single-product-details-section .tab-story-card table th {
+    background: #2C5F3E;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 18px;
+    text-align: left;
+    border: none;
+}
+
+.tab-story-text table td,
+.tab-pane-content table:not(.nutri-table) td,
+.single-product-details-section .tab-story-card table td {
+    padding: 12px 18px;
+    color: #334155;
+    border-bottom: 1px solid rgba(44, 95, 62, 0.08);
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    line-height: 1.6;
+}
+
+.tab-story-text table tr:last-child td,
+.tab-pane-content table:not(.nutri-table) tr:last-child td,
+.single-product-details-section .tab-story-card table tr:last-child td {
+    border-bottom: none;
+}
+
+.tab-story-text table tr:nth-child(even) td,
+.tab-pane-content table:not(.nutri-table) tr:nth-child(even) td,
+.single-product-details-section .tab-story-card table tr:nth-child(even) td {
+    background: #ffffff;
+}
+
+.tab-story-text table tr:hover td,
+.tab-pane-content table:not(.nutri-table) tr:hover td,
+.single-product-details-section .tab-story-card table tr:hover td {
+    background: rgba(44, 95, 62, 0.04);
+}
+
+.tab-story-text {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 /* Related Products */
 .related-products-section {
     margin-top: 40px;
