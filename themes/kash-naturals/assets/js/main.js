@@ -1771,4 +1771,50 @@ jQuery(document).ready(function ($) {
             }
         });
     }
+
+    /* ==========================================================================
+       COLLECTION & SHOP PAGE SIDEBAR FILTERS (Categories 'See More' & Mobile Drawer)
+       ========================================================================== */
+    // 1. See More / See Less Categories Toggle
+    $(document).on('click', '#kashSeeMoreCatsBtn', function (e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const $extraCats = $('.kash-cat-extra');
+        const isExpanded = $btn.attr('aria-expanded') === 'true';
+
+        if (isExpanded) {
+            $extraCats.slideUp(200);
+            $btn.attr('aria-expanded', 'false');
+            $btn.find('.btn-text').text('See more');
+            $btn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        } else {
+            $extraCats.slideDown(200);
+            $btn.attr('aria-expanded', 'true');
+            $btn.find('.btn-text').text('See less');
+            $btn.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        }
+    });
+
+    // 2. Mobile Filter Drawer Open/Close
+    function openFilterDrawer() {
+        $('#kashShopSidebar').addClass('is-drawer-open');
+        $('#kashSidebarBackdrop').addClass('is-active');
+        $('body').addClass('kash-filter-drawer-open').css('overflow', 'hidden');
+    }
+
+    function closeFilterDrawer() {
+        $('#kashShopSidebar').removeClass('is-drawer-open');
+        $('#kashSidebarBackdrop').removeClass('is-active');
+        $('body').removeClass('kash-filter-drawer-open').css('overflow', '');
+    }
+
+    $(document).on('click', '#kashFilterToggleBtn', function (e) {
+        e.preventDefault();
+        openFilterDrawer();
+    });
+
+    $(document).on('click', '#kashFilterCloseBtn, #kashSidebarBackdrop, #kashMobileApplyBtn', function (e) {
+        e.preventDefault();
+        closeFilterDrawer();
+    });
 });
