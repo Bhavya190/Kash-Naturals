@@ -564,45 +564,50 @@ if ($product && is_a($product, 'WC_Product')) {
         }
     }
 
-    // Story Description for Tab 1
-    if (!empty($meta_about_item)) {
-        $display_about_text = $meta_about_item;
-    } else {
-        $display_about_text = $full_desc;
-        // Strip duplicate Amazon Top highlights table from story text, because it is displayed in Tab 2
-        $display_about_text = preg_replace('/<div\b[^>]*id="productOverview[^"]*"[^>]*>.*?<\/div>/is', '', $display_about_text);
-        $display_about_text = preg_replace('/<table\b[^>]*class="[^"]*a-normal[^"]*"[^>]*>.*?<\/table>/is', '', $display_about_text);
-        $display_about_text = preg_replace('/<h[1-6]\b[^>]*>.*?Top highlights.*?<\/h[1-6]>/is', '', $display_about_text);
-        $display_about_text = preg_replace('/Top highlights\s+(?:Flavour|Brand).*?(?=(About this item|$))/is', '', $display_about_text);
-        $display_about_text = preg_replace('/About this item[\s:]*/i', '', $display_about_text);
-        $display_about_text = trim($display_about_text);
-        if (empty($display_about_text)) {
-            $display_about_text = $clean_short_intro;
-        }
-    }
+    // Priority 1: Check if "About This Item" tab content has been modified in backend
+    $has_custom_tab_story   = !empty(trim($meta_about_item));
+    $has_custom_tab_bullets = !empty(trim($meta_about_bullets));
+    $has_custom_tab_content = ($has_custom_tab_story || $has_custom_tab_bullets);
 
-    // Bullets for Tab 1 ("About This Item")
+    $display_about_text = '';
     $final_bullets = array();
-    if (!empty($meta_about_bullets)) {
-        $bl_lines = explode("\n", str_replace("\r", "", $meta_about_bullets));
-        foreach ($bl_lines as $b_line) {
-            $clean_bl = trim(wp_strip_all_tags($b_line));
-            if (!empty($clean_bl) && strlen($clean_bl) > 6 && !preg_match('/(?:role=|aria-|class=|po-|allowLinkDefault|<|>|\{|\}|table|tbody|tr\b|td\b)/i', $clean_bl)) {
-                $final_bullets[] = $clean_bl;
+
+    if ($has_custom_tab_content) {
+        // FIRST PRIORITY: Custom Tab Content provided in the backend.
+        // Product description from the backend editor MUST NOT SHOW to prevent duplicate content.
+        if ($has_custom_tab_story) {
+            $display_about_text = trim($meta_about_item);
+        }
+        if ($has_custom_tab_bullets) {
+            $bl_lines = explode("\n", str_replace("\r", "", $meta_about_bullets));
+            foreach ($bl_lines as $b_line) {
+                $clean_bl = trim(wp_strip_all_tags($b_line));
+                if (!empty($clean_bl) && strlen($clean_bl) > 3 && !preg_match('/(?:role=|aria-|class=|po-|allowLinkDefault|<|>|\{|\}|table|tbody|tr\b|td\b)/i', $clean_bl)) {
+                    $final_bullets[] = $clean_bl;
+                }
             }
         }
-    }
-    if (empty($final_bullets) && !empty($parsed_bullets)) {
-        $final_bullets = $parsed_bullets;
-    }
-    if (empty($final_bullets)) {
-        $final_bullets = array(
-            __('AUTHENTIC RECIPE: Handcrafted following time-honored Indian royal formulations with zero artificial chemicals.', 'kash-naturals'),
-            __('NATURAL INGREDIENTS: Meticulously selected whole fennel, coriander seeds, and refreshing botanicals.', 'kash-naturals'),
-            __('AIRTIGHT GLASS PACKAGING: Preserves natural essential oils, delightful aroma, and signature crisp crunch.', 'kash-naturals'),
-            __('DIGESTIVE WELLNESS: Naturally enriched with traditional digestive spices that soothe digestion after every meal.', 'kash-naturals'),
-            __('ROYAL FLAVOR: Perfectly balanced sweet and savory after-meal indulgence loved across generations.', 'kash-naturals'),
-        );
+    } else {
+        // SECONDARY PRIORITY: Custom Tab Content not modified in backend.
+        // Fall back to product description from backend editor, displayed strictly ONCE.
+        $clean_desc = $full_desc;
+        // Strip duplicate Amazon Top highlights overview table / expanders from story text (these belong in Tab 2)
+        $clean_desc = preg_replace('/<div\b[^>]*id="productOverview[^"]*"[^>]*>.*?<\/div>/is', '', $clean_desc);
+        $clean_desc = preg_replace('/<table\b[^>]*class="[^"]*a-normal[^"]*"[^>]*>.*?<\/table>/is', '', $clean_desc);
+        $clean_desc = preg_replace('/<a\b[^>]*data-action="a-expander-toggle"[^>]*>.*?<\/a>/is', '', $clean_desc);
+        $clean_desc = preg_replace('/<h[1-6]\b[^>]*>.*?Top highlights.*?<\/h[1-6]>/is', '', $clean_desc);
+        $clean_desc = preg_replace('/\{[^{}]*"(?:allowLinkDefault|expand_prompt|collapse_prompt)"[^{}]*\}/is', '', $clean_desc);
+        $clean_desc = preg_replace('/Top highlights\s+(?:Flavour|Brand).*?(?=(About this item|$))/is', '', $clean_desc);
+        $clean_desc = preg_replace('/About this item[\s:]*/i', '', $clean_desc);
+        $clean_desc = trim($clean_desc);
+
+        if (empty($clean_desc)) {
+            $clean_desc = $clean_short_intro;
+        }
+
+        $display_about_text = $clean_desc;
+        // Keep $final_bullets empty so the bullet card is NOT outputted as duplicate text
+        $final_bullets = array();
     }
 
     // Specifications Grid for Tab 2 ("Top Highlights") - Exactly 10 slots matching 2-column screenshot
@@ -1141,6 +1146,7 @@ if ($product && is_a($product, 'WC_Product')) {
                 <!-- Tab 1: About This Item -->
                 <div id="tab-about-item" class="tab-pane-content active">
                     <div class="tab-story-card">
+                        <?php if (!empty($display_about_text)) : ?>
                         <h2><?php esc_html_e('Craftsmanship & Heritage', 'kash-naturals'); ?></h2>
                         <div class="tab-story-text" style="font-size: 1.02rem; line-height: 1.8; color: #444; margin-bottom: 25px;">
                             <?php 
@@ -1151,6 +1157,7 @@ if ($product && is_a($product, 'WC_Product')) {
                             }
                             ?>
                         </div>
+                        <?php endif; ?>
 
                         <?php if (!empty($final_bullets)) : ?>
                         <div class="about-item-bullets-wrapper" style="margin-bottom: 35px; background: #FAF7F2; border-radius: 18px; padding: 24px 28px; border: 1px solid rgba(44, 95, 62, 0.12);">
@@ -1160,7 +1167,7 @@ if ($product && is_a($product, 'WC_Product')) {
                             <ul class="about-item-bullets-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
                                 <?php foreach ($final_bullets as $bullet) : 
                                     $clean_bullet_text = trim(wp_strip_all_tags($bullet));
-                                    if (empty($clean_bullet_text) || strlen($clean_bullet_text) < 6 || preg_match('/(?:<|>|table|tbody|tr\b|td\b|aria-|role=|class=)/i', $clean_bullet_text)) continue;
+                                    if (empty($clean_bullet_text) || strlen($clean_bullet_text) < 3 || preg_match('/(?:<|>|table|tbody|tr\b|td\b|aria-|role=|class=)/i', $clean_bullet_text)) continue;
                                 ?>
                                     <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 0.98rem; line-height: 1.6; color: #334155;">
                                         <i class="fa-solid fa-circle-check" style="color: #2C5F3E; font-size: 1.1rem; margin-top: 3px; flex-shrink: 0;"></i>

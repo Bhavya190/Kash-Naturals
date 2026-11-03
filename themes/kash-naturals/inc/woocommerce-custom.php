@@ -84,7 +84,7 @@ function kash_naturals_render_product_data_panel() {
             'label'       => __('About / Story Description', 'kash-naturals'),
             'placeholder' => __('Leave empty to use main product description from editor above.', 'kash-naturals'),
             'desc_tip'    => true,
-            'description' => __('Custom story or editorial overview shown in the "About This Item" tab.', 'kash-naturals'),
+            'description' => __('1st Priority: Custom story or editorial overview shown in the "About This Item" tab. If filled, replaces the main product description to prevent duplicate content.', 'kash-naturals'),
             'style'       => 'height: 100px; width: 75%;',
         ));
 
@@ -93,7 +93,7 @@ function kash_naturals_render_product_data_panel() {
             'label'       => __('About This Item Bullets', 'kash-naturals'),
             'placeholder' => __("TRADITIONAL MUKHWAS: Premium quality mouth freshener made with fennel and aromatic spices\nNATURAL INGREDIENTS: Crafted with carefully selected whole spices\nCONVENIENT PACKAGING: Sealed in airtight glass jar to maintain aroma and crunch", 'kash-naturals'),
             'desc_tip'    => true,
-            'description' => __('Enter bullet points (one per line) for "About this item".', 'kash-naturals'),
+            'description' => __('1st Priority: Enter bullet points (one per line) for "About this item". If filled, replaces the main product description.', 'kash-naturals'),
             'style'       => 'height: 110px; width: 75%;',
         ));
         ?>
