@@ -232,6 +232,34 @@ if ($product && is_a($product, 'WC_Product')) {
         }
     }
 
+    // Default Selection: Always pre-select 200 GM by default if available, or first in-stock
+    if ($is_variable && !empty($variations_json_data) && ($default_variation_id === 0 || empty($default_variation_data))) {
+        // 1. Look for 200 GM variant first
+        foreach ($variations_json_data as $vid_check => $vdata_check) {
+            if (stripos($vdata_check['label'], '200') !== false && !empty($vdata_check['in_stock'])) {
+                $default_variation_id = $vid_check;
+                $default_variation_data = $vdata_check;
+                break;
+            }
+        }
+        // 2. Fallback to first in-stock variant
+        if ($default_variation_id === 0) {
+            foreach ($variations_json_data as $vid_check => $vdata_check) {
+                if (!empty($vdata_check['in_stock'])) {
+                    $default_variation_id = $vid_check;
+                    $default_variation_data = $vdata_check;
+                    break;
+                }
+            }
+        }
+        // 3. Fallback to first variant in list
+        if ($default_variation_id === 0) {
+            $f_vid = array_key_first($variations_json_data);
+            $default_variation_id = $f_vid;
+            $default_variation_data = $variations_json_data[$f_vid];
+        }
+    }
+
     if ($default_variation_data) {
         $price_raw        = $default_variation_data['price'];
         $reg_raw          = $default_variation_data['regular_price'];
@@ -1056,9 +1084,6 @@ if ($product && is_a($product, 'WC_Product')) {
                         <i class="fa-solid <?php echo $is_in_stock ? 'fa-cart-shopping' : 'fa-ban'; ?>"></i> 
                         <span class="btn-label-text"><?php echo $is_in_stock ? esc_html__('ADD TO CART', 'kash-naturals') : esc_html__('OUT OF STOCK', 'kash-naturals'); ?></span>
                     </button>
-                        <i class="fa-solid <?php echo $is_in_stock ? 'fa-cart-shopping' : 'fa-ban'; ?>"></i> 
-                        <span class="btn-label-text"><?php echo $is_in_stock ? esc_html__('ADD TO CART', 'kash-naturals') : esc_html__('OUT OF STOCK', 'kash-naturals'); ?></span>
-                    </button>
 
                     <button type="button" class="btn-buy-now-green <?php echo !$is_in_stock ? 'btn-out-of-stock' : ''; ?>" 
                             id="singleProductBuyNowBtn"
@@ -1852,27 +1877,34 @@ function checkDeliveryPincode() {
 
 function handleSingleAddToCart(id) {
     const isVariable = <?php echo $is_variable ? 'true' : 'false'; ?>;
-    if (isVariable && (!activeVariationId || activeVariationId <= 0)) {
-        if (typeof showToast === 'function') {
-            showToast('Please choose a pack size (e.g. 200 GM or 500 GM) before adding to bag.', 'info');
-        } else {
-            alert('Please choose a pack size before adding to bag.');
-        }
-        const selectorWrap = document.querySelector('.product-option-selector');
-        if (selectorWrap) {
-            selectorWrap.classList.add('selector-pulse-alert');
-            selectorWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => selectorWrap.classList.remove('selector-pulse-alert'), 1600);
-        }
-        return;
-    }
-
     const qtyInput = document.getElementById('productQtyInput');
     const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+    const varId = activeVariationId || (document.getElementById('singleProductAddToCartBtn') ? parseInt(document.getElementById('singleProductAddToCartBtn').getAttribute('data-variation-id')) : 0);
+
+    // If product has variations (e.g. 200 GM and 500 GM), ask via popup if customer wants to choose 500 GM or another variant
+    if (isVariable && typeof openVariantModal === 'function') {
+        let prodMatch = null;
+        if (typeof PRODUCTS_DB !== 'undefined' && Array.isArray(PRODUCTS_DB) && PRODUCTS_DB.length) {
+            prodMatch = PRODUCTS_DB.find(p => p.id == id);
+        }
+        if (!prodMatch && typeof kashVariationsData !== 'undefined') {
+            prodMatch = {
+                id: id,
+                name: <?php echo wp_json_encode($product_name); ?>,
+                image: <?php echo wp_json_encode($main_img); ?>,
+                is_variable: true,
+                variations: Object.values(kashVariationsData)
+            };
+        }
+        if (prodMatch && prodMatch.variations && prodMatch.variations.length > 1) {
+            openVariantModal(prodMatch, varId, qty);
+            return;
+        }
+    }
+
     const addBtn = document.getElementById('singleProductAddToCartBtn');
     if (addBtn && addBtn.disabled) return;
 
-    const varId = activeVariationId || (addBtn ? parseInt(addBtn.getAttribute('data-variation-id')) : 0);
     const varData = (varId && kashVariationsData && kashVariationsData[varId]) ? kashVariationsData[varId] : null;
 
     if (addBtn) {

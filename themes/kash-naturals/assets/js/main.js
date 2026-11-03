@@ -590,22 +590,37 @@ jQuery(document).ready(function ($) {
     let selectedModalVariation = null;
 
     // Quick Variant Selection Modal
-    function openVariantModal(product) {
+    function openVariantModal(product, preSelectedVariationId = null, initialQty = 1) {
         if (!product || !product.variations || !product.variations.length) {
-            addToCart(product ? product.id : 0, 1);
+            addToCart(product ? product.id : 0, initialQty);
             return;
         }
 
         currentModalProduct = product;
-        const firstInStock = product.variations.find(v => v.in_stock) || product.variations[0];
-        selectedModalVariation = firstInStock;
 
-        $('#variant-modal-qty-input').val(1);
+        // Default Selection:
+        // 1. If preSelectedVariationId provided and matches
+        // 2. Otherwise default to 200 GM variant if available
+        // 3. Otherwise first in-stock variant
+        let defaultVar = null;
+        if (preSelectedVariationId) {
+            defaultVar = product.variations.find(v => v.id == preSelectedVariationId);
+        }
+        if (!defaultVar) {
+            defaultVar = product.variations.find(v => v.label && (v.label.indexOf('200') !== -1 || v.label.toLowerCase().indexOf('200g') !== -1) && v.in_stock)
+                      || product.variations.find(v => v.in_stock)
+                      || product.variations[0];
+        }
+        selectedModalVariation = defaultVar;
+
+        const qty = Math.max(1, parseInt(initialQty, 10) || 1);
+        $('#variant-modal-qty-input').val(qty);
         $('#variant-modal-title').text(product.name);
         const initialImg = (selectedModalVariation && selectedModalVariation.image) ? selectedModalVariation.image : (product.image || '');
         $('#variant-modal-img').attr('src', initialImg).attr('alt', product.name);
 
         updateVariantModalPriceDisplay(selectedModalVariation);
+        updateVariantModalHint(selectedModalVariation, product.variations);
 
         const $pillsContainer = $('#variant-modal-pills').empty();
         product.variations.forEach(function (v) {
@@ -629,10 +644,16 @@ jQuery(document).ready(function ($) {
                 $('.v-pill').removeClass('active');
                 $(this).addClass('active');
 
+                // If on single product page, sync page pack size selection too
+                if (typeof kashSelectVariation === 'function' && typeof kashVariationsData !== 'undefined' && kashVariationsData[v.id]) {
+                    kashSelectVariation(v.id);
+                }
+
                 if (v.image) {
                     $('#variant-modal-img').attr('src', v.image);
                 }
                 updateVariantModalPriceDisplay(v);
+                updateVariantModalHint(v, product.variations);
             });
 
             $pillsContainer.append($pill);
@@ -642,6 +663,18 @@ jQuery(document).ready(function ($) {
         $('body').addClass('modal-open');
     }
     window.openVariantModal = openVariantModal;
+
+    function updateVariantModalHint(currentVar, variations) {
+        const $hint = $('#variant-modal-hint');
+        if (!$hint.length || !currentVar) return;
+        const curLabel = currentVar.label || '200 GM';
+        const altVar = Array.isArray(variations) ? variations.find(v => v.id !== currentVar.id && v.in_stock) : null;
+        if (altVar) {
+            $hint.html(`<strong>${curLabel}</strong> is selected by default. Would you like to choose <strong>${altVar.label}</strong> (₹${altVar.price}) or add to bag?`);
+        } else {
+            $hint.html(`<strong>${curLabel}</strong> is selected.`);
+        }
+    }
 
     function updateVariantModalPriceDisplay(variation) {
         if (!variation) return;

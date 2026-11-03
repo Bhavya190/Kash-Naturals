@@ -506,6 +506,7 @@ if (!defined('ABSPATH')) {
                     <span class="variant-modal-badge"><?php esc_html_e('Choose Pack Size', 'kash-naturals'); ?></span>
                     <h3 class="variant-modal-title" id="variant-modal-title"></h3>
                     <div class="variant-modal-price" id="variant-modal-price"></div>
+                    <p class="variant-modal-hint" id="variant-modal-hint" style="font-size: 0.84rem; color: #555; margin: -4px 0 10px 0; line-height: 1.4;"><?php esc_html_e('200 GM is selected by default. Would you like to select 500 GM or another pack size?', 'kash-naturals'); ?></p>
                     
                     <div class="variant-pills-label"><?php esc_html_e('Available Options:', 'kash-naturals'); ?></div>
                     <div class="variant-modal-pills" id="variant-modal-pills"></div>
