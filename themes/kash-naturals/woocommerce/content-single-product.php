@@ -1949,26 +1949,8 @@ function handleSingleAddToCart(id) {
                 if (typeof showToast === 'function') {
                     showToast(res.data.message || 'Added to cart!');
                 }
-                if (res.data && res.data.cart && Array.isArray(res.data.cart.items)) {
-                    const syncedCart = res.data.cart.items.map(function(item) {
-                        return {
-                            id: item.id,
-                            key: item.key,
-                            variation_id: item.variation_id || 0,
-                            name: item.name,
-                            price: item.price,
-                            image: item.image,
-                            qty: item.qty,
-                            in_stock: (item.in_stock !== false && item.stock_status !== 'outofstock'),
-                            stock_status: item.stock_status,
-                            stock_quantity: item.stock_quantity
-                        };
-                    });
-                    try { localStorage.setItem('kash_cart', JSON.stringify(syncedCart)); } catch(e) {}
-                    const badge = document.getElementById('mini-cart-count');
-                    if (badge && typeof res.data.cart.count !== 'undefined') {
-                        badge.innerText = res.data.cart.count;
-                    }
+                if (typeof syncWithWooCommerceCart === 'function') {
+                    syncWithWooCommerceCart();
                 }
                 jQuery(document.body).trigger('wc_fragment_refresh');
             } else {

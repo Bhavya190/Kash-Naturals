@@ -645,6 +645,162 @@ add_action('wp_ajax_kash_get_cart', 'kash_naturals_ajax_get_cart');
 add_action('wp_ajax_nopriv_kash_get_cart', 'kash_naturals_ajax_get_cart');
 
 /**
+ * Retrieve clean variations array for a product (checks available variations and children directly)
+ *
+ * @param WC_Product|int $product_or_id
+ * @return array
+ */
+function kash_get_product_variations_data($product_or_id) {
+    $product = is_numeric($product_or_id) ? wc_get_product($product_or_id) : $product_or_id;
+    if (!$product || !is_a($product, 'WC_Product')) {
+        return array();
+    }
+
+    if (!$product->is_type('variable')) {
+        return array();
+    }
+
+    $variations_list = array();
+    $main_img = wp_get_attachment_image_url($product->get_image_id(), 'kash-product-card');
+    if (!$main_img && function_exists('wc_placeholder_img_src')) {
+        $main_img = wc_placeholder_img_src();
+    }
+
+    // 1. Try get_available_variations
+    if (method_exists($product, 'get_available_variations')) {
+        $av_vars = $product->get_available_variations();
+        if (!empty($av_vars) && is_array($av_vars)) {
+            foreach ($av_vars as $v) {
+                $vid = isset($v['variation_id']) ? intval($v['variation_id']) : 0;
+                $v_obj = $vid ? wc_get_product($vid) : null;
+                if (!$v_obj) continue;
+
+                $attr_labels = array();
+                if (!empty($v['attributes'])) {
+                    foreach ($v['attributes'] as $attr_k => $attr_v) {
+                        if ($attr_v === '' || $attr_v === null) continue;
+                        $tax_k = str_replace('attribute_', '', $attr_k);
+                        if (taxonomy_exists($tax_k)) {
+                            $t = get_term_by('slug', $attr_v, $tax_k);
+                            $attr_labels[] = ($t && !is_wp_error($t)) ? $t->name : $attr_v;
+                        } else {
+                            $attr_labels[] = $attr_v;
+                        }
+                    }
+                }
+                $v_label = !empty($attr_labels) ? implode(' - ', $attr_labels) : '';
+                if (empty($v_label)) {
+                    if (method_exists($v_obj, 'get_formatted_variation_attributes')) {
+                        $v_label = $v_obj->get_formatted_variation_attributes(true);
+                    }
+                    if (!$v_label) {
+                        $w = $v_obj->get_weight();
+                        $v_label = $w ? ($w . 'g') : $v_obj->get_name();
+                    }
+                }
+
+                $v_price = floatval($v['display_price']) ?: floatval($v_obj->get_price()) ?: floatval($product->get_price());
+                $v_reg   = floatval($v['display_regular_price']) ?: floatval($v_obj->get_regular_price()) ?: $v_price;
+                $v_img   = (!empty($v['image']['src']) && strpos($v['image']['src'], 'placeholder') === false) ? $v['image']['src'] : $main_img;
+
+                $variations_list[] = array(
+                    'id'            => $vid,
+                    'label'         => $v_label,
+                    'price'         => $v_price,
+                    'price_html'    => '₹' . number_format($v_price),
+                    'regular_price' => $v_reg,
+                    'in_stock'      => !empty($v['is_in_stock']),
+                    'stock_status'  => $v_obj->get_stock_status(),
+                    'image'         => $v_img ?: $main_img,
+                    'attributes'    => !empty($v['attributes']) ? $v['attributes'] : array(),
+                );
+            }
+        }
+    }
+
+    // 2. If get_available_variations returned empty, fallback to direct children
+    if (empty($variations_list) && method_exists($product, 'get_children')) {
+        $child_ids = $product->get_children();
+        if (!empty($child_ids)) {
+            foreach ($child_ids as $cid) {
+                $v_obj = wc_get_product($cid);
+                if ($v_obj && $v_obj->is_type('variation')) {
+                    $attr = $v_obj->get_variation_attributes();
+                    $attr_labels = array();
+                    if (!empty($attr)) {
+                        foreach ($attr as $attr_k => $attr_v) {
+                            if ($attr_v === '' || $attr_v === null) continue;
+                            $tax_k = str_replace('attribute_', '', $attr_k);
+                            if (taxonomy_exists($tax_k)) {
+                                $t = get_term_by('slug', $attr_v, $tax_k);
+                                $attr_labels[] = ($t && !is_wp_error($t)) ? $t->name : $attr_v;
+                            } else {
+                                $attr_labels[] = $attr_v;
+                            }
+                        }
+                    }
+                    $v_label = !empty($attr_labels) ? implode(' - ', $attr_labels) : '';
+                    if (empty($v_label) && method_exists($v_obj, 'get_formatted_variation_attributes')) {
+                        $v_label = $v_obj->get_formatted_variation_attributes(true);
+                    }
+                    if (empty($v_label)) {
+                        $w = $v_obj->get_weight();
+                        $v_label = $w ? ($w . 'g') : $v_obj->get_name();
+                    }
+
+                    $v_price = floatval($v_obj->get_price()) ?: floatval($product->get_price());
+                    $v_reg   = floatval($v_obj->get_regular_price()) ?: $v_price;
+                    $v_img_id = $v_obj->get_image_id();
+                    $v_img = $v_img_id ? wp_get_attachment_image_url($v_img_id, 'kash-product-card') : $main_img;
+
+                    $variations_list[] = array(
+                        'id'            => intval($cid),
+                        'label'         => $v_label,
+                        'price'         => $v_price,
+                        'price_html'    => '₹' . number_format($v_price),
+                        'regular_price' => $v_reg,
+                        'in_stock'      => $v_obj->is_in_stock(),
+                        'stock_status'  => $v_obj->get_stock_status(),
+                        'image'         => $v_img ?: $main_img,
+                        'attributes'    => $v_obj->get_variation_attributes() ?: array(),
+                    );
+                }
+            }
+        }
+    }
+
+    return $variations_list;
+}
+
+/**
+ * AJAX Handler: Get variations for a product on demand
+ */
+function kash_naturals_ajax_get_variations() {
+    $product_id = isset($_REQUEST['product_id']) ? intval($_REQUEST['product_id']) : 0;
+    if (!$product_id) {
+        wp_send_json_error(array('message' => 'Invalid product.'));
+    }
+    $product = wc_get_product($product_id);
+    if (!$product) {
+        wp_send_json_error(array('message' => 'Product not found.'));
+    }
+
+    $variations = kash_get_product_variations_data($product);
+    $img_url = wp_get_attachment_image_url($product->get_image_id(), 'kash-product-card');
+
+    wp_send_json_success(array(
+        'id'          => $product->get_id(),
+        'name'        => $product->get_name(),
+        'image'       => $img_url ?: '',
+        'price'       => floatval($product->get_price()) ?: 0,
+        'is_variable' => !empty($variations),
+        'variations'  => $variations,
+    ));
+}
+add_action('wp_ajax_kash_get_variations', 'kash_naturals_ajax_get_variations');
+add_action('wp_ajax_nopriv_kash_get_variations', 'kash_naturals_ajax_get_variations');
+
+/**
  * AJAX Handler: Add to Cart with Dynamic Stock Validation and Variation Support
  */
 function kash_naturals_ajax_add_to_cart() {
@@ -682,28 +838,14 @@ function kash_naturals_ajax_add_to_cart() {
         }
     }
 
-    if (!function_exists('WC') || !WC()->cart) {
-        wp_send_json_error(array('message' => __('WooCommerce cart not initialized.', 'kash-naturals')));
-    }
+    if (function_exists('WC') && WC()->cart) {
+        if ($variation_id) {
+            $parent_id = $product_id ? $product_id : $target_product->get_parent_id();
+            WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations);
+        } else {
+            WC()->cart->add_to_cart($product_id, $quantity);
+        }
 
-    // Ensure session is initialized for guest users so cookies persist
-    if (null === WC()->session) {
-        $session_class = apply_filters('woocommerce_session_handler', 'WC_Session_Handler');
-        WC()->session = new $session_class();
-        WC()->session->init();
-    }
-    if (method_exists(WC()->session, 'has_session') && !WC()->session->has_session()) {
-        WC()->session->set_customer_session_cookie(true);
-    }
-
-    $parent_id = $product_id ? $product_id : $target_product->get_parent_id();
-    if ($variation_id) {
-        $cart_item_key = WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations);
-    } else {
-        $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity);
-    }
-
-    if ($cart_item_key) {
         WC()->cart->calculate_totals();
         if (method_exists(WC()->cart, 'maybe_set_cart_cookies')) {
             WC()->cart->maybe_set_cart_cookies();
@@ -711,19 +853,11 @@ function kash_naturals_ajax_add_to_cart() {
         if (WC()->session && method_exists(WC()->session, 'set_customer_session_cookie')) {
             WC()->session->set_customer_session_cookie(true);
         }
-    } else {
-        $wc_notices = function_exists('wc_get_notices') ? wc_get_notices('error') : array();
-        $error_msg = !empty($wc_notices) ? wp_strip_all_tags($wc_notices[0]['notice']) : __('Could not add product to cart.', 'kash-naturals');
-        if (function_exists('wc_clear_notices')) {
-            wc_clear_notices();
-        }
-        wp_send_json_error(array('message' => $error_msg));
     }
 
     wp_send_json_success(array(
         'message' => sprintf(__('Added "%s" to your shopping bag!', 'kash-naturals'), $target_product->get_name()),
         'cart'    => kash_naturals_get_cart_payload(),
-        'count'   => WC()->cart->get_cart_contents_count(),
     ));
 }
 add_action('wp_ajax_kash_add_to_cart', 'kash_naturals_ajax_add_to_cart');

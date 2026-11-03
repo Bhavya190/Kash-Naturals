@@ -450,9 +450,9 @@ jQuery(document).ready(function ($) {
                         id: dbProduct.id,
                         key: item.key || '',
                         variation_id: item.variation_id || 0,
-                        name: item.name || dbProduct.name,
-                        price: (typeof item.price !== 'undefined') ? item.price : dbProduct.price,
-                        image: item.image || dbProduct.image,
+                        name: dbProduct.name,
+                        price: dbProduct.price,
+                        image: dbProduct.image || item.image,
                         qty: item.qty > 0 ? item.qty : 1,
                         in_stock: isItemInStock,
                         stock_status: dbProduct.stock_status || (isItemInStock ? 'instock' : 'outofstock'),
@@ -503,9 +503,6 @@ jQuery(document).ready(function ($) {
 
     // Sync with WooCommerce native cart session if active
     function syncWithWooCommerceCart() {
-        if (window.kashAddToCartPending) {
-            return;
-        }
         if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
             $.ajax({
                 type: 'POST',
@@ -513,7 +510,6 @@ jQuery(document).ready(function ($) {
                 data: { action: 'kash_get_cart' },
                 dataType: 'json',
                 success: function (res) {
-                    if (window.kashAddToCartPending) return;
                     if (res && res.success && res.data && Array.isArray(res.data.items)) {
                         const wcCart = res.data;
                         if (wcCart.items.length > 0) {
@@ -531,11 +527,14 @@ jQuery(document).ready(function ($) {
                             }));
                             localStorage.setItem('kash_cart', JSON.stringify(syncedCart));
                             updateCartCountBadge();
+                            renderCartDrawer();
                         } else {
-                            const localItems = getCart();
-                            if (!localItems || localItems.length === 0) {
-                                localStorage.removeItem('kash_cart');
-                                updateCartCountBadge();
+                            // WC cart empty, ensure local cart reflects this completely
+                            localStorage.removeItem('kash_cart');
+                            updateCartCountBadge();
+                            renderCartDrawer();
+                            if (typeof window.renderCartPageUI === 'function') {
+                                window.renderCartPageUI();
                             }
                         }
                     }
@@ -547,7 +546,6 @@ jQuery(document).ready(function ($) {
 
     function syncAddToCartWooCommerce(productId, quantity, variationId, variationData) {
         if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
-            window.kashAddToCartPending = true;
             const postPayload = {
                 action: 'kash_add_to_cart',
                 product_id: productId,
@@ -565,38 +563,22 @@ jQuery(document).ready(function ($) {
                 data: postPayload,
                 dataType: 'json',
                 success: function (res) {
-                    window.kashAddToCartPending = false;
-                    if (res && res.success && res.data) {
-                        if (res.data.cart && Array.isArray(res.data.cart.items)) {
-                            const syncedCart = res.data.cart.items.map(item => ({
-                                id: item.id,
-                                key: item.key,
-                                variation_id: item.variation_id || 0,
-                                name: item.name,
-                                price: item.price,
-                                image: item.image,
-                                qty: item.qty,
-                                in_stock: (item.in_stock !== false && item.stock_status !== 'outofstock'),
-                                stock_status: item.stock_status,
-                                stock_quantity: item.stock_quantity
-                            }));
-                            localStorage.setItem('kash_cart', JSON.stringify(syncedCart));
+                    if (res && res.success && res.data && res.data.cart) {
+                        const wcCart = res.data.cart;
+                        if (wcCart.items && Array.isArray(wcCart.items)) {
+                            localStorage.setItem('kash_cart', JSON.stringify(wcCart.items));
                         }
-                        if (res.data.cart && typeof res.data.cart.count !== 'undefined') {
+                        if (typeof wcCart.count !== 'undefined') {
                             const $badge = $('#mini-cart-count');
-                            $badge.text(res.data.cart.count);
-                            if (res.data.cart.count > 0) {
-                                $badge.addClass('bounce');
-                                setTimeout(() => $badge.removeClass('bounce'), 400);
-                            }
+                            $badge.text(wcCart.count);
+                            $badge.addClass('bounce');
+                            setTimeout(() => $badge.removeClass('bounce'), 400);
                         }
+                        $(document.body).trigger('added_to_cart', [wcCart.fragments, wcCart.cart_hash]);
                         $(document.body).trigger('wc_fragment_refresh');
                     } else if (res && !res.success && res.data && res.data.message) {
                         showToast(res.data.message, 'info');
                     }
-                },
-                error: function () {
-                    window.kashAddToCartPending = false;
                 }
             });
         }
@@ -816,6 +798,7 @@ jQuery(document).ready(function ($) {
 
         saveCart(cart);
         showToast(`Added "${varName}" to your shopping bag!`);
+        // Cart drawer popup disabled per user request
         syncAddToCartWooCommerce(product.id, qty, variant.id, variant.attributes || {});
     }
     window.addVariantToCart = addVariantToCart;
@@ -901,6 +884,7 @@ jQuery(document).ready(function ($) {
 
         saveCart(cart);
         showToast(`Added "${product.name}" to your shopping bag!`);
+        // Cart drawer popup disabled per user request
         syncAddToCartWooCommerce(product.id, qty);
     };
 
@@ -939,26 +923,90 @@ jQuery(document).ready(function ($) {
             match = PRODUCTS_DB.find(p => p.name.toLowerCase().includes(prodName.toLowerCase()) || prodName.toLowerCase().includes(p.name.toLowerCase()));
         }
 
-        if (!match) {
-            showToast('Product is currently unavailable or out of stock.', 'info');
+        let isVariable = $btn.data('is-variable') == '1' || $btn.attr('data-is-variable') == '1';
+        let btnVariations = $btn.data('variations');
+        if (typeof btnVariations === 'string' && btnVariations.length > 2) {
+            try {
+                btnVariations = JSON.parse(btnVariations);
+            } catch (err) {
+                btnVariations = null;
+            }
+        }
+
+        // 1. If variations are attached directly to button, open variant modal immediately!
+        if (btnVariations && Array.isArray(btnVariations) && btnVariations.length > 0) {
+            openVariantModal({
+                id: prodId || (match ? match.id : 0),
+                name: prodName || (match ? match.name : 'Artisanal Specialty'),
+                image: $btn.data('product-img') || (match ? match.image : ''),
+                price: parseFloat($btn.data('product-price')) || (match ? match.price : 0),
+                is_variable: true,
+                variations: btnVariations
+            });
             return;
         }
 
-        // If product has variations (e.g. 200 GM or 500 GM), ask which variant to purchase!
-        if (match.is_variable && match.variations && match.variations.length > 0) {
+        // 2. If product in PRODUCTS_DB has variations, open variant modal!
+        if (match && match.is_variable && match.variations && match.variations.length > 0) {
             openVariantModal(match);
             return;
         }
 
+        // 3. If marked as variable but variations not yet loaded into memory, fetch on-demand!
+        if (isVariable || (match && match.is_variable)) {
+            const targetProdId = prodId || (match ? match.id : 0);
+            const origHtml = $btn.html();
+            $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
+            const ajaxUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) ? kash_dynamic_data.ajax_url : '/wp-admin/admin-ajax.php';
+            $.ajax({
+                url: ajaxUrl,
+                type: 'GET',
+                data: { action: 'kash_get_variations', product_id: targetProdId },
+                dataType: 'json',
+                success: function (res) {
+                    $btn.prop('disabled', false).html(origHtml);
+                    if (res && res.success && res.data && res.data.variations && res.data.variations.length > 0) {
+                        if (match) {
+                            match.is_variable = true;
+                            match.variations = res.data.variations;
+                        }
+                        openVariantModal(res.data);
+                    } else if (match) {
+                        addToCart(match.id, 1);
+                    } else if (prodId) {
+                        addToCart(prodId, 1);
+                    }
+                },
+                error: function () {
+                    $btn.prop('disabled', false).html(origHtml);
+                    if (match) {
+                        addToCart(match.id, 1);
+                    } else if (prodId) {
+                        addToCart(prodId, 1);
+                    }
+                }
+            });
+            return;
+        }
+
+        if (!match && !prodId) {
+            showToast('Product is currently unavailable or out of stock.', 'info');
+            return;
+        }
+
         // Simple product: add strictly 1 product by default
-        addToCart(match.id, 1);
+        if (match) {
+            addToCart(match.id, 1);
+        } else if (prodId) {
+            addToCart(prodId, 1);
+        }
     });
 
-    // Open/Close Cart Drawer (Disabled per user request: user navigates directly to cart page)
+    // Open/Close Cart Drawer - Disabled per user request (User navigates directly to cart page)
     function openCartDrawer() {
-        // Pop-up hidden per user requirement: user navigates to cart page himself
-        return;
+        return false;
     }
+    window.openCartDrawer = openCartDrawer;
 
     function closeCartDrawer() {
         $cartDrawer.removeClass('active');
@@ -966,8 +1014,8 @@ jQuery(document).ready(function ($) {
         $('body').removeClass('modal-open');
     }
 
-    $(document).on('click', '#mini-cart-toggle, .cart-drawer-trigger, #header-cart-icon', function (e) {
-        // User requested: user will go on cart page himself by clicking on cart icon
+    $(document).on('click', '#mini-cart-toggle, .cart-drawer-trigger, #header-cart-icon, .header-cart-link', function (e) {
+        // Direct navigation to Cart page
         const cartUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.cart_url) ? kash_dynamic_data.cart_url : '/cart';
         window.location.href = cartUrl;
     });

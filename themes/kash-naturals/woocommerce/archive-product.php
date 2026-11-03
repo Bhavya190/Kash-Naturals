@@ -281,8 +281,12 @@ if (class_exists('WooCommerce')) {
             $wc_prod = wc_get_product(get_the_ID());
             if ($wc_prod && $wc_prod->is_visible()) {
                 $is_variable = $wc_prod->is_type('variable');
+                $variations_data = array();
                 
                 if ($is_variable) {
+                    if (function_exists('kash_get_product_variations_data')) {
+                        $variations_data = kash_get_product_variations_data($wc_prod);
+                    }
                     $sale_price = $wc_prod->get_variation_price('min', true);
                     $raw_price = floatval($sale_price);
                     $reg_price = $wc_prod->get_variation_regular_price('max', true);
@@ -330,7 +334,8 @@ if (class_exists('WooCommerce')) {
                 $dynamic_products[] = array(
                     'id'            => $wc_prod->get_id(),
                     'name'          => $wc_prod->get_name(),
-                    'is_variable'   => $is_variable,
+                    'is_variable'   => ($is_variable && !empty($variations_data)),
+                    'variations'    => $variations_data,
                     'category'      => $current_category,
                     'category_name' => !empty($cat_names) ? $cat_names : __('Specialty', 'kash-naturals'),
                     'price'         => !empty($price_html) ? $price_html : (!empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0')),
@@ -606,7 +611,16 @@ if (function_exists('is_product_category') && is_product_category()) {
                                             <?php endif; ?>
                                         </div>
                                         <?php if ($is_in_stock) : ?>
-                                            <button type="button" class="btn-add-cart-exact add-to-cart-btn" data-product-id="<?php echo esc_attr($prod['id']); ?>" data-product_id="<?php echo esc_attr($prod['id']); ?>" data-product-name="<?php echo esc_attr($prod['name']); ?>" data-product-price="<?php echo esc_attr($prod['raw_price']); ?>" data-product-img="<?php echo esc_url($prod['image']); ?>" title="<?php echo !empty($prod['is_variable']) ? esc_attr__('Select Pack Size', 'kash-naturals') : esc_attr__('Add to Cart', 'kash-naturals'); ?>">
+                                            <button type="button" 
+                                                    class="btn-add-cart-exact add-to-cart-btn" 
+                                                    data-product-id="<?php echo esc_attr($prod['id']); ?>" 
+                                                    data-product_id="<?php echo esc_attr($prod['id']); ?>" 
+                                                    data-product-name="<?php echo esc_attr($prod['name']); ?>" 
+                                                    data-product-price="<?php echo esc_attr($prod['raw_price']); ?>" 
+                                                    data-product-img="<?php echo esc_url($prod['image']); ?>" 
+                                                    data-is-variable="<?php echo !empty($prod['is_variable']) ? '1' : '0'; ?>"
+                                                    data-variations="<?php echo !empty($prod['variations']) ? esc_attr(wp_json_encode($prod['variations'])) : ''; ?>"
+                                                    title="<?php echo !empty($prod['is_variable']) ? esc_attr__('Select Pack Size', 'kash-naturals') : esc_attr__('Add to Cart', 'kash-naturals'); ?>">
                                                 <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
                                             </button>
                                         <?php else : ?>

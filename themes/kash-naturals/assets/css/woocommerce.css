@@ -3910,14 +3910,14 @@ form.login.woocommerce-form-login {
     display: none !important;
 }
 
-/* User requested: Hide right-side cart drawer / popup completely */
+/* Explicitly hide right-side cart drawer popup per user request (User navigates directly to cart page) */
+#cart-drawer,
+#cart-drawer-overlay,
 .cart-drawer-panel,
 .cart-drawer-overlay {
     display: none !important;
     visibility: hidden !important;
     pointer-events: none !important;
-    opacity: 0 !important;
-    transform: translateX(100%) !important;
 }
 
 

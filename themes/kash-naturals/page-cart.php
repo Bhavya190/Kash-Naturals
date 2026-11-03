@@ -340,31 +340,8 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
             cart = window.kashWooCartItems;
             try { localStorage.setItem('kash_cart', JSON.stringify(cart)); } catch(e) {}
         } else if (window.isWcCartEmpty) {
-            var localSaved = null;
-            try {
-                var rawSaved = localStorage.getItem('kash_cart');
-                if (rawSaved) localSaved = JSON.parse(rawSaved);
-            } catch(e) {}
-
-            if (Array.isArray(localSaved) && localSaved.length > 0) {
-                cart = localSaved;
-                // Sync local items to WooCommerce session
-                localSaved.forEach(function(item) {
-                    jQuery.ajax({
-                        type: 'POST',
-                        url: ajaxUrl,
-                        data: {
-                            action: 'kash_add_to_cart',
-                            product_id: item.id,
-                            variation_id: item.variation_id || 0,
-                            quantity: item.qty || 1
-                        }
-                    });
-                });
-            } else {
-                cart = [];
-                try { localStorage.removeItem('kash_cart'); } catch(e) {}
-            }
+            cart = [];
+            try { localStorage.removeItem('kash_cart'); } catch(e) {}
         } else {
             try {
                 var raw = localStorage.getItem('kash_cart');

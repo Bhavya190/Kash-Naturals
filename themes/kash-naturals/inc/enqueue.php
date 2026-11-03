@@ -76,37 +76,41 @@ function kash_naturals_scripts() {
 
                     $is_var = $prod->is_type('variable');
                     $variations_list = array();
-                    if ($is_var && method_exists($prod, 'get_available_variations')) {
-                        $av_vars = $prod->get_available_variations();
-                        if (is_array($av_vars)) {
-                            foreach ($av_vars as $vdata) {
-                                $v_obj = wc_get_product($vdata['variation_id']);
-                                if ($v_obj) {
-                                    $v_label = '';
-                                    if (method_exists($v_obj, 'get_formatted_variation_attributes')) {
-                                        $v_label = $v_obj->get_formatted_variation_attributes(true);
+                    if ($is_var) {
+                        if (function_exists('kash_get_product_variations_data')) {
+                            $variations_list = kash_get_product_variations_data($prod);
+                        } elseif (method_exists($prod, 'get_available_variations')) {
+                            $av_vars = $prod->get_available_variations();
+                            if (is_array($av_vars)) {
+                                foreach ($av_vars as $vdata) {
+                                    $v_obj = wc_get_product($vdata['variation_id']);
+                                    if ($v_obj) {
+                                        $v_label = '';
+                                        if (method_exists($v_obj, 'get_formatted_variation_attributes')) {
+                                            $v_label = $v_obj->get_formatted_variation_attributes(true);
+                                        }
+                                        if (!$v_label && !empty($vdata['attributes'])) {
+                                            $v_label = implode(' / ', array_values($vdata['attributes']));
+                                        }
+                                        if (!$v_label) {
+                                            $v_label = $v_obj->get_name();
+                                        }
+                                        $v_price = floatval($v_obj->get_price()) ?: 0;
+                                        $v_reg   = floatval($v_obj->get_regular_price()) ?: $v_price;
+                                        $v_img_id = $v_obj->get_image_id();
+                                        $v_img = $v_img_id ? wp_get_attachment_image_url($v_img_id, 'kash-product-card') : $img_url;
+                                        $variations_list[] = array(
+                                            'id'            => $vdata['variation_id'],
+                                            'label'         => $v_label,
+                                            'price'         => $v_price,
+                                            'price_html'    => '₹' . number_format($v_price),
+                                            'regular_price' => $v_reg,
+                                            'in_stock'      => $v_obj->is_in_stock(),
+                                            'stock_status'  => $v_obj->get_stock_status(),
+                                            'image'         => $v_img ?: $img_url,
+                                            'attributes'    => !empty($vdata['attributes']) ? $vdata['attributes'] : array(),
+                                        );
                                     }
-                                    if (!$v_label && !empty($vdata['attributes'])) {
-                                        $v_label = implode(' / ', array_values($vdata['attributes']));
-                                    }
-                                    if (!$v_label) {
-                                        $v_label = $v_obj->get_name();
-                                    }
-                                    $v_price = floatval($v_obj->get_price()) ?: 0;
-                                    $v_reg   = floatval($v_obj->get_regular_price()) ?: $v_price;
-                                    $v_img_id = $v_obj->get_image_id();
-                                    $v_img = $v_img_id ? wp_get_attachment_image_url($v_img_id, 'kash-product-card') : $img_url;
-                                    $variations_list[] = array(
-                                        'id'            => $vdata['variation_id'],
-                                        'label'         => $v_label,
-                                        'price'         => $v_price,
-                                        'price_html'    => '₹' . number_format($v_price),
-                                        'regular_price' => $v_reg,
-                                        'in_stock'      => $v_obj->is_in_stock(),
-                                        'stock_status'  => $v_obj->get_stock_status(),
-                                        'image'         => $v_img ?: $img_url,
-                                        'attributes'    => !empty($vdata['attributes']) ? $vdata['attributes'] : array(),
-                                    );
                                 }
                             }
                         }
