@@ -1,7 +1,7 @@
 <?php
 /**
- * Curated 3-in-1-Row Collections Showcase Template Part
- * Displays 3 signature collection cards on an elegant light background
+ * Curated 3-in-1-Row Product Catalog Showcase Template Part
+ * Displays products from WooCommerce category (default: 'home') on an elegant light background
  *
  * @package KashNaturals
  */
@@ -18,97 +18,250 @@ if (!$is_enabled) {
 $theme_uri = get_template_directory_uri();
 $shop_url  = home_url('/shop');
 
-$subheading = get_theme_mod('kash_curated_subheading', __('— SIGNATURE COLLECTIONS —', 'kash-naturals'));
+$subheading = get_theme_mod('kash_curated_subheading', __('— SIGNATURE SELECTION —', 'kash-naturals'));
 $heading    = get_theme_mod('kash_curated_heading', __('Curated For The Royal Taste', 'kash-naturals'));
-$desc       = get_theme_mod('kash_curated_desc', __('Explore our three signature pillars: authentic royal digestives, artisanal Belgian chocolates, and luxury celebration hampers.', 'kash-naturals'));
+$desc       = get_theme_mod('kash_curated_desc', __('Explore our signature handcrafted royal digestives, artisanal Belgian chocolates, and luxury treats.', 'kash-naturals'));
 
-$default_cards = array(
-    1 => array(
-        'tag'         => __('BESTSELLER', 'kash-naturals'),
-        'cat_slug'    => 'mukhwas',
-        'title'       => __('Royal Artisanal Mukhwas', 'kash-naturals'),
-        'desc'        => __('Centuries-old royal recipes crafted with 100% natural fennel, dry dates, betel leaves, and soothing herbs for wholesome digestion.', 'kash-naturals'),
-        'image'       => $theme_uri . '/assets/images/mouth-fresheners.jpg',
-        'btn_text'    => __('EXPLORE MUKHWAS', 'kash-naturals'),
-        'badge_class' => 'badge-green',
-        'badge_icon'  => 'fa-solid fa-leaf',
-    ),
-    2 => array(
-        'tag'         => __('LUXURY TREATS', 'kash-naturals'),
-        'cat_slug'    => 'chocolates',
-        'title'       => __('Belgian Chocolate Dragees', 'kash-naturals'),
-        'desc'        => __('Slow-roasted Californian almonds, hazelnuts, and pistachios richly coated in smooth artisanal Belgian milk and dark chocolate.', 'kash-naturals'),
-        'image'       => $theme_uri . '/assets/images/chocolate-dragees.jpg',
-        'btn_text'    => __('EXPLORE CHOCOLATES', 'kash-naturals'),
-        'badge_class' => 'badge-brown',
-        'badge_icon'  => 'fa-solid fa-cookie',
-    ),
-    3 => array(
-        'tag'         => __('ROYAL GIFTING', 'kash-naturals'),
-        'cat_slug'    => 'gift-hampers',
-        'title'       => __('Curated Festive Hampers', 'kash-naturals'),
-        'desc'        => __('Handcrafted celebration boxes and festive assortments packed with royal aroma and heritage flavors, perfect for memorable moments.', 'kash-naturals'),
-        'image'       => $theme_uri . '/assets/images/gift-combos.jpg',
-        'btn_text'    => __('EXPLORE HAMPERS', 'kash-naturals'),
-        'badge_class' => 'badge-gold',
-        'badge_icon'  => 'fa-solid fa-gift',
-    ),
-);
+// Category & Query parameters
+$custom_slug = trim((string) get_theme_mod('kash_curated_product_cat_slug', ''));
+$cat_slug    = !empty($custom_slug) ? sanitize_title($custom_slug) : get_theme_mod('kash_curated_product_cat', 'home');
+$prod_count  = intval(get_theme_mod('kash_curated_products_count', 3));
+if ($prod_count <= 0) {
+    $prod_count = 3;
+}
+$orderby_mod = get_theme_mod('kash_curated_orderby', 'menu_order');
 
-$cards = array();
-for ($i = 1; $i <= 3; $i++) {
-    $def = $default_cards[$i];
+$show_view_all = (bool) get_theme_mod('kash_curated_show_view_all', true);
+$view_all_text = get_theme_mod('kash_curated_view_all_text', __('VIEW ALL HOME PRODUCTS', 'kash-naturals'));
+$custom_view_url = trim((string) get_theme_mod('kash_curated_view_all_url', ''));
 
-    $custom_cat   = get_theme_mod("kash_curated_card{$i}_cat", $def['cat_slug']);
-    $custom_tag   = get_theme_mod("kash_curated_card{$i}_tag", $def['tag']);
-    $custom_title = get_theme_mod("kash_curated_card{$i}_title", $def['title']);
-    $custom_desc  = get_theme_mod("kash_curated_card{$i}_desc", $def['desc']);
-    $custom_img   = get_theme_mod("kash_curated_card{$i}_image", '');
-    $custom_btn   = get_theme_mod("kash_curated_card{$i}_btn_text", $def['btn_text']);
-    $custom_url   = get_theme_mod("kash_curated_card{$i}_btn_url", '');
-
-    $item_link  = !empty($custom_url) ? $custom_url : $shop_url;
-    $count_info = '';
-    $final_img  = !empty($custom_img) ? $custom_img : $def['image'];
-
-    if (class_exists('WooCommerce') && !empty($custom_cat)) {
-        $term = get_term_by('slug', $custom_cat, 'product_cat');
+// Resolve View All URL
+$view_all_url = $custom_view_url;
+if (empty($view_all_url)) {
+    if (!empty($cat_slug) && $cat_slug !== 'all') {
+        $term = get_term_by('slug', $cat_slug, 'product_cat');
         if (!$term || is_wp_error($term)) {
-            $term = get_term_by('name', $custom_cat, 'product_cat');
+            $term = get_term_by('name', $cat_slug, 'product_cat');
         }
         if ($term && !is_wp_error($term)) {
-            if (empty($custom_url)) {
-                $item_link = get_term_link($term);
-            }
-            if (empty($custom_img)) {
-                $thumb_id = get_term_meta($term->term_id, 'thumbnail_id', true);
-                if ($thumb_id) {
-                    $wc_img = wp_get_attachment_url($thumb_id);
-                    if ($wc_img) {
-                        $final_img = $wc_img;
-                    }
-                }
-            }
-            $count_info = sprintf(_n('%s Item', '%s Items', $term->count, 'kash-naturals'), number_format_i18n($term->count));
+            $view_all_url = get_term_link($term);
+        } else {
+            $view_all_url = home_url('/product-category/' . $cat_slug . '/');
         }
+    } else {
+        $view_all_url = $shop_url;
+    }
+}
+
+$products_list = array();
+$currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹';
+
+if (class_exists('WooCommerce')) {
+    // Map orderby
+    $query_orderby = 'menu_order date';
+    $query_order   = 'ASC';
+    $meta_key      = '';
+
+    switch ($orderby_mod) {
+        case 'date':
+            $query_orderby = 'date';
+            $query_order   = 'DESC';
+            break;
+        case 'popularity':
+            $query_orderby = 'meta_value_num';
+            $meta_key      = 'total_sales';
+            $query_order   = 'DESC';
+            break;
+        case 'rating':
+            $query_orderby = 'meta_value_num';
+            $meta_key      = '_wc_average_rating';
+            $query_order   = 'DESC';
+            break;
+        case 'price':
+            $query_orderby = 'meta_value_num';
+            $meta_key      = '_price';
+            $query_order   = 'ASC';
+            break;
+        case 'price-desc':
+            $query_orderby = 'meta_value_num';
+            $meta_key      = '_price';
+            $query_order   = 'DESC';
+            break;
+        case 'menu_order':
+        default:
+            $query_orderby = 'menu_order date';
+            $query_order   = 'ASC';
+            break;
     }
 
-    $cards[$i] = array(
-        'tag'         => $custom_tag,
-        'title'       => $custom_title,
-        'desc'        => $custom_desc,
-        'image'       => $final_img,
-        'btn_text'    => $custom_btn,
-        'link'        => $item_link,
-        'count'       => $count_info,
-        'badge_class' => $def['badge_class'],
-        'badge_icon'  => $def['badge_icon'],
+    $query_args = array(
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        'posts_per_page' => $prod_count,
+        'orderby'        => $query_orderby,
+        'order'          => $query_order,
+    );
+    if (!empty($meta_key)) {
+        $query_args['meta_key'] = $meta_key;
+    }
+
+    if (!empty($cat_slug) && $cat_slug !== 'all') {
+        $slug_terms = array($cat_slug);
+        if ($cat_slug === 'home') {
+            $slug_terms = array('home', 'homepage', 'home-page');
+        }
+        $query_args['tax_query'] = array(
+            array(
+                'taxonomy'         => 'product_cat',
+                'field'            => 'slug',
+                'terms'            => $slug_terms,
+                'operator'         => 'IN',
+                'include_children' => true,
+            ),
+        );
+    }
+
+    $prod_query = new WP_Query($query_args);
+
+    // Fallback: If category query returned 0 products, query published products so section is never blank
+    if (!$prod_query->have_posts() && !empty($cat_slug) && $cat_slug !== 'all') {
+        $fallback_args = array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => $prod_count,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        );
+        $prod_query = new WP_Query($fallback_args);
+    }
+
+    if ($prod_query->have_posts()) {
+        while ($prod_query->have_posts()) {
+            $prod_query->the_post();
+            $wc_prod = wc_get_product(get_the_ID());
+            if ($wc_prod && $wc_prod->is_visible()) {
+                $pid = $wc_prod->get_id();
+
+                $img_url = wp_get_attachment_image_url($wc_prod->get_image_id(), 'kash-product-card');
+                if (!$img_url && function_exists('wc_placeholder_img_src')) {
+                    $img_url = wc_placeholder_img_src();
+                }
+                if (!$img_url) {
+                    $img_url = $theme_uri . '/assets/images/product-royal-mukhwas.jpg';
+                }
+
+                $sale_price = $wc_prod->get_price();
+                $reg_price  = $wc_prod->get_regular_price();
+                $is_sale    = $wc_prod->is_on_sale() && !empty($reg_price) && floatval($reg_price) > floatval($sale_price);
+
+                $discount_pct = 0;
+                $savings_display = '';
+                if ($is_sale && floatval($reg_price) > 0) {
+                    $savings_val  = floatval($reg_price) - floatval($sale_price);
+                    $discount_pct = round(($savings_val / floatval($reg_price)) * 100);
+                    $savings_display = sprintf(__('Save %s%s', 'kash-naturals'), $currency_symbol, number_format_i18n($savings_val));
+                }
+
+                $avg_rating = $wc_prod->get_average_rating();
+                $rating_str = ($avg_rating > 0) ? number_format((float) $avg_rating, 1) : '5.0';
+
+                // Category name
+                $term_names = wp_get_post_terms($pid, 'product_cat', array('fields' => 'names'));
+                $cat_badge = '';
+                if (!empty($term_names) && !is_wp_error($term_names)) {
+                    $filtered_names = array_filter($term_names, function($name) {
+                        $low = strtolower($name);
+                        return $low !== 'home' && $low !== 'uncategorized' && $low !== 'homepage';
+                    });
+                    $cat_badge = !empty($filtered_names) ? reset($filtered_names) : reset($term_names);
+                }
+
+                // Short Description
+                $p_desc = $wc_prod->get_short_description();
+                if (empty($p_desc)) {
+                    $p_desc = wp_strip_all_tags(get_the_excerpt());
+                }
+                $p_desc_short = wp_trim_words($p_desc, 12, '...');
+
+                $products_list[] = array(
+                    'id'                => $pid,
+                    'title'             => $wc_prod->get_name(),
+                    'link'              => get_permalink($pid),
+                    'image'             => $img_url,
+                    'category'          => $cat_badge,
+                    'desc'              => $p_desc_short,
+                    'rating'            => $rating_str,
+                    'price_display'     => !empty($sale_price) ? $currency_symbol . $sale_price : $currency_symbol . '0',
+                    'raw_price'         => $sale_price,
+                    'old_price_display' => $is_sale ? $currency_symbol . $reg_price : '',
+                    'discount_pct'      => $discount_pct,
+                    'savings_display'   => $savings_display,
+                    'in_stock'          => $wc_prod->is_in_stock(),
+                    'is_featured'       => $wc_prod->is_featured(),
+                );
+            }
+        }
+        wp_reset_postdata();
+    }
+}
+
+// Fallback luxury sample products if catalog is completely empty or WooCommerce inactive
+if (empty($products_list)) {
+    $products_list = array(
+        array(
+            'id'                => 101,
+            'title'             => __('Kash Natural Raj Ratan – Royal Digestive Mukhwas, 200g', 'kash-naturals'),
+            'link'              => $shop_url,
+            'image'             => $theme_uri . '/assets/images/product-royal-mukhwas.jpg',
+            'category'          => __('MUKHWAS', 'kash-naturals'),
+            'desc'              => __('Handcrafted royal recipe blended with aromatic fennel seeds, dry dates, and pure gulkand.', 'kash-naturals'),
+            'rating'            => '5.0',
+            'price_display'     => $currency_symbol . '179',
+            'raw_price'         => '179',
+            'old_price_display' => $currency_symbol . '300',
+            'discount_pct'      => 40,
+            'savings_display'   => __('Save ₹121', 'kash-naturals'),
+            'in_stock'          => true,
+            'is_featured'       => true,
+        ),
+        array(
+            'id'                => 102,
+            'title'             => __('Artisanal Belgian Chocolate Dragees Assortment, 180g', 'kash-naturals'),
+            'link'              => $shop_url,
+            'image'             => $theme_uri . '/assets/images/chocolate-dragees.jpg',
+            'category'          => __('CHOCOLATES', 'kash-naturals'),
+            'desc'              => __('Slow-roasted Californian almonds and pistachios generously coated in velvety Belgian chocolate.', 'kash-naturals'),
+            'rating'            => '5.0',
+            'price_display'     => $currency_symbol . '349',
+            'raw_price'         => '349',
+            'old_price_display' => $currency_symbol . '499',
+            'discount_pct'      => 30,
+            'savings_display'   => __('Save ₹150', 'kash-naturals'),
+            'in_stock'          => true,
+            'is_featured'       => false,
+        ),
+        array(
+            'id'                => 103,
+            'title'             => __('Curated Royal Festive Celebration Hamper Box', 'kash-naturals'),
+            'link'              => $shop_url,
+            'image'             => $theme_uri . '/assets/images/gift-combos.jpg',
+            'category'          => __('ROYAL HAMPERS', 'kash-naturals'),
+            'desc'              => __('Luxurious handcrafted gift assortment featuring premium digestive blends and gourmet treats.', 'kash-naturals'),
+            'rating'            => '5.0',
+            'price_display'     => $currency_symbol . '899',
+            'raw_price'         => '899',
+            'old_price_display' => $currency_symbol . '1299',
+            'discount_pct'      => 31,
+            'savings_display'   => __('Save ₹400', 'kash-naturals'),
+            'in_stock'          => true,
+            'is_featured'       => true,
+        ),
     );
 }
 ?>
 
-<!-- Curated 3-in-1-Row Collections Showcase -->
-<section class="kash-curated-collections-section" aria-label="<?php esc_attr_e('Signature Collections', 'kash-naturals'); ?>">
+<!-- Curated 3-in-1-Row Product Catalog Showcase Section -->
+<section class="kash-curated-collections-section kash-curated-catalog-section" id="curated-catalog" aria-label="<?php esc_attr_e('Featured Home Collection', 'kash-naturals'); ?>">
     <div class="container">
         
         <!-- Section Header -->
@@ -121,57 +274,127 @@ for ($i = 1; $i <= 3; $i++) {
                 <h2 class="kash-curated-title"><?php echo esc_html($heading); ?></h2>
             <?php endif; ?>
 
+            <div class="kash-curated-divider" aria-hidden="true">
+                <span class="divider-line"></span>
+                <span class="divider-icon"><i class="fa-solid fa-leaf"></i></span>
+                <span class="divider-line"></span>
+            </div>
+
             <?php if (!empty($desc)) : ?>
                 <p class="kash-curated-desc"><?php echo esc_html($desc); ?></p>
             <?php endif; ?>
         </div>
 
         <!-- 3 Cards in 1 Row Grid -->
-        <div class="kash-curated-grid">
-            <?php foreach ($cards as $card) : ?>
-                <div class="kash-curated-card">
-                    <!-- Top Media Wrap -->
+        <div class="kash-curated-grid kash-curated-product-grid">
+            <?php foreach ($products_list as $item) : 
+                $is_in_stock = isset($item['in_stock']) ? (bool) $item['in_stock'] : true;
+            ?>
+                <div class="kash-curated-card kash-product-catalog-card <?php echo !$is_in_stock ? 'item-out-of-stock' : ''; ?>">
+                    <!-- Top Media Box -->
                     <div class="kash-curated-media">
-                        <a href="<?php echo esc_url($card['link']); ?>" class="kash-curated-img-link" tabindex="-1" aria-hidden="true">
-                            <img src="<?php echo esc_url($card['image']); ?>" alt="<?php echo esc_attr($card['title']); ?>" class="kash-curated-img" loading="lazy">
+                        <a href="<?php echo esc_url($item['link']); ?>" class="kash-curated-img-link" aria-label="<?php echo esc_attr($item['title']); ?>">
+                            <img src="<?php echo esc_url($item['image']); ?>" alt="<?php echo esc_attr($item['title']); ?>" class="kash-curated-img" loading="lazy">
                         </a>
 
-                        <?php if (!empty($card['tag'])) : ?>
-                            <span class="kash-curated-tag"><?php echo esc_html($card['tag']); ?></span>
+                        <!-- Discount / Promo Badge -->
+                        <?php if (!empty($item['discount_pct']) && $item['discount_pct'] > 0) : ?>
+                            <span class="kash-curated-badge-discount">
+                                <i class="fa-solid fa-bolt"></i> <?php echo esc_html($item['discount_pct']); ?>% OFF
+                            </span>
+                        <?php elseif (!empty($item['is_featured'])) : ?>
+                            <span class="kash-curated-badge-discount badge-featured">
+                                <i class="fa-solid fa-star"></i> <?php esc_html_e('FEATURED', 'kash-naturals'); ?>
+                            </span>
                         <?php endif; ?>
 
-                        <!-- Overlapping Round Badge Emblem -->
-                        <div class="kash-curated-badge <?php echo esc_attr($card['badge_class']); ?>" aria-hidden="true">
-                            <i class="<?php echo esc_attr($card['badge_icon']); ?>"></i>
-                        </div>
+                        <!-- Rating Badge -->
+                        <span class="kash-curated-badge-rating">
+                            <i class="fa-solid fa-star"></i> <?php echo esc_html($item['rating']); ?>
+                        </span>
+
+                        <?php if (!$is_in_stock) : ?>
+                            <div class="kash-curated-stock-badge-oos">
+                                <i class="fa-solid fa-ban"></i> <?php esc_html_e('Out of Stock', 'kash-naturals'); ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
-                    <!-- Card Content Body -->
+                    <!-- Card Body -->
                     <div class="kash-curated-body">
+                        <?php if (!empty($item['category'])) : ?>
+                            <span class="kash-curated-card-cat"><?php echo esc_html($item['category']); ?></span>
+                        <?php endif; ?>
+
                         <h3 class="kash-curated-card-title">
-                            <a href="<?php echo esc_url($card['link']); ?>">
-                                <?php echo esc_html($card['title']); ?>
+                            <a href="<?php echo esc_url($item['link']); ?>">
+                                <?php echo esc_html($item['title']); ?>
                             </a>
                         </h3>
 
-                        <?php if (!empty($card['desc'])) : ?>
-                            <p class="kash-curated-card-desc"><?php echo esc_html($card['desc']); ?></p>
+                        <?php if (!empty($item['desc'])) : ?>
+                            <p class="kash-curated-card-desc"><?php echo esc_html($item['desc']); ?></p>
                         <?php endif; ?>
 
-                        <div class="kash-curated-footer">
-                            <?php if (!empty($card['count'])) : ?>
-                                <span class="kash-curated-count"><i class="fa-solid fa-layer-group"></i> <?php echo esc_html($card['count']); ?></span>
+                        <!-- Price & Savings Row -->
+                        <div class="kash-curated-price-row">
+                            <div class="kash-curated-prices">
+                                <span class="kash-curated-current-price"><?php echo esc_html($item['price_display']); ?></span>
+                                <?php if (!empty($item['old_price_display'])) : ?>
+                                    <span class="kash-curated-old-price"><?php echo esc_html($item['old_price_display']); ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <?php if (!empty($item['savings_display'])) : ?>
+                                <span class="kash-curated-savings-tag"><?php echo esc_html($item['savings_display']); ?></span>
                             <?php endif; ?>
+                        </div>
 
-                            <a href="<?php echo esc_url($card['link']); ?>" class="kash-curated-btn">
-                                <span><?php echo esc_html($card['btn_text']); ?></span>
+                        <!-- Card Action Buttons -->
+                        <div class="kash-curated-actions">
+                            <a href="<?php echo esc_url($item['link']); ?>" class="kash-curated-btn-view">
+                                <span><?php esc_html_e('View Product', 'kash-naturals'); ?></span>
                                 <i class="fa-solid fa-arrow-right"></i>
                             </a>
+
+                            <?php if ($is_in_stock) : ?>
+                                <button type="button" class="kash-curated-btn-cart add-to-cart-btn add_to_cart_button ajax_add_to_cart" 
+                                    data-product-id="<?php echo esc_attr($item['id']); ?>" 
+                                    data-product_id="<?php echo esc_attr($item['id']); ?>" 
+                                    data-product-name="<?php echo esc_attr($item['title']); ?>" 
+                                    data-product-price="<?php echo esc_attr($item['raw_price']); ?>" 
+                                    data-product-img="<?php echo esc_url($item['image']); ?>" 
+                                    aria-label="<?php echo esc_attr(sprintf(__('Add %s to cart', 'kash-naturals'), $item['title'])); ?>"
+                                    title="<?php esc_attr_e('Add to Cart', 'kash-naturals'); ?>">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                    <span><?php esc_html_e('Add to Cart', 'kash-naturals'); ?></span>
+                                </button>
+                            <?php else : ?>
+                                <button type="button" class="kash-curated-btn-cart is-oos" disabled title="<?php esc_attr_e('Out of stock', 'kash-naturals'); ?>">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <span><?php esc_html_e('Out of Stock', 'kash-naturals'); ?></span>
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
+
+        <!-- Section Footer CTA Button -->
+        <?php if ($show_view_all && !empty($view_all_url)) : ?>
+            <div class="kash-curated-footer-cta text-center">
+                <a href="<?php echo esc_url($view_all_url); ?>" class="kash-curated-view-all-btn">
+                    <span><?php echo esc_html($view_all_text); ?></span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+                <div class="kash-curated-trust-pills">
+                    <span><i class="fa-solid fa-leaf"></i> <?php esc_html_e('100% Natural', 'kash-naturals'); ?></span>
+                    <span><i class="fa-solid fa-shield-halved"></i> <?php esc_html_e('Zero Preservatives', 'kash-naturals'); ?></span>
+                    <span><i class="fa-solid fa-award"></i> <?php esc_html_e('Royal Heritage Taste', 'kash-naturals'); ?></span>
+                </div>
+            </div>
+        <?php endif; ?>
 
     </div>
 </section>

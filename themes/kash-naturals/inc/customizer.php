@@ -563,11 +563,11 @@ function kash_naturals_customize_register($wp_customize) {
     }
 
     /* ==========================================================================
-       HOMEPAGE CURATED 3-CARD COLLECTIONS SHOWCASE (Light Background)
+       HOMEPAGE CURATED PRODUCT CATALOG SHOWCASE (Light Background, 3 in 1 Row)
        ========================================================================== */
     $wp_customize->add_section('kash_curated_collections_options', array(
-        'title'       => __('Homepage 3-Card Curated Collections', 'kash-naturals'),
-        'description' => __('Configure the 3-in-1-row signature collection cards displayed on the light background.', 'kash-naturals'),
+        'title'       => __('Homepage Product Catalog (3 in 1 Row)', 'kash-naturals'),
+        'description' => __('Display products from a selected collection (e.g. Home collection) in a luxury 3-in-1-row grid on the light background.', 'kash-naturals'),
         'priority'    => 30,
     ));
 
@@ -577,7 +577,7 @@ function kash_naturals_customize_register($wp_customize) {
         'sanitize_callback' => 'wp_validate_boolean',
     ));
     $wp_customize->add_control('kash_curated_enable', array(
-        'label'       => __('Enable 3-Card Curated Section', 'kash-naturals'),
+        'label'       => __('Enable Product Catalog Section', 'kash-naturals'),
         'description' => __('Display this section on the homepage.', 'kash-naturals'),
         'section'     => 'kash_curated_collections_options',
         'type'        => 'checkbox',
@@ -585,7 +585,7 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Subheading
     $wp_customize->add_setting('kash_curated_subheading', array(
-        'default'           => __('— SIGNATURE COLLECTIONS —', 'kash-naturals'),
+        'default'           => __('— SIGNATURE SELECTION —', 'kash-naturals'),
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('kash_curated_subheading', array(
@@ -607,7 +607,7 @@ function kash_naturals_customize_register($wp_customize) {
 
     // Description
     $wp_customize->add_setting('kash_curated_desc', array(
-        'default'           => __('Explore our three signature pillars: authentic royal digestives, artisanal Belgian chocolates, and luxury celebration hampers.', 'kash-naturals'),
+        'default'           => __('Explore our signature handcrafted royal digestives, artisanal Belgian chocolates, and luxury treats.', 'kash-naturals'),
         'sanitize_callback' => 'sanitize_textarea_field',
     ));
     $wp_customize->add_control('kash_curated_desc', array(
@@ -616,116 +616,113 @@ function kash_naturals_customize_register($wp_customize) {
         'type'     => 'textarea',
     ));
 
-    // Card Defaults Setup
-    $curated_card_defaults = array(
-        1 => array(
-            'title'    => __('Royal Artisanal Mukhwas', 'kash-naturals'),
-            'tag'      => __('BESTSELLER', 'kash-naturals'),
-            'cat'      => 'mukhwas',
-            'desc'     => __('Centuries-old royal recipes crafted with 100% natural fennel, dry dates, betel leaves, and soothing herbs for wholesome digestion.', 'kash-naturals'),
-            'btn_text' => __('EXPLORE MUKHWAS', 'kash-naturals'),
-        ),
-        2 => array(
-            'title'    => __('Belgian Chocolate Dragees', 'kash-naturals'),
-            'tag'      => __('LUXURY TREATS', 'kash-naturals'),
-            'cat'      => 'chocolates',
-            'desc'     => __('Slow-roasted Californian almonds, hazelnuts, and pistachios richly coated in smooth artisanal Belgian milk and dark chocolate.', 'kash-naturals'),
-            'btn_text' => __('EXPLORE CHOCOLATES', 'kash-naturals'),
-        ),
-        3 => array(
-            'title'    => __('Curated Festive Hampers', 'kash-naturals'),
-            'tag'      => __('ROYAL GIFTING', 'kash-naturals'),
-            'cat'      => 'gift-hampers',
-            'desc'     => __('Handcrafted celebration boxes and festive assortments packed with royal aroma and heritage flavors, perfect for memorable moments.', 'kash-naturals'),
-            'btn_text' => __('EXPLORE HAMPERS', 'kash-naturals'),
-        ),
+    // Category Selector
+    $curated_cat_choices = array(
+        'home' => __('Home Collection (product-category/home/)', 'kash-naturals'),
+        'all'  => __('-- All Products (Latest) --', 'kash-naturals'),
     );
-
-    for ($c = 1; $c <= 3; $c++) {
-        $c_def = $curated_card_defaults[$c];
-
-        // Card Title
-        $wp_customize->add_setting("kash_curated_card{$c}_title", array(
-            'default'           => $c_def['title'],
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("kash_curated_card{$c}_title", array(
-            'label'       => sprintf(__('Card %d: Title', 'kash-naturals'), $c),
-            'section'     => 'kash_curated_collections_options',
-            'type'        => 'text',
-        ));
-
-        // Card Floating Tag
-        $wp_customize->add_setting("kash_curated_card{$c}_tag", array(
-            'default'           => $c_def['tag'],
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("kash_curated_card{$c}_tag", array(
-            'label'       => sprintf(__('Card %d: Floating Badge Tag', 'kash-naturals'), $c),
-            'section'     => 'kash_curated_collections_options',
-            'type'        => 'text',
-        ));
-
-        // Card Category Link
-        $wp_customize->add_setting("kash_curated_card{$c}_cat", array(
-            'default'           => $c_def['cat'],
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("kash_curated_card{$c}_cat", array(
-            'label'       => sprintf(__('Card %d: Link to Category', 'kash-naturals'), $c),
-            'description' => __('Select a category to link to automatically.', 'kash-naturals'),
-            'section'     => 'kash_curated_collections_options',
-            'type'        => 'select',
-            'choices'     => $cat_options,
-        ));
-
-        // Card Description
-        $wp_customize->add_setting("kash_curated_card{$c}_desc", array(
-            'default'           => $c_def['desc'],
-            'sanitize_callback' => 'sanitize_textarea_field',
-        ));
-        $wp_customize->add_control("kash_curated_card{$c}_desc", array(
-            'label'       => sprintf(__('Card %d: Description', 'kash-naturals'), $c),
-            'section'     => 'kash_curated_collections_options',
-            'type'        => 'textarea',
-        ));
-
-        // Card Custom Image
-        $wp_customize->add_setting("kash_curated_card{$c}_image", array(
-            'default'           => '',
-            'sanitize_callback' => 'esc_url_raw',
-        ));
-        if (class_exists('WP_Customize_Image_Control')) {
-            $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, "kash_curated_card{$c}_image", array(
-                'label'       => sprintf(__('Card %d: Custom Image (Optional)', 'kash-naturals'), $c),
-                'description' => __('Upload an image or leave blank to use the default photo.', 'kash-naturals'),
-                'section'     => 'kash_curated_collections_options',
-            )));
+    if (!empty($cat_options)) {
+        foreach ($cat_options as $c_slug => $c_label) {
+            if (!empty($c_slug) && $c_slug !== 'none' && !isset($curated_cat_choices[$c_slug])) {
+                $curated_cat_choices[$c_slug] = $c_label;
+            }
         }
-
-        // Card Button Text
-        $wp_customize->add_setting("kash_curated_card{$c}_btn_text", array(
-            'default'           => $c_def['btn_text'],
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("kash_curated_card{$c}_btn_text", array(
-            'label'       => sprintf(__('Card %d: Button Text', 'kash-naturals'), $c),
-            'section'     => 'kash_curated_collections_options',
-            'type'        => 'text',
-        ));
-
-        // Card Custom URL
-        $wp_customize->add_setting("kash_curated_card{$c}_btn_url", array(
-            'default'           => '',
-            'sanitize_callback' => 'esc_url_raw',
-        ));
-        $wp_customize->add_control("kash_curated_card{$c}_btn_url", array(
-            'label'       => sprintf(__('Card %d: Custom Button URL (Optional)', 'kash-naturals'), $c),
-            'description' => __('Leave blank to automatically link to the chosen WooCommerce category.', 'kash-naturals'),
-            'section'     => 'kash_curated_collections_options',
-            'type'        => 'url',
-        ));
     }
+
+    $wp_customize->add_setting('kash_curated_product_cat', array(
+        'default'           => 'home',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_curated_product_cat', array(
+        'label'       => __('Product Collection / Category', 'kash-naturals'),
+        'description' => __('Select which WooCommerce category to query products from. Default: Home collection.', 'kash-naturals'),
+        'section'     => 'kash_curated_collections_options',
+        'type'        => 'select',
+        'choices'     => $curated_cat_choices,
+    ));
+
+    // Custom Category Slug (Manual override if needed)
+    $wp_customize->add_setting('kash_curated_product_cat_slug', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_curated_product_cat_slug', array(
+        'label'       => __('Custom Category Slug (Optional Override)', 'kash-naturals'),
+        'description' => __('Enter a specific category slug (e.g. "home"). If left empty, uses the dropdown selection above.', 'kash-naturals'),
+        'section'     => 'kash_curated_collections_options',
+        'type'        => 'text',
+    ));
+
+    // Number of products to display
+    $wp_customize->add_setting('kash_curated_products_count', array(
+        'default'           => 3,
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control('kash_curated_products_count', array(
+        'label'       => __('Number of Products to Display', 'kash-naturals'),
+        'description' => __('Displayed in 3-in-a-row responsive grid (e.g. 3 for 1 row, 6 for 2 rows).', 'kash-naturals'),
+        'section'     => 'kash_curated_collections_options',
+        'type'        => 'select',
+        'choices'     => array(
+            3  => __('3 Products (1 Row)', 'kash-naturals'),
+            6  => __('6 Products (2 Rows)', 'kash-naturals'),
+            9  => __('9 Products (3 Rows)', 'kash-naturals'),
+            12 => __('12 Products (4 Rows)', 'kash-naturals'),
+        ),
+    ));
+
+    // Sort order
+    $wp_customize->add_setting('kash_curated_orderby', array(
+        'default'           => 'menu_order',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_curated_orderby', array(
+        'label'       => __('Product Sort Order', 'kash-naturals'),
+        'section'     => 'kash_curated_collections_options',
+        'type'        => 'select',
+        'choices'     => array(
+            'menu_order' => __('Menu Order / Default', 'kash-naturals'),
+            'date'       => __('Newest First', 'kash-naturals'),
+            'popularity' => __('Best Sellers / Popularity', 'kash-naturals'),
+            'rating'     => __('Highest Rated', 'kash-naturals'),
+            'price'      => __('Price: Low to High', 'kash-naturals'),
+            'price-desc' => __('Price: High to Low', 'kash-naturals'),
+        ),
+    ));
+
+    // Show View All Button
+    $wp_customize->add_setting('kash_curated_show_view_all', array(
+        'default'           => true,
+        'sanitize_callback' => 'wp_validate_boolean',
+    ));
+    $wp_customize->add_control('kash_curated_show_view_all', array(
+        'label'       => __('Show "View All" Button at Bottom', 'kash-naturals'),
+        'section'     => 'kash_curated_collections_options',
+        'type'        => 'checkbox',
+    ));
+
+    // View All Button Text
+    $wp_customize->add_setting('kash_curated_view_all_text', array(
+        'default'           => __('VIEW ALL HOME PRODUCTS', 'kash-naturals'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_curated_view_all_text', array(
+        'label'       => __('View All Button Text', 'kash-naturals'),
+        'section'     => 'kash_curated_collections_options',
+        'type'        => 'text',
+    ));
+
+    // View All Button Custom URL
+    $wp_customize->add_setting('kash_curated_view_all_url', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control('kash_curated_view_all_url', array(
+        'label'       => __('Custom Button URL (Optional)', 'kash-naturals'),
+        'description' => __('Leave blank to automatically link to the chosen WooCommerce collection (e.g. /product-category/home/).', 'kash-naturals'),
+        'section'     => 'kash_curated_collections_options',
+        'type'        => 'url',
+    ));
 
     /* ==========================================================================
        HOMEPAGE PROMOTIONAL PRODUCT DEAL / SPOTLIGHT SECTION
