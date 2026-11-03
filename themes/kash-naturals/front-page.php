@@ -21,6 +21,9 @@ get_header();
 <!-- Brand USPs & Value Features Bar -->
 <?php get_template_part('template-parts/content', 'usps'); ?>
 
+<!-- Curated Collections 3-Card Showcase (Light Background) -->
+<?php get_template_part('template-parts/content', 'curated-collections'); ?>
+
 <!-- Bestselling Featured Products Grid -->
 <?php get_template_part('template-parts/content', 'featured'); ?>
 
