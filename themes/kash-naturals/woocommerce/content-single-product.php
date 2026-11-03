@@ -1072,7 +1072,7 @@ if ($product && is_a($product, 'WC_Product')) {
                         <span><?php esc_html_e('Check Express Delivery & Cash on Delivery', 'kash-naturals'); ?></span>
                     </div>
                     <div class="pincode-input-row">
-                        <input type="text" id="pincodeInput" placeholder="<?php esc_attr_e('Enter 6-digit Pincode', 'kash-naturals'); ?>" maxlength="6" onkeypress="if(event.key==='Enter') checkDeliveryPincode()">
+                        <input type="text" id="pincodeInput" placeholder="<?php esc_attr_e('Enter 6-digit Pincode', 'kash-naturals'); ?>" maxlength="6" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeypress="if(event.key==='Enter') checkDeliveryPincode()">
                         <button type="button" class="btn-check-pincode" onclick="checkDeliveryPincode()"><?php esc_html_e('Check', 'kash-naturals'); ?></button>
                     </div>
                     <div id="pincodeResultMessage" class="pincode-result-msg"></div>
@@ -1710,12 +1710,139 @@ function checkDeliveryPincode() {
     const input = document.getElementById('pincodeInput');
     const pincode = input ? input.value.trim() : '';
     const msg = document.getElementById('pincodeResultMessage');
+    const checkBtn = document.querySelector('.btn-check-pincode');
     if (!msg) return;
-    
-    if (pincode.length === 6 && /^\d+$/.test(pincode)) {
-        msg.innerHTML = '<span style="color: #2e7d32; font-weight:600;"><i class="fa-solid fa-circle-check"></i> Express Delivery Available to ' + pincode + '! Estimated arrival in 2-4 business days. Free Doorstep Delivery. Cash on Delivery Available.</span>';
-    } else {
-        msg.innerHTML = '<span style="color: #d32f2f; font-weight:600;"><i class="fa-solid fa-circle-exclamation"></i> Please enter a valid 6-digit Indian Postal Pincode.</span>';
+
+    if (!pincode) {
+        msg.innerHTML = '<span style="color: #c0392b; font-weight:600;"><i class="fa-solid fa-circle-exclamation"></i> Please enter a 6-digit postal pincode.</span>';
+        return;
+    }
+
+    if (pincode.length !== 6 || !/^\d{6}$/.test(pincode)) {
+        msg.innerHTML = '<span style="color: #c0392b; font-weight:600;"><i class="fa-solid fa-circle-exclamation"></i> Invalid format: Indian Postal Codes must be exactly 6 digits.</span>';
+        return;
+    }
+
+    if (pincode.charAt(0) === '0') {
+        msg.innerHTML = '<span style="color: #c0392b; font-weight:600;"><i class="fa-solid fa-circle-xmark"></i> Invalid Indian Pincode: Postal codes in India cannot begin with 0.</span>';
+        return;
+    }
+
+    // Reject common dummy/test sequences and repeating digits (e.g. 123456, 111111, 999999)
+    const dummyCodes = [
+        '123456', '234567', '345678', '456789', '567890', '654321',
+        '000000', '111111', '222222', '333333', '444444', '555555',
+        '666666', '777777', '888888', '999999', '112233', '121212',
+        '101010', '123123'
+    ];
+    if (dummyCodes.indexOf(pincode) !== -1) {
+        msg.innerHTML = '<span style="color: #c0392b; font-weight:600;"><i class="fa-solid fa-circle-xmark"></i> Pincode <strong>' + pincode + '</strong> is not a valid Indian Postal Code. Please enter your real delivery pincode.</span>';
+        return;
+    }
+
+    // Valid 2-digit Indian Postal Circle prefixes
+    const circlePrefixMap = {
+        '11': 'Delhi', '12': 'Haryana', '13': 'Haryana',
+        '14': 'Punjab', '15': 'Punjab', '16': 'Punjab / Chandigarh',
+        '17': 'Himachal Pradesh', '18': 'Jammu & Kashmir', '19': 'Jammu & Kashmir / Ladakh',
+        '20': 'Uttar Pradesh', '21': 'Uttar Pradesh', '22': 'Uttar Pradesh', '23': 'Uttar Pradesh',
+        '24': 'Uttar Pradesh / Uttarakhand', '25': 'Uttar Pradesh', '26': 'Uttar Pradesh / Uttarakhand',
+        '27': 'Uttar Pradesh', '28': 'Uttar Pradesh',
+        '30': 'Rajasthan', '31': 'Rajasthan', '32': 'Rajasthan', '33': 'Rajasthan', '34': 'Rajasthan',
+        '36': 'Gujarat', '37': 'Gujarat', '38': 'Gujarat', '39': 'Gujarat',
+        '40': 'Maharashtra / Goa', '41': 'Maharashtra', '42': 'Maharashtra', '43': 'Maharashtra', '44': 'Maharashtra',
+        '45': 'Madhya Pradesh', '46': 'Madhya Pradesh', '47': 'Madhya Pradesh', '48': 'Madhya Pradesh',
+        '49': 'Chhattisgarh',
+        '50': 'Telangana / Andhra Pradesh', '51': 'Andhra Pradesh', '52': 'Andhra Pradesh', '53': 'Andhra Pradesh',
+        '56': 'Karnataka', '57': 'Karnataka', '58': 'Karnataka', '59': 'Karnataka',
+        '60': 'Tamil Nadu', '61': 'Tamil Nadu', '62': 'Tamil Nadu', '63': 'Tamil Nadu', '64': 'Tamil Nadu / Puducherry',
+        '67': 'Kerala', '68': 'Kerala', '69': 'Kerala / Lakshadweep',
+        '70': 'West Bengal', '71': 'West Bengal', '72': 'West Bengal', '73': 'West Bengal', '74': 'West Bengal / Andaman & Nicobar',
+        '75': 'Odisha', '76': 'Odisha', '77': 'Odisha',
+        '78': 'Assam', '79': 'North Eastern States',
+        '80': 'Bihar', '81': 'Bihar', '82': 'Bihar', '83': 'Jharkhand', '84': 'Bihar', '85': 'Bihar / Jharkhand'
+    };
+
+    const pfx = pincode.substring(0, 2);
+    if (!circlePrefixMap[pfx]) {
+        msg.innerHTML = '<span style="color: #c0392b; font-weight:600;"><i class="fa-solid fa-circle-xmark"></i> Pincode <strong>' + pincode + '</strong> does not match any valid Indian Postal Circle. Please check and try again.</span>';
+        return;
+    }
+
+    // Show verification loading spinner
+    msg.innerHTML = '<span style="color: #666; font-weight:600;"><i class="fa-solid fa-spinner fa-spin"></i> Checking postal serviceability for ' + pincode + '...</span>';
+    if (checkBtn) checkBtn.disabled = true;
+
+    function renderSuccess(loc) {
+        if (checkBtn) checkBtn.disabled = false;
+        msg.innerHTML = '<span style="color: #2C5F3E; font-weight:600; line-height: 1.5; display: inline-block;"><i class="fa-solid fa-circle-check" style="color: #2C5F3E;"></i> Express Delivery Available to <strong>' + loc + ' (' + pincode + ')</strong>! Estimated arrival in 2–4 business days. Free Doorstep Delivery. Cash on Delivery Available.</span>';
+    }
+
+    function renderError(errText) {
+        if (checkBtn) checkBtn.disabled = false;
+        msg.innerHTML = '<span style="color: #c0392b; font-weight:600; line-height: 1.5; display: inline-block;"><i class="fa-solid fa-circle-xmark"></i> ' + errText + '</span>';
+    }
+
+    // Direct India Post Directory Verification
+    const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(function() { controller.abort(); }, 3500) : null;
+
+    fetch('https://api.postalpincode.in/pincode/' + pincode, controller ? { signal: controller.signal } : {})
+        .then(function(res) {
+            if (timeoutId) clearTimeout(timeoutId);
+            return res.json();
+        })
+        .then(function(data) {
+            if (Array.isArray(data) && data[0]) {
+                if (data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+                    const po = data[0].PostOffice[0];
+                    const dist = po.District || po.Name || '';
+                    const st = po.State || circlePrefixMap[pfx];
+                    const loc = dist ? (dist + ', ' + st) : st;
+                    renderSuccess(loc);
+                } else {
+                    renderError('Pincode <strong>' + pincode + '</strong> is not a valid Indian Postal Code. Please check and enter a valid delivery pincode.');
+                }
+            } else {
+                callBackendPincodeCheck();
+            }
+        })
+        .catch(function() {
+            if (timeoutId) clearTimeout(timeoutId);
+            callBackendPincodeCheck();
+        });
+
+    function callBackendPincodeCheck() {
+        const ajaxUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url)
+            ? kash_dynamic_data.ajax_url
+            : ((typeof kash_wc_params !== 'undefined') ? kash_wc_params.ajax_url : '<?php echo esc_js(admin_url('admin-ajax.php')); ?>');
+
+        jQuery.ajax({
+            type: 'POST',
+            url: ajaxUrl,
+            data: {
+                action: 'kash_check_pincode',
+                pincode: pincode
+            },
+            dataType: 'json',
+            success: function(resp) {
+                if (checkBtn) checkBtn.disabled = false;
+                if (resp && resp.success && resp.data) {
+                    renderSuccess(resp.data.location || circlePrefixMap[pfx]);
+                } else {
+                    const errMsg = (resp && resp.data && resp.data.message) ? resp.data.message : ('Pincode <strong>' + pincode + '</strong> is not a valid Indian Postal Code.');
+                    renderError(errMsg);
+                }
+            },
+            error: function() {
+                if (checkBtn) checkBtn.disabled = false;
+                if (circlePrefixMap[pfx]) {
+                    renderSuccess(circlePrefixMap[pfx]);
+                } else {
+                    renderError('Pincode <strong>' + pincode + '</strong> is not a valid Indian Postal Code.');
+                }
+            }
+        });
     }
 }
 

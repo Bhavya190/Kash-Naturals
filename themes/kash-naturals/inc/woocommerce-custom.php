@@ -816,3 +816,127 @@ add_action('admin_bar_menu', function($wp_admin_bar) {
 remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
 remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10);
 
+/**
+ * AJAX Handler: Check Delivery Pincode Validity & Serviceability
+ * Validates against dummy postal codes, verifies Indian Postal Circles,
+ * and fetches real post office/district/state details with transient caching.
+ */
+add_action('wp_ajax_kash_check_pincode', 'kash_naturals_ajax_check_pincode');
+add_action('wp_ajax_nopriv_kash_check_pincode', 'kash_naturals_ajax_check_pincode');
+
+function kash_naturals_ajax_check_pincode() {
+    $pincode = isset($_POST['pincode']) ? sanitize_text_field(wp_unslash($_POST['pincode'])) : '';
+    $pincode = preg_replace('/[^0-9]/', '', $pincode);
+
+    if (strlen($pincode) !== 6) {
+        wp_send_json_error(array(
+            'message' => __('Please enter a valid 6-digit Indian Postal Pincode.', 'kash-naturals')
+        ));
+    }
+
+    if (substr($pincode, 0, 1) === '0') {
+        wp_send_json_error(array(
+            'message' => __('Invalid Indian Pincode: Postal codes cannot start with 0.', 'kash-naturals')
+        ));
+    }
+
+    // Dummy and test sequences
+    $dummy_codes = array(
+        '123456', '234567', '345678', '456789', '567890', '654321',
+        '000000', '111111', '222222', '333333', '444444', '555555',
+        '666666', '777777', '888888', '999999', '112233', '121212',
+        '101010', '123123'
+    );
+    if (in_array($pincode, $dummy_codes, true)) {
+        wp_send_json_error(array(
+            'message' => sprintf(__('Pincode <strong>%s</strong> is not a valid Indian Postal Code. Please enter your real delivery pincode.', 'kash-naturals'), esc_html($pincode))
+        ));
+    }
+
+    // Valid 2-digit Indian Postal Circle prefixes
+    $circle_prefix_map = array(
+        '11' => 'Delhi', '12' => 'Haryana', '13' => 'Haryana',
+        '14' => 'Punjab', '15' => 'Punjab', '16' => 'Punjab / Chandigarh',
+        '17' => 'Himachal Pradesh', '18' => 'Jammu & Kashmir', '19' => 'Jammu & Kashmir / Ladakh',
+        '20' => 'Uttar Pradesh', '21' => 'Uttar Pradesh', '22' => 'Uttar Pradesh', '23' => 'Uttar Pradesh',
+        '24' => 'Uttar Pradesh / Uttarakhand', '25' => 'Uttar Pradesh', '26' => 'Uttar Pradesh / Uttarakhand',
+        '27' => 'Uttar Pradesh', '28' => 'Uttar Pradesh',
+        '30' => 'Rajasthan', '31' => 'Rajasthan', '32' => 'Rajasthan', '33' => 'Rajasthan', '34' => 'Rajasthan',
+        '36' => 'Gujarat', '37' => 'Gujarat', '38' => 'Gujarat', '39' => 'Gujarat',
+        '40' => 'Maharashtra / Goa', '41' => 'Maharashtra', '42' => 'Maharashtra', '43' => 'Maharashtra', '44' => 'Maharashtra',
+        '45' => 'Madhya Pradesh', '46' => 'Madhya Pradesh', '47' => 'Madhya Pradesh', '48' => 'Madhya Pradesh',
+        '49' => 'Chhattisgarh',
+        '50' => 'Telangana / Andhra Pradesh', '51' => 'Andhra Pradesh', '52' => 'Andhra Pradesh', '53' => 'Andhra Pradesh',
+        '56' => 'Karnataka', '57' => 'Karnataka', '58' => 'Karnataka', '59' => 'Karnataka',
+        '60' => 'Tamil Nadu', '61' => 'Tamil Nadu', '62' => 'Tamil Nadu', '63' => 'Tamil Nadu', '64' => 'Tamil Nadu / Puducherry',
+        '67' => 'Kerala', '68' => 'Kerala', '69' => 'Kerala / Lakshadweep',
+        '70' => 'West Bengal', '71' => 'West Bengal', '72' => 'West Bengal', '73' => 'West Bengal', '74' => 'West Bengal / Andaman & Nicobar',
+        '75' => 'Odisha', '76' => 'Odisha', '77' => 'Odisha',
+        '78' => 'Assam', '79' => 'North Eastern States',
+        '80' => 'Bihar', '81' => 'Bihar', '82' => 'Bihar', '83' => 'Jharkhand', '84' => 'Bihar', '85' => 'Bihar / Jharkhand'
+    );
+
+    $pfx = substr($pincode, 0, 2);
+    if (!isset($circle_prefix_map[$pfx])) {
+        wp_send_json_error(array(
+            'message' => sprintf(__('Pincode <strong>%s</strong> does not match any valid Indian Postal Circle.', 'kash-naturals'), esc_html($pincode))
+        ));
+    }
+
+    // Check transient cache first
+    $transient_key = 'kash_pin_' . $pincode;
+    $cached = get_transient($transient_key);
+    if ($cached !== false) {
+        if (!empty($cached['valid'])) {
+            wp_send_json_success($cached);
+        } else {
+            wp_send_json_error(array(
+                'message' => sprintf(__('Pincode <strong>%s</strong> is not a valid Indian Postal Code.', 'kash-naturals'), esc_html($pincode))
+            ));
+        }
+    }
+
+    // Query India Post Directory
+    $response = wp_remote_get('https://api.postalpincode.in/pincode/' . $pincode, array(
+        'timeout' => 4,
+        'headers' => array('Accept' => 'application/json')
+    ));
+
+    if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+        if (is_array($data) && !empty($data[0])) {
+            if (isset($data[0]['Status']) && $data[0]['Status'] === 'Success' && !empty($data[0]['PostOffice'])) {
+                $po = $data[0]['PostOffice'][0];
+                $district = !empty($po['District']) ? $po['District'] : (!empty($po['Name']) ? $po['Name'] : '');
+                $state = !empty($po['State']) ? $po['State'] : $circle_prefix_map[$pfx];
+                $location = $district ? ($district . ', ' . $state) : $state;
+
+                $cache_data = array(
+                    'valid' => true,
+                    'pincode' => $pincode,
+                    'location' => $location,
+                    'state' => $state
+                );
+                set_transient($transient_key, $cache_data, DAY_IN_SECONDS * 30);
+                wp_send_json_success($cache_data);
+            } else {
+                // Postal API confirmed this 6-digit code does not exist
+                set_transient($transient_key, array('valid' => false), DAY_IN_SECONDS * 7);
+                wp_send_json_error(array(
+                    'message' => sprintf(__('Pincode <strong>%s</strong> is not a valid Indian Postal Code. Please check and enter a real delivery pincode.', 'kash-naturals'), esc_html($pincode))
+                ));
+            }
+        }
+    }
+
+    // Fallback: If external API was down or unreachable, allow based on valid Indian Circle prefix
+    wp_send_json_success(array(
+        'valid' => true,
+        'pincode' => $pincode,
+        'location' => $circle_prefix_map[$pfx],
+        'state' => $circle_prefix_map[$pfx]
+    ));
+}
+
+
