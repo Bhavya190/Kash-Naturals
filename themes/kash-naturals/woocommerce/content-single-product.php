@@ -87,6 +87,21 @@ if ($product && is_a($product, 'WC_Product')) {
         }
     }
 
+    // Video Resolution (Supports MP4 file from Media Library, YouTube, or Vimeo)
+    $product_video_url = get_post_meta($product_id, '_product_video_url', true);
+    if (empty($product_video_url)) {
+        $product_video_url = get_theme_mod('kash_default_product_video', '');
+    }
+    // High-quality sample video fallback so both video and images display immediately
+    if (empty($product_video_url)) {
+        $product_video_url = 'https://assets.mixkit.co/videos/preview/mixkit-pouring-chocolate-sauce-on-a-muffin-42171-large.mp4';
+    }
+    $product_video_poster = get_post_meta($product_id, '_product_video_poster', true);
+    if (empty($product_video_poster)) {
+        $product_video_poster = $main_img;
+    }
+    $has_video = !empty($product_video_url);
+
     // Category Resolution
     $c_slug = 'all';
     $c_name = __('Artisanal Specialty', 'kash-naturals');
@@ -251,6 +266,9 @@ if ($product && is_a($product, 'WC_Product')) {
         get_template_directory_uri() . '/assets/images/jar-calcutta-pan.jpg',
         get_template_directory_uri() . '/assets/images/jar-sweet-saunf.jpg',
     );
+    $product_video_url = 'https://assets.mixkit.co/videos/preview/mixkit-pouring-chocolate-sauce-on-a-muffin-42171-large.mp4';
+    $product_video_poster = $main_img;
+    $has_video = true;
     $c_slug = 'mouth-fresheners';
     $c_name = 'Mouth Fresheners';
     $c_link = home_url('/shop?category=mouth-fresheners');
@@ -325,28 +343,123 @@ if ($product && is_a($product, 'WC_Product')) {
         <!-- Product Main Showcase Grid -->
         <div class="product-showcase-grid">
 
-            <!-- Left: Image Gallery Showcase -->
+            <!-- Left: Image & Video Gallery Showcase -->
             <div class="product-gallery-wrapper">
                 <div class="main-image-display-card">
                     <?php if (!empty($badge)) : ?>
                         <span class="product-badge-pill-luxury"><?php echo esc_html($badge); ?></span>
                     <?php endif; ?>
-                    <?php if (!empty($discount_percent)) : ?>
-                        <span class="product-discount-tag"><?php echo esc_html($discount_percent); ?>% OFF</span>
-                    <?php endif; ?>
-                    <div class="main-img-container">
+
+                    <!-- Overlapping Top-Right Actions: Discount Tag + Share Button -->
+                    <div class="product-top-right-actions">
+                        <?php if (!empty($discount_percent)) : ?>
+                            <span class="product-discount-tag"><?php echo esc_html($discount_percent); ?>% OFF</span>
+                        <?php endif; ?>
+
+                        <!-- Overlapping Share Button on Image -->
+                        <div class="product-share-wrap">
+                            <button type="button" class="product-share-btn" id="productShareBtn" onclick="toggleProductShare(event)" aria-label="<?php esc_attr_e('Share this product', 'kash-naturals'); ?>" title="<?php esc_attr_e('Share Product', 'kash-naturals'); ?>">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </button>
+                            <div class="product-share-popover" id="productSharePopover" style="display:none;" aria-hidden="true">
+                                <div class="share-popover-header">
+                                    <span><?php esc_html_e('Share Product', 'kash-naturals'); ?></span>
+                                    <button type="button" class="close-share-btn" onclick="toggleProductShare(event)" aria-label="<?php esc_attr_e('Close Share', 'kash-naturals'); ?>">&times;</button>
+                                </div>
+                                <div class="share-options-grid">
+                                    <button type="button" class="share-option-btn btn-share-wa" onclick="kashShareAction('whatsapp')">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                        <span>WhatsApp</span>
+                                    </button>
+                                    <button type="button" class="share-option-btn btn-share-fb" onclick="kashShareAction('facebook')">
+                                        <i class="fa-brands fa-facebook-f"></i>
+                                        <span>Facebook</span>
+                                    </button>
+                                    <button type="button" class="share-option-btn btn-share-x" onclick="kashShareAction('x')">
+                                        <i class="fa-brands fa-x-twitter"></i>
+                                        <span>Twitter / X</span>
+                                    </button>
+                                    <button type="button" class="share-option-btn btn-share-copy" onclick="kashShareAction('copy')">
+                                        <i class="fa-solid fa-copy"></i>
+                                        <span class="share-copy-label"><?php esc_html_e('Copy Link', 'kash-naturals'); ?></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Image Display Container -->
+                    <div class="main-img-container" id="mainImgContainer">
                         <img id="primaryProductImg" src="<?php echo esc_url($main_img); ?>" alt="<?php echo esc_attr($product_name); ?>" loading="eager">
                     </div>
+
+                    <!-- Main Video Player Container (Supports MP4, YouTube, Vimeo) -->
+                    <?php if ($has_video) : 
+                        if (!function_exists('kash_get_video_embed_info')) {
+                            function kash_get_video_embed_info($url) {
+                                if (empty($url)) return false;
+                                $url = trim($url);
+                                if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i', $url, $matches)) {
+                                    return array(
+                                        'type'  => 'youtube',
+                                        'id'    => $matches[1],
+                                        'embed' => 'https://www.youtube.com/embed/' . $matches[1] . '?autoplay=1&rel=0&enablejsapi=1',
+                                    );
+                                }
+                                if (preg_match('/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/i', $url, $matches)) {
+                                    return array(
+                                        'type'  => 'vimeo',
+                                        'id'    => $matches[3],
+                                        'embed' => 'https://player.vimeo.com/video/' . $matches[3] . '?autoplay=1',
+                                    );
+                                }
+                                return array(
+                                    'type' => 'mp4',
+                                    'url'  => $url,
+                                );
+                            }
+                        }
+                        $video_info = kash_get_video_embed_info($product_video_url);
+                    ?>
+                        <div class="main-video-container" id="mainVideoContainer" style="display:none;" data-video-type="<?php echo esc_attr($video_info['type']); ?>">
+                            <?php if ($video_info['type'] === 'youtube') : ?>
+                                <iframe id="kashProductVideoIframe" src="" data-src="<?php echo esc_url($video_info['embed']); ?>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="kash-video-iframe"></iframe>
+                            <?php elseif ($video_info['type'] === 'vimeo') : ?>
+                                <iframe id="kashProductVideoIframe" src="" data-src="<?php echo esc_url($video_info['embed']); ?>" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="kash-video-iframe"></iframe>
+                            <?php else : ?>
+                                <video id="kashProductVideoEl" class="kash-video-html5" controls playsinline preload="metadata" poster="<?php echo esc_url($product_video_poster); ?>">
+                                    <source src="<?php echo esc_url($video_info['url']); ?>" type="video/mp4">
+                                    <?php esc_html_e('Your browser does not support HTML5 video.', 'kash-naturals'); ?>
+                                </video>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Floating Watch Video Quick Pill on Image -->
+                        <button type="button" class="product-play-video-pill" id="productPlayVideoPill" onclick="switchToProductVideo()" aria-label="<?php esc_attr_e('Play Product Video', 'kash-naturals'); ?>">
+                            <i class="fa-solid fa-circle-play"></i>
+                            <span><?php esc_html_e('Watch Video', 'kash-naturals'); ?></span>
+                        </button>
+                    <?php endif; ?>
                 </div>
 
-                <!-- Gallery Thumbnails Strip -->
-                <?php if (count($gallery_images) > 1) : ?>
+                <!-- Gallery Thumbnails Strip (Both Images & Video) -->
+                <?php if (count($gallery_images) > 1 || $has_video) : ?>
                     <div class="gallery-thumbs-strip">
                         <?php foreach ($gallery_images as $index => $thumb_src) : ?>
-                            <button type="button" class="thumb-btn <?php echo ($index === 0) ? 'active' : ''; ?>" onclick="changeProductImage(this, '<?php echo esc_js($thumb_src); ?>')" aria-label="Product Image <?php echo $index + 1; ?>">
+                            <button type="button" class="thumb-btn thumb-img-btn <?php echo ($index === 0) ? 'active' : ''; ?>" onclick="changeProductMedia(this, 'image', '<?php echo esc_js($thumb_src); ?>')" aria-label="Product Image <?php echo $index + 1; ?>">
                                 <img src="<?php echo esc_url($thumb_src); ?>" alt="Thumbnail <?php echo $index + 1; ?>">
                             </button>
                         <?php endforeach; ?>
+
+                        <?php if ($has_video) : ?>
+                            <button type="button" class="thumb-btn thumb-video-btn" onclick="changeProductMedia(this, 'video', '')" aria-label="<?php esc_attr_e('Product Video', 'kash-naturals'); ?>" title="<?php esc_attr_e('Watch Product Video', 'kash-naturals'); ?>">
+                                <div class="thumb-video-poster">
+                                    <img src="<?php echo esc_url($product_video_poster); ?>" alt="<?php esc_attr_e('Video Preview', 'kash-naturals'); ?>">
+                                    <span class="video-play-overlay-badge"><i class="fa-solid fa-play"></i></span>
+                                </div>
+                                <span class="thumb-video-caption"><i class="fa-solid fa-film"></i> VIDEO</span>
+                            </button>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
@@ -729,18 +842,135 @@ if ($product && is_a($product, 'WC_Product')) {
     </div>
 </div>
 
-<!-- Inline JavaScript for Image Switcher, Pack Size, Quantity, Pincode & Tabs -->
+<!-- Inline JavaScript for Image Switcher, Video Player, Share Popover, Pack Size, Quantity, Pincode & Tabs -->
 <script>
-function changeProductImage(thumbBtn, newSrc) {
+function changeProductMedia(thumbBtn, type, newSrc) {
     document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
-    thumbBtn.classList.add('active');
+    if (thumbBtn) thumbBtn.classList.add('active');
+
+    const imgContainer = document.getElementById('mainImgContainer');
+    const videoContainer = document.getElementById('mainVideoContainer');
     const mainImg = document.getElementById('primaryProductImg');
-    if (mainImg) {
-        mainImg.style.opacity = '0.35';
-        setTimeout(() => {
-            mainImg.src = newSrc;
-            mainImg.style.opacity = '1';
-        }, 120);
+    const videoEl = document.getElementById('kashProductVideoEl');
+    const videoIframe = document.getElementById('kashProductVideoIframe');
+    const playPill = document.getElementById('productPlayVideoPill');
+
+    if (type === 'video') {
+        if (imgContainer) imgContainer.style.display = 'none';
+        if (playPill) playPill.style.display = 'none';
+        if (videoContainer) {
+            videoContainer.style.display = 'block';
+            if (videoIframe && videoIframe.dataset.src && !videoIframe.src) {
+                videoIframe.src = videoIframe.dataset.src;
+            }
+            if (videoEl) {
+                videoEl.play().catch(function() {});
+            }
+        }
+    } else {
+        // Switch back to Image
+        if (videoContainer) {
+            videoContainer.style.display = 'none';
+            if (videoEl) {
+                videoEl.pause();
+            }
+            if (videoIframe && videoIframe.src) {
+                const cur = videoIframe.src;
+                videoIframe.src = '';
+                videoIframe.src = cur;
+            }
+        }
+        if (playPill) playPill.style.display = 'inline-flex';
+        if (imgContainer) {
+            imgContainer.style.display = 'block';
+            if (mainImg && newSrc) {
+                mainImg.style.opacity = '0.35';
+                setTimeout(() => {
+                    mainImg.src = newSrc;
+                    mainImg.style.opacity = '1';
+                }, 120);
+            }
+        }
+    }
+}
+
+function switchToProductVideo() {
+    const videoThumb = document.querySelector('.thumb-video-btn');
+    if (videoThumb) {
+        changeProductMedia(videoThumb, 'video', '');
+    } else {
+        changeProductMedia(null, 'video', '');
+    }
+}
+
+function changeProductImage(thumbBtn, newSrc) {
+    changeProductMedia(thumbBtn, 'image', newSrc);
+}
+
+function toggleProductShare(e) {
+    if (e) e.stopPropagation();
+    const sharePopover = document.getElementById('productSharePopover');
+
+    // On mobile devices, invoke native Web Share API
+    if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+        navigator.share({
+            title: document.title,
+            text: 'Discover ' + document.title + ' on Kash Naturals',
+            url: window.location.href
+        }).catch(function() {});
+        return;
+    }
+
+    if (sharePopover) {
+        const isShown = sharePopover.style.display !== 'none';
+        sharePopover.style.display = isShown ? 'none' : 'block';
+    }
+}
+
+document.addEventListener('click', function(e) {
+    const sharePopover = document.getElementById('productSharePopover');
+    const shareWrap = document.querySelector('.product-share-wrap');
+    if (sharePopover && shareWrap && !shareWrap.contains(e.target)) {
+        sharePopover.style.display = 'none';
+    }
+});
+
+function kashShareAction(channel) {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(document.title);
+
+    if (channel === 'whatsapp') {
+        window.open('https://api.whatsapp.com/send?text=' + title + '%20' + url, '_blank');
+    } else if (channel === 'facebook') {
+        window.open('https://www.facebook.com/sharer/sharer.php?u=' + url, '_blank');
+    } else if (channel === 'x') {
+        window.open('https://twitter.com/intent/tweet?url=' + url + '&text=' + title, '_blank');
+    } else if (channel === 'copy') {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(window.location.href).then(onLinkCopied);
+        } else {
+            const temp = document.createElement('input');
+            document.body.appendChild(temp);
+            temp.value = window.location.href;
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            onLinkCopied();
+        }
+    }
+}
+
+function onLinkCopied() {
+    const label = document.querySelector('.share-copy-label');
+    if (label) {
+        const orig = label.textContent;
+        label.textContent = 'Copied!';
+        setTimeout(() => { label.textContent = orig; }, 2500);
+    }
+    if (typeof showToast === 'function') {
+        showToast('Product link copied to clipboard!', 'success');
+    } else {
+        alert('Product link copied to clipboard!');
     }
 }
 

@@ -137,6 +137,18 @@ function kash_naturals_customize_register($wp_customize) {
         'type'     => 'text',
     ));
 
+    // Default Product Video URL
+    $wp_customize->add_setting('kash_default_product_video', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control('kash_default_product_video', array(
+        'label'       => __('Default Product Video URL (Optional)', 'kash-naturals'),
+        'description' => __('Optional default MP4, YouTube, or Vimeo link for products that do not have their own video set in WooCommerce.', 'kash-naturals'),
+        'section'     => 'kash_brand_options',
+        'type'        => 'url',
+    ));
+
     // =========================================================================
     // Homepage Hero Carousel Options
     // =========================================================================

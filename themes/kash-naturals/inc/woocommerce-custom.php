@@ -229,6 +229,33 @@ function kash_naturals_render_product_data_panel() {
             'desc_tip'    => true,
             'description' => __('Price when the 2nd pack size pill is selected.', 'kash-naturals'),
         ));
+
+        ?>
+        <h3 style="margin-top: 25px; color: #2C5F3E; border-bottom: 2px solid #e0eae1; padding-bottom: 8px;">
+            <i class="dashicons dashicons-video-alt3"></i> <?php esc_html_e('Product Video (MP4 / YouTube / Vimeo)', 'kash-naturals'); ?>
+        </h3>
+        <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
+            <?php esc_html_e('Add a product video that displays alongside product images in the gallery on the product detail page.', 'kash-naturals'); ?>
+        </p>
+        <?php
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_product_video_url',
+            'label'       => __('Product Video URL', 'kash-naturals'),
+            'placeholder' => 'https://example.com/video.mp4 or https://youtu.be/XYZ',
+            'desc_tip'    => true,
+            'description' => __('Direct MP4 file URL from Media Library, or a YouTube / Vimeo link.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
+
+        woocommerce_wp_text_input(array(
+            'id'          => '_product_video_poster',
+            'label'       => __('Video Thumbnail / Poster (Optional)', 'kash-naturals'),
+            'placeholder' => 'https://example.com/poster.jpg',
+            'desc_tip'    => true,
+            'description' => __('Custom image URL for video preview thumbnail. Defaults to main product image.', 'kash-naturals'),
+            'style'       => 'width: 70%;',
+        ));
         ?>
 
     </div>
@@ -257,6 +284,8 @@ function kash_naturals_save_custom_product_fields($post_id) {
         '_pack_size_1_label'    => 'text',
         '_pack_size_2_label'    => 'text',
         '_pack_size_2_price'    => 'text',
+        '_product_video_url'    => 'text',
+        '_product_video_poster' => 'text',
     );
 
     foreach ($fields as $field => $type) {
