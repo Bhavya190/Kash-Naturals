@@ -280,21 +280,24 @@ if (class_exists('WooCommerce')) {
             $shop_query->the_post();
             $wc_prod = wc_get_product(get_the_ID());
             if ($wc_prod && $wc_prod->is_visible()) {
-                $is_variable = $wc_prod->is_type('variable');
-                $variations_data = array();
+                $variations_data = function_exists('kash_get_product_variations_data') ? kash_get_product_variations_data($wc_prod) : array();
+                $has_variations  = !empty($variations_data) && count($variations_data) > 1;
+                $is_variable     = $wc_prod->is_type('variable') || $has_variations;
                 
-                if ($is_variable) {
-                    if (function_exists('kash_get_product_variations_data')) {
-                        $variations_data = kash_get_product_variations_data($wc_prod);
-                    }
+                if ($has_variations && !empty($variations_data[0]['price'])) {
+                    $sale_price = $variations_data[0]['price'];
+                    $raw_price  = floatval($sale_price);
+                    $reg_price  = !empty($variations_data[0]['regular_price']) ? $variations_data[0]['regular_price'] : $wc_prod->get_regular_price();
+                    $price_html = $currency_symbol . number_format($sale_price);
+                } elseif ($wc_prod->is_type('variable')) {
                     $sale_price = $wc_prod->get_variation_price('min', true);
-                    $raw_price = floatval($sale_price);
-                    $reg_price = $wc_prod->get_variation_regular_price('max', true);
+                    $raw_price  = floatval($sale_price);
+                    $reg_price  = $wc_prod->get_variation_regular_price('max', true);
                     $price_html = $wc_prod->get_price_html();
                 } else {
                     $sale_price = $wc_prod->get_price();
-                    $raw_price = floatval($sale_price);
-                    $reg_price = $wc_prod->get_regular_price();
+                    $raw_price  = floatval($sale_price);
+                    $reg_price  = $wc_prod->get_regular_price();
                     $price_html = !empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0');
                 }
 
@@ -334,7 +337,7 @@ if (class_exists('WooCommerce')) {
                 $dynamic_products[] = array(
                     'id'            => $wc_prod->get_id(),
                     'name'          => $wc_prod->get_name(),
-                    'is_variable'   => ($is_variable && !empty($variations_data)),
+                    'is_variable'   => $has_variations,
                     'variations'    => $variations_data,
                     'category'      => $current_category,
                     'category_name' => !empty($cat_names) ? $cat_names : __('Specialty', 'kash-naturals'),

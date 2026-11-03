@@ -26,17 +26,19 @@ if (!$img_url && function_exists('wc_placeholder_img_src')) {
 $cats = wc_get_product_category_list($prod_id);
 $cat_names = wp_strip_all_tags($cats);
 
-$is_variable = $product->is_type('variable');
-$variations_data = array();
-if ($is_variable) {
-    if (function_exists('kash_get_product_variations_data')) {
-        $variations_data = kash_get_product_variations_data($product);
-    }
+$variations_data = function_exists('kash_get_product_variations_data') ? kash_get_product_variations_data($product) : array();
+$has_variations  = !empty($variations_data) && count($variations_data) > 1;
+$is_variable     = $product->is_type('variable') || $has_variations;
+
+if ($has_variations && !empty($variations_data[0]['price'])) {
+    $sale_price = $variations_data[0]['price'];
+    $reg_price  = !empty($variations_data[0]['regular_price']) ? $variations_data[0]['regular_price'] : $product->get_regular_price();
+} elseif ($product->is_type('variable')) {
     $sale_price = $product->get_variation_price('min', true);
-    $reg_price = $product->get_variation_regular_price('max', true);
+    $reg_price  = $product->get_variation_regular_price('max', true);
 } else {
     $sale_price = $product->get_price();
-    $reg_price = $product->get_regular_price();
+    $reg_price  = $product->get_regular_price();
 }
 $currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹';
 
@@ -95,9 +97,9 @@ $desc_short = wp_trim_words($desc, 12, '...');
                         data-product-name="<?php the_title_attribute(); ?>" 
                         data-product-price="<?php echo esc_attr($sale_price); ?>" 
                         data-product-img="<?php echo esc_url($img_url); ?>"
-                        data-is-variable="<?php echo !empty($is_variable) ? '1' : '0'; ?>"
-                        data-variations="<?php echo !empty($variations_data) ? esc_attr(wp_json_encode($variations_data)) : ''; ?>"
-                        title="<?php echo !empty($is_variable) ? esc_attr__('Select Pack Size', 'kash-naturals') : esc_attr__('Add to Cart', 'kash-naturals'); ?>">
+                        data-is-variable="<?php echo $has_variations ? '1' : '0'; ?>"
+                        data-variations="<?php echo $has_variations ? esc_attr(wp_json_encode($variations_data)) : ''; ?>"
+                        title="<?php echo $has_variations ? esc_attr__('Select Pack Size', 'kash-naturals') : esc_attr__('Add to Cart', 'kash-naturals'); ?>">
                     <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
                 </button>
             <?php else : ?>

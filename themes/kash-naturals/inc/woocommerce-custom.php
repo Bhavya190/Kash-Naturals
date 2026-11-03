@@ -597,11 +597,17 @@ function kash_naturals_get_cart_payload() {
                 $img_url = wc_placeholder_img_src();
             }
 
+            $item_name = $_product->get_name();
+            if (!empty($cart_item['kash_pack_size']) && stripos($item_name, $cart_item['kash_pack_size']) === false) {
+                $item_name .= ' (' . $cart_item['kash_pack_size'] . ')';
+            }
+
             $items[] = array(
                 'key'               => $cart_item_key,
                 'id'                => $product_id,
                 'variation_id'      => !empty($cart_item['variation_id']) ? $cart_item['variation_id'] : 0,
-                'name'              => $_product->get_name(),
+                'name'              => $item_name,
+                'pack_size'         => !empty($cart_item['kash_pack_size']) ? $cart_item['kash_pack_size'] : '',
                 'price'             => $item_price,
                 'price_formatted'   => $currency_symbol . number_format($item_price),
                 'qty'               => $cart_item['quantity'],
@@ -645,7 +651,7 @@ add_action('wp_ajax_kash_get_cart', 'kash_naturals_ajax_get_cart');
 add_action('wp_ajax_nopriv_kash_get_cart', 'kash_naturals_ajax_get_cart');
 
 /**
- * Retrieve clean variations array for a product (checks available variations and children directly)
+ * Retrieve clean variations array for a product (checks WooCommerce variations, direct variation posts, custom pack sizes, attributes, and artisanal defaults)
  *
  * @param WC_Product|int $product_or_id
  * @return array
@@ -656,18 +662,19 @@ function kash_get_product_variations_data($product_or_id) {
         return array();
     }
 
-    if (!$product->is_type('variable')) {
-        return array();
-    }
-
-    $variations_list = array();
+    $product_id = $product->get_id();
+    $currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹';
     $main_img = wp_get_attachment_image_url($product->get_image_id(), 'kash-product-card');
     if (!$main_img && function_exists('wc_placeholder_img_src')) {
         $main_img = wc_placeholder_img_src();
     }
 
-    // 1. Try get_available_variations
-    if (method_exists($product, 'get_available_variations')) {
+    $parent_price = floatval($product->get_price()) ?: 0;
+    $parent_reg   = floatval($product->get_regular_price()) ?: ($parent_price > 0 ? round($parent_price * 1.5) : 0);
+    $variations_list = array();
+
+    // 1. If product is a Variable Product: Try get_available_variations()
+    if ($product->is_type('variable') && method_exists($product, 'get_available_variations')) {
         $av_vars = $product->get_available_variations();
         if (!empty($av_vars) && is_array($av_vars)) {
             foreach ($av_vars as $v) {
@@ -676,7 +683,7 @@ function kash_get_product_variations_data($product_or_id) {
                 if (!$v_obj) continue;
 
                 $attr_labels = array();
-                if (!empty($v['attributes'])) {
+                if (!empty($v['attributes']) && is_array($v['attributes'])) {
                     foreach ($v['attributes'] as $attr_k => $attr_v) {
                         if ($attr_v === '' || $attr_v === null) continue;
                         $tax_k = str_replace('attribute_', '', $attr_k);
@@ -689,25 +696,30 @@ function kash_get_product_variations_data($product_or_id) {
                     }
                 }
                 $v_label = !empty($attr_labels) ? implode(' - ', $attr_labels) : '';
+                if (empty($v_label) && method_exists($v_obj, 'get_formatted_variation_attributes')) {
+                    $v_label = $v_obj->get_formatted_variation_attributes(true);
+                }
                 if (empty($v_label)) {
-                    if (method_exists($v_obj, 'get_formatted_variation_attributes')) {
-                        $v_label = $v_obj->get_formatted_variation_attributes(true);
-                    }
-                    if (!$v_label) {
-                        $w = $v_obj->get_weight();
-                        $v_label = $w ? ($w . 'g') : $v_obj->get_name();
+                    $w = $v_obj->get_weight();
+                    $v_label = $w ? ($w . 'g') : $v_obj->get_name();
+                }
+
+                $v_price = floatval($v['display_price']) ?: floatval($v_obj->get_price()) ?: $parent_price;
+                $v_reg   = floatval($v['display_regular_price']) ?: floatval($v_obj->get_regular_price()) ?: ($v_price > 0 ? round($v_price * 1.5) : $parent_reg);
+
+                // Safe PHP 8 array access on image
+                $v_img = $main_img;
+                if (!empty($v['image']) && is_array($v['image']) && !empty($v['image']['src'])) {
+                    if (strpos($v['image']['src'], 'placeholder') === false) {
+                        $v_img = $v['image']['src'];
                     }
                 }
 
-                $v_price = floatval($v['display_price']) ?: floatval($v_obj->get_price()) ?: floatval($product->get_price());
-                $v_reg   = floatval($v['display_regular_price']) ?: floatval($v_obj->get_regular_price()) ?: $v_price;
-                $v_img   = (!empty($v['image']['src']) && strpos($v['image']['src'], 'placeholder') === false) ? $v['image']['src'] : $main_img;
-
                 $variations_list[] = array(
                     'id'            => $vid,
-                    'label'         => $v_label,
+                    'label'         => $v_label ?: ('Option #' . $vid),
                     'price'         => $v_price,
-                    'price_html'    => '₹' . number_format($v_price),
+                    'price_html'    => $currency_symbol . number_format($v_price),
                     'regular_price' => $v_reg,
                     'in_stock'      => !empty($v['is_in_stock']),
                     'stock_status'  => $v_obj->get_stock_status(),
@@ -718,54 +730,191 @@ function kash_get_product_variations_data($product_or_id) {
         }
     }
 
-    // 2. If get_available_variations returned empty, fallback to direct children
-    if (empty($variations_list) && method_exists($product, 'get_children')) {
-        $child_ids = $product->get_children();
+    // 2. Direct query for child variation posts if get_available_variations() returned empty
+    // (e.g. variations created in WP Admin without explicit prices, or unpurchasable status)
+    if (empty($variations_list) && ($product->is_type('variable') || method_exists($product, 'get_children'))) {
+        $child_ids = array();
+        if (method_exists($product, 'get_children')) {
+            $child_ids = (array)$product->get_children();
+        }
+        if (empty($child_ids)) {
+            $var_posts = get_posts(array(
+                'post_parent'    => $product_id,
+                'post_type'      => 'product_variation',
+                'post_status'    => array('publish', 'inherit', 'private'),
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+            ));
+            if (!empty($var_posts)) {
+                $child_ids = $var_posts;
+            }
+        }
+
         if (!empty($child_ids)) {
             foreach ($child_ids as $cid) {
                 $v_obj = wc_get_product($cid);
-                if ($v_obj && $v_obj->is_type('variation')) {
-                    $attr = $v_obj->get_variation_attributes();
-                    $attr_labels = array();
-                    if (!empty($attr)) {
-                        foreach ($attr as $attr_k => $attr_v) {
-                            if ($attr_v === '' || $attr_v === null) continue;
-                            $tax_k = str_replace('attribute_', '', $attr_k);
-                            if (taxonomy_exists($tax_k)) {
-                                $t = get_term_by('slug', $attr_v, $tax_k);
-                                $attr_labels[] = ($t && !is_wp_error($t)) ? $t->name : $attr_v;
-                            } else {
-                                $attr_labels[] = $attr_v;
-                            }
+                if (!$v_obj) continue;
+
+                $attr = method_exists($v_obj, 'get_variation_attributes') ? $v_obj->get_variation_attributes() : array();
+                $attr_labels = array();
+                if (!empty($attr) && is_array($attr)) {
+                    foreach ($attr as $attr_k => $attr_v) {
+                        if ($attr_v === '' || $attr_v === null) continue;
+                        $tax_k = str_replace('attribute_', '', $attr_k);
+                        if (taxonomy_exists($tax_k)) {
+                            $t = get_term_by('slug', $attr_v, $tax_k);
+                            $attr_labels[] = ($t && !is_wp_error($t)) ? $t->name : $attr_v;
+                        } else {
+                            $attr_labels[] = $attr_v;
                         }
                     }
-                    $v_label = !empty($attr_labels) ? implode(' - ', $attr_labels) : '';
-                    if (empty($v_label) && method_exists($v_obj, 'get_formatted_variation_attributes')) {
-                        $v_label = $v_obj->get_formatted_variation_attributes(true);
-                    }
-                    if (empty($v_label)) {
-                        $w = $v_obj->get_weight();
-                        $v_label = $w ? ($w . 'g') : $v_obj->get_name();
-                    }
+                }
+                $v_label = !empty($attr_labels) ? implode(' - ', $attr_labels) : '';
+                if (empty($v_label) && method_exists($v_obj, 'get_formatted_variation_attributes')) {
+                    $v_label = $v_obj->get_formatted_variation_attributes(true);
+                }
+                if (empty($v_label)) {
+                    $w = $v_obj->get_weight();
+                    $v_label = $w ? ($w . 'g') : $v_obj->get_name();
+                }
 
-                    $v_price = floatval($v_obj->get_price()) ?: floatval($product->get_price());
-                    $v_reg   = floatval($v_obj->get_regular_price()) ?: $v_price;
-                    $v_img_id = $v_obj->get_image_id();
-                    $v_img = $v_img_id ? wp_get_attachment_image_url($v_img_id, 'kash-product-card') : $main_img;
+                $v_raw_price = floatval($v_obj->get_price());
+                if (!$v_raw_price) {
+                    if (stripos($v_label, '500') !== false) {
+                        $v_raw_price = round($parent_price * 2.2);
+                    } else {
+                        $v_raw_price = $parent_price;
+                    }
+                }
+                $v_reg = floatval($v_obj->get_regular_price()) ?: round($v_raw_price * 1.5);
+                $v_img_id = $v_obj->get_image_id();
+                $v_img = $v_img_id ? wp_get_attachment_image_url($v_img_id, 'kash-product-card') : $main_img;
 
-                    $variations_list[] = array(
-                        'id'            => intval($cid),
-                        'label'         => $v_label,
-                        'price'         => $v_price,
-                        'price_html'    => '₹' . number_format($v_price),
-                        'regular_price' => $v_reg,
-                        'in_stock'      => $v_obj->is_in_stock(),
-                        'stock_status'  => $v_obj->get_stock_status(),
-                        'image'         => $v_img ?: $main_img,
-                        'attributes'    => $v_obj->get_variation_attributes() ?: array(),
-                    );
+                $variations_list[] = array(
+                    'id'            => intval($cid),
+                    'label'         => $v_label ?: ('Variation #' . $cid),
+                    'price'         => $v_raw_price,
+                    'price_html'    => $currency_symbol . number_format($v_raw_price),
+                    'regular_price' => $v_reg,
+                    'in_stock'      => $v_obj->is_in_stock(),
+                    'stock_status'  => $v_obj->get_stock_status(),
+                    'image'         => $v_img ?: $main_img,
+                    'attributes'    => $attr ?: array(),
+                );
+            }
+        }
+    }
+
+    // 3. Fallback: Custom Pack Size Meta Fields (_pack_size_1_label, _pack_size_2_label, _pack_size_2_price)
+    if (empty($variations_list)) {
+        $p2_label = get_post_meta($product_id, '_pack_size_2_label', true);
+        if (!empty($p2_label)) {
+            $p1_label = get_post_meta($product_id, '_pack_size_1_label', true) ?: '200 GM';
+            $p2_price = floatval(get_post_meta($product_id, '_pack_size_2_price', true)) ?: round($parent_price * 2.2);
+            $p2_reg   = round($p2_price * 1.5);
+
+            $variations_list[] = array(
+                'id'            => $product_id,
+                'label'         => $p1_label,
+                'price'         => $parent_price,
+                'price_html'    => $currency_symbol . number_format($parent_price),
+                'regular_price' => $parent_reg,
+                'in_stock'      => $product->is_in_stock(),
+                'stock_status'  => $product->get_stock_status(),
+                'image'         => $main_img,
+                'attributes'    => array('attribute_pack_size' => $p1_label),
+            );
+
+            $variations_list[] = array(
+                'id'            => $product_id . '_500g',
+                'label'         => $p2_label,
+                'price'         => $p2_price,
+                'price_html'    => $currency_symbol . number_format($p2_price),
+                'regular_price' => $p2_reg,
+                'in_stock'      => $product->is_in_stock(),
+                'stock_status'  => $product->get_stock_status(),
+                'image'         => $main_img,
+                'attributes'    => array('attribute_pack_size' => $p2_label),
+            );
+        }
+    }
+
+    // 4. Fallback: Product Attributes with multiple options (e.g. Weight: 200 GM | 500 GM)
+    if (empty($variations_list)) {
+        $attributes = $product->get_attributes();
+        if (!empty($attributes) && is_array($attributes)) {
+            foreach ($attributes as $attr_name => $attr_obj) {
+                if (is_a($attr_obj, 'WC_Product_Attribute')) {
+                    $options = $attr_obj->get_options();
+                    if (is_array($options) && count($options) > 1) {
+                        foreach ($options as $opt) {
+                            $opt_label = '';
+                            if ($attr_obj->is_taxonomy()) {
+                                $term = get_term_by('id', $opt, $attr_name);
+                                if ($term && !is_wp_error($term)) {
+                                    $opt_label = $term->name;
+                                }
+                            } else {
+                                $opt_label = (string)$opt;
+                            }
+                            if (!$opt_label) continue;
+
+                            $opt_price = $parent_price;
+                            if (stripos($opt_label, '500') !== false) {
+                                $opt_price = round($parent_price * 2.2);
+                            }
+                            $opt_reg = round($opt_price * 1.5);
+
+                            $variations_list[] = array(
+                                'id'            => $product_id . '_' . sanitize_title($opt_label),
+                                'label'         => $opt_label,
+                                'price'         => $opt_price,
+                                'price_html'    => $currency_symbol . number_format($opt_price),
+                                'regular_price' => $opt_reg,
+                                'in_stock'      => $product->is_in_stock(),
+                                'stock_status'  => $product->get_stock_status(),
+                                'image'         => $main_img,
+                                'attributes'    => array('attribute_' . sanitize_title($attr_name) => $opt_label),
+                            );
+                        }
+                        if (!empty($variations_list)) {
+                            break;
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    // 5. Ultimate Fallback: Artisanal Mukhwas Pack Sizes (200 GM & 500 GM)
+    // If the product title mentions '200g' or '200 GM' or if it's a mukhwas jar product
+    if (empty($variations_list) && $parent_price > 0) {
+        $p_title = $product->get_name();
+        $is_mukhwas_or_jar = (stripos($p_title, '200g') !== false || stripos($p_title, '200 gm') !== false || stripos($p_title, 'mukhwas') !== false || stripos($p_title, 'digestive') !== false || stripos($p_title, 'freshener') !== false);
+        if ($is_mukhwas_or_jar) {
+            $p500_price = round($parent_price * 2.2);
+            $variations_list[] = array(
+                'id'            => $product_id,
+                'label'         => '200 GM',
+                'price'         => $parent_price,
+                'price_html'    => $currency_symbol . number_format($parent_price),
+                'regular_price' => $parent_reg,
+                'in_stock'      => $product->is_in_stock(),
+                'stock_status'  => $product->get_stock_status(),
+                'image'         => $main_img,
+                'attributes'    => array('attribute_pack_size' => '200 GM'),
+            );
+            $variations_list[] = array(
+                'id'            => $product_id . '_500g',
+                'label'         => '500 GM (Value Pack)',
+                'price'         => $p500_price,
+                'price_html'    => $currency_symbol . number_format($p500_price),
+                'regular_price' => round($p500_price * 1.5),
+                'in_stock'      => $product->is_in_stock(),
+                'stock_status'  => $product->get_stock_status(),
+                'image'         => $main_img,
+                'attributes'    => array('attribute_pack_size' => '500 GM'),
+            );
         }
     }
 
@@ -808,12 +957,14 @@ function kash_naturals_ajax_add_to_cart() {
     $variation_id = isset($_POST['variation_id']) ? intval($_POST['variation_id']) : 0;
     $quantity     = isset($_POST['quantity']) ? max(1, intval($_POST['quantity'])) : 1;
     $variations   = (isset($_POST['variation']) && is_array($_POST['variation'])) ? array_map('sanitize_text_field', $_POST['variation']) : array();
+    $pack_size    = isset($_POST['pack_size']) ? sanitize_text_field(wp_unslash($_POST['pack_size'])) : '';
+    $custom_price = isset($_POST['custom_price']) ? floatval($_POST['custom_price']) : 0;
 
     if (!$product_id && !$variation_id) {
         wp_send_json_error(array('message' => __('Invalid product.', 'kash-naturals')));
     }
 
-    $target_id = $variation_id ? $variation_id : $product_id;
+    $target_id = ($variation_id && wc_get_product($variation_id)) ? $variation_id : $product_id;
     $target_product = wc_get_product($target_id);
 
     if (!$target_product || !$target_product->exists()) {
@@ -839,11 +990,20 @@ function kash_naturals_ajax_add_to_cart() {
     }
 
     if (function_exists('WC') && WC()->cart) {
-        if ($variation_id) {
+        $cart_item_data = array();
+        if (!empty($pack_size)) {
+            $cart_item_data['kash_pack_size'] = $pack_size;
+        }
+        if ($custom_price > 0) {
+            $cart_item_data['kash_custom_price'] = $custom_price;
+        }
+
+        $is_wc_variation = $variation_id && $target_product->is_type('variation');
+        if ($is_wc_variation) {
             $parent_id = $product_id ? $product_id : $target_product->get_parent_id();
-            WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations);
+            WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations, $cart_item_data);
         } else {
-            WC()->cart->add_to_cart($product_id, $quantity);
+            WC()->cart->add_to_cart($product_id, $quantity, 0, array(), $cart_item_data);
         }
 
         WC()->cart->calculate_totals();
@@ -855,13 +1015,48 @@ function kash_naturals_ajax_add_to_cart() {
         }
     }
 
+    $display_name = $target_product->get_name();
+    if (!empty($pack_size) && stripos($display_name, $pack_size) === false) {
+        $display_name .= ' - ' . $pack_size;
+    }
+
     wp_send_json_success(array(
-        'message' => sprintf(__('Added "%s" to your shopping bag!', 'kash-naturals'), $target_product->get_name()),
+        'message' => sprintf(__('Added "%s" to your shopping bag!', 'kash-naturals'), $display_name),
         'cart'    => kash_naturals_get_cart_payload(),
     ));
 }
 add_action('wp_ajax_kash_add_to_cart', 'kash_naturals_ajax_add_to_cart');
 add_action('wp_ajax_nopriv_kash_add_to_cart', 'kash_naturals_ajax_add_to_cart');
+
+/**
+ * Custom Pack Size & Dynamic Pricing WooCommerce Filter Hooks
+ */
+add_action('woocommerce_before_calculate_totals', function ($cart) {
+    if (is_admin() && !defined('DOING_AJAX')) return;
+    if (did_action('woocommerce_before_calculate_totals') >= 2) return;
+
+    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        if (!empty($cart_item['kash_custom_price'])) {
+            $cart_item['data']->set_price(floatval($cart_item['kash_custom_price']));
+        }
+    }
+}, 20, 1);
+
+add_filter('woocommerce_get_item_data', function ($item_data, $cart_item) {
+    if (!empty($cart_item['kash_pack_size'])) {
+        $item_data[] = array(
+            'key'   => __('Pack Size', 'kash-naturals'),
+            'value' => esc_html($cart_item['kash_pack_size']),
+        );
+    }
+    return $item_data;
+}, 10, 2);
+
+add_action('woocommerce_checkout_create_order_line_item', function ($item, $cart_item_key, $values, $order) {
+    if (!empty($values['kash_pack_size'])) {
+        $item->add_meta_data(__('Pack Size', 'kash-naturals'), $values['kash_pack_size'], true);
+    }
+}, 10, 4);
 
 /**
  * AJAX Handler: Update Cart Item Quantity

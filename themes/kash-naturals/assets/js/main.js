@@ -544,18 +544,24 @@ jQuery(document).ready(function ($) {
     }
     window.syncWithWooCommerceCart = syncWithWooCommerceCart;
 
-    function syncAddToCartWooCommerce(productId, quantity, variationId, variationData) {
+    function syncAddToCartWooCommerce(productId, quantity, variationId, variationData, customPrice, packLabel) {
         if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
             const postPayload = {
                 action: 'kash_add_to_cart',
                 product_id: productId,
                 quantity: quantity
             };
-            if (variationId) {
+            if (variationId && (!isNaN(variationId) || typeof variationId === 'number')) {
                 postPayload.variation_id = variationId;
             }
             if (variationData) {
                 postPayload.variation = variationData;
+            }
+            if (customPrice) {
+                postPayload.custom_price = customPrice;
+            }
+            if (packLabel) {
+                postPayload.pack_size = packLabel;
             }
             $.ajax({
                 type: 'POST',
@@ -799,7 +805,7 @@ jQuery(document).ready(function ($) {
         saveCart(cart);
         showToast(`Added "${varName}" to your shopping bag!`);
         // Cart drawer popup disabled per user request
-        syncAddToCartWooCommerce(product.id, qty, variant.id, variant.attributes || {});
+        syncAddToCartWooCommerce(product.id, qty, variant.id, variant.attributes || {}, varPrice, variant.label);
     }
     window.addVariantToCart = addVariantToCart;
 
@@ -923,7 +929,7 @@ jQuery(document).ready(function ($) {
             match = PRODUCTS_DB.find(p => p.name.toLowerCase().includes(prodName.toLowerCase()) || prodName.toLowerCase().includes(p.name.toLowerCase()));
         }
 
-        let isVariable = $btn.data('is-variable') == '1' || $btn.attr('data-is-variable') == '1';
+        let isVariable = $btn.data('is-variable') == '1' || $btn.attr('data-is-variable') == '1' || (match && match.is_variable);
         let btnVariations = $btn.data('variations');
         if (typeof btnVariations === 'string' && btnVariations.length > 2) {
             try {
@@ -932,9 +938,23 @@ jQuery(document).ready(function ($) {
                 btnVariations = null;
             }
         }
+        if (!btnVariations || !Array.isArray(btnVariations) || !btnVariations.length) {
+            let rawAttr = $btn.attr('data-variations');
+            if (typeof rawAttr === 'string' && rawAttr.length > 2) {
+                try {
+                    btnVariations = JSON.parse(rawAttr);
+                } catch (err) {
+                    btnVariations = null;
+                }
+            }
+        }
+        if ((!btnVariations || !btnVariations.length) && match && match.variations && match.variations.length > 0) {
+            btnVariations = match.variations;
+            isVariable = true;
+        }
 
-        // 1. If variations are attached directly to button, open variant modal immediately!
-        if (btnVariations && Array.isArray(btnVariations) && btnVariations.length > 0) {
+        // 1. If variations are attached directly to button or match, open variant modal immediately!
+        if (btnVariations && Array.isArray(btnVariations) && btnVariations.length > 1) {
             openVariantModal({
                 id: prodId || (match ? match.id : 0),
                 name: prodName || (match ? match.name : 'Artisanal Specialty'),
@@ -946,14 +966,9 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        // 2. If product in PRODUCTS_DB has variations, open variant modal!
-        if (match && match.is_variable && match.variations && match.variations.length > 0) {
-            openVariantModal(match);
-            return;
-        }
-
-        // 3. If marked as variable but variations not yet loaded into memory, fetch on-demand!
-        if (isVariable || (match && match.is_variable)) {
+        // 2. If marked as variable or product title indicates standard 200g artisanal jar, fetch on-demand!
+        const hasWeightHint = prodName && (prodName.toLowerCase().indexOf('200g') !== -1 || prodName.toLowerCase().indexOf('200 g') !== -1 || prodName.toLowerCase().indexOf('mukhwas') !== -1);
+        if (isVariable || hasWeightHint) {
             const targetProdId = prodId || (match ? match.id : 0);
             const origHtml = $btn.html();
             $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
@@ -965,12 +980,28 @@ jQuery(document).ready(function ($) {
                 dataType: 'json',
                 success: function (res) {
                     $btn.prop('disabled', false).html(origHtml);
-                    if (res && res.success && res.data && res.data.variations && res.data.variations.length > 0) {
+                    if (res && res.success && res.data && res.data.variations && res.data.variations.length > 1) {
                         if (match) {
                             match.is_variable = true;
                             match.variations = res.data.variations;
                         }
                         openVariantModal(res.data);
+                    } else if (hasWeightHint) {
+                        // Client-side synthesis fallback if server has no extra variations configured
+                        const basePrice = parseFloat($btn.data('product-price')) || (match ? match.price : 179);
+                        const pImg = $btn.data('product-img') || (match ? match.image : '');
+                        const synthVariations = [
+                            { id: targetProdId, label: '200 GM', price: basePrice, regular_price: Math.round(basePrice * 1.5), in_stock: true, image: pImg },
+                            { id: targetProdId + '_500g', label: '500 GM (Value Pack)', price: Math.round(basePrice * 2.2), regular_price: Math.round(basePrice * 3.3), in_stock: true, image: pImg }
+                        ];
+                        openVariantModal({
+                            id: targetProdId,
+                            name: prodName || (match ? match.name : 'Artisanal Specialty'),
+                            image: pImg,
+                            price: basePrice,
+                            is_variable: true,
+                            variations: synthVariations
+                        });
                     } else if (match) {
                         addToCart(match.id, 1);
                     } else if (prodId) {
@@ -979,7 +1010,22 @@ jQuery(document).ready(function ($) {
                 },
                 error: function () {
                     $btn.prop('disabled', false).html(origHtml);
-                    if (match) {
+                    if (hasWeightHint) {
+                        const basePrice = parseFloat($btn.data('product-price')) || (match ? match.price : 179);
+                        const pImg = $btn.data('product-img') || (match ? match.image : '');
+                        const synthVariations = [
+                            { id: targetProdId, label: '200 GM', price: basePrice, regular_price: Math.round(basePrice * 1.5), in_stock: true, image: pImg },
+                            { id: targetProdId + '_500g', label: '500 GM (Value Pack)', price: Math.round(basePrice * 2.2), regular_price: Math.round(basePrice * 3.3), in_stock: true, image: pImg }
+                        ];
+                        openVariantModal({
+                            id: targetProdId,
+                            name: prodName || (match ? match.name : 'Artisanal Specialty'),
+                            image: pImg,
+                            price: basePrice,
+                            is_variable: true,
+                            variations: synthVariations
+                        });
+                    } else if (match) {
                         addToCart(match.id, 1);
                     } else if (prodId) {
                         addToCart(prodId, 1);

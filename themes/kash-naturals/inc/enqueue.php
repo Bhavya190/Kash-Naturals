@@ -74,46 +74,17 @@ function kash_naturals_scripts() {
                     $c_slug = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->slug : 'all';
                     $c_name = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->name : 'Specialty';
 
-                    $is_var = $prod->is_type('variable');
-                    $variations_list = array();
-                    if ($is_var) {
-                        if (function_exists('kash_get_product_variations_data')) {
-                            $variations_list = kash_get_product_variations_data($prod);
-                        } elseif (method_exists($prod, 'get_available_variations')) {
-                            $av_vars = $prod->get_available_variations();
-                            if (is_array($av_vars)) {
-                                foreach ($av_vars as $vdata) {
-                                    $v_obj = wc_get_product($vdata['variation_id']);
-                                    if ($v_obj) {
-                                        $v_label = '';
-                                        if (method_exists($v_obj, 'get_formatted_variation_attributes')) {
-                                            $v_label = $v_obj->get_formatted_variation_attributes(true);
-                                        }
-                                        if (!$v_label && !empty($vdata['attributes'])) {
-                                            $v_label = implode(' / ', array_values($vdata['attributes']));
-                                        }
-                                        if (!$v_label) {
-                                            $v_label = $v_obj->get_name();
-                                        }
-                                        $v_price = floatval($v_obj->get_price()) ?: 0;
-                                        $v_reg   = floatval($v_obj->get_regular_price()) ?: $v_price;
-                                        $v_img_id = $v_obj->get_image_id();
-                                        $v_img = $v_img_id ? wp_get_attachment_image_url($v_img_id, 'kash-product-card') : $img_url;
-                                        $variations_list[] = array(
-                                            'id'            => $vdata['variation_id'],
-                                            'label'         => $v_label,
-                                            'price'         => $v_price,
-                                            'price_html'    => '₹' . number_format($v_price),
-                                            'regular_price' => $v_reg,
-                                            'in_stock'      => $v_obj->is_in_stock(),
-                                            'stock_status'  => $v_obj->get_stock_status(),
-                                            'image'         => $v_img ?: $img_url,
-                                            'attributes'    => !empty($vdata['attributes']) ? $vdata['attributes'] : array(),
-                                        );
-                                    }
-                                }
-                            }
-                        }
+                    $variations_list = function_exists('kash_get_product_variations_data') ? kash_get_product_variations_data($prod) : array();
+                    $has_variations  = !empty($variations_list) && count($variations_list) > 1;
+                    $is_var          = $prod->is_type('variable') || $has_variations;
+
+                    $prod_price = floatval($prod->get_price()) ?: 0;
+                    if ($has_variations && !empty($variations_list[0]['price'])) {
+                        $prod_price = floatval($variations_list[0]['price']);
+                    }
+                    $prod_reg = floatval($prod->get_regular_price()) ?: $prod_price;
+                    if ($has_variations && !empty($variations_list[0]['regular_price'])) {
+                        $prod_reg = floatval($variations_list[0]['regular_price']);
                     }
 
                     $dynamic_products_js[] = array(
@@ -121,8 +92,8 @@ function kash_naturals_scripts() {
                         'name'          => $prod->get_name(),
                         'category'      => $c_slug,
                         'category_name' => $c_name,
-                        'price'         => floatval($prod->get_price()) ?: 0,
-                        'regular_price' => floatval($prod->get_regular_price()) ?: floatval($prod->get_price()),
+                        'price'         => $prod_price,
+                        'regular_price' => $prod_reg,
                         'image'         => $img_url ?: '',
                         'badge'         => $prod->is_on_sale() ? 'Sale' : ($prod->is_featured() ? 'Featured' : ''),
                         'rating'        => ($prod->get_average_rating() > 0) ? number_format((float)$prod->get_average_rating(), 1) : '5.0',
@@ -133,7 +104,7 @@ function kash_naturals_scripts() {
                         'stock_quantity'=> $prod->managing_stock() ? $prod->get_stock_quantity() : null,
                         'managing_stock'=> $prod->managing_stock(),
                         'backorders'    => $prod->backorders_allowed(),
-                        'is_variable'   => ($is_var && !empty($variations_list)),
+                        'is_variable'   => $has_variations,
                         'variations'    => $variations_list,
                     );
                 }
