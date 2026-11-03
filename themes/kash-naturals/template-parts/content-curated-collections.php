@@ -26,6 +26,20 @@ $desc       = get_theme_mod('kash_curated_desc', __('Explore our signature handc
 $custom_slug = trim((string) get_theme_mod('kash_curated_product_cat_slug', ''));
 $cat_slug    = !empty($custom_slug) ? sanitize_title($custom_slug) : get_theme_mod('kash_curated_product_cat', 'home');
 $prod_count  = intval(get_theme_mod('kash_curated_products_count', 3));
+
+// Check front page post meta override if saved directly in page editor
+$front_page_id = (int) get_option('page_on_front');
+if ($front_page_id) {
+    $meta_count = get_post_meta($front_page_id, '_kash_curated_products_count', true);
+    if (!empty($meta_count) && is_numeric($meta_count) && intval($meta_count) > 0) {
+        $prod_count = intval($meta_count);
+    }
+    $meta_cat = get_post_meta($front_page_id, '_kash_curated_product_cat', true);
+    if (!empty($meta_cat)) {
+        $cat_slug = sanitize_title($meta_cat);
+    }
+}
+
 if ($prod_count <= 0) {
     $prod_count = 3;
 }

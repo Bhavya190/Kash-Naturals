@@ -653,21 +653,22 @@ function kash_naturals_customize_register($wp_customize) {
         'type'        => 'text',
     ));
 
-    // Number of products to display
+    // Number of products to display (Free numeric input - numbers can be anything)
     $wp_customize->add_setting('kash_curated_products_count', array(
         'default'           => 3,
         'sanitize_callback' => 'absint',
     ));
     $wp_customize->add_control('kash_curated_products_count', array(
         'label'       => __('Number of Products to Display', 'kash-naturals'),
-        'description' => __('Displayed in 3-in-a-row responsive grid (e.g. 3 for 1 row, 6 for 2 rows).', 'kash-naturals'),
+        'description' => __('Enter any number of products you want to display (e.g. 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, etc.). Numbers can be anything.', 'kash-naturals'),
         'section'     => 'kash_curated_collections_options',
-        'type'        => 'select',
-        'choices'     => array(
-            3  => __('3 Products (1 Row)', 'kash-naturals'),
-            6  => __('6 Products (2 Rows)', 'kash-naturals'),
-            9  => __('9 Products (3 Rows)', 'kash-naturals'),
-            12 => __('12 Products (4 Rows)', 'kash-naturals'),
+        'type'        => 'number',
+        'input_attrs' => array(
+            'min'         => 1,
+            'max'         => 999,
+            'step'        => 1,
+            'placeholder' => '3',
+            'style'       => 'width: 120px;',
         ),
     ));
 
@@ -1254,3 +1255,308 @@ add_action('customize_register', 'kash_naturals_customize_register');
 function kash_sanitize_checkbox($checked) {
     return (isset($checked) && true === (bool) $checked);
 }
+
+/**
+ * ============================================================================
+ * HOMEPAGE PRODUCTS CATALOG: DIRECT WP-ADMIN MENU & EDIT PAGE SETTINGS
+ * Allows entering ANY number of products directly from WordPress admin
+ * ============================================================================
+ */
+
+/**
+ * Add "Homepage Products Catalog" Admin Submenu under Appearance in WP Admin
+ */
+function kash_curated_admin_menu() {
+    add_theme_page(
+        __('Homepage Products Catalog Settings', 'kash-naturals'),
+        __('Homepage Products Catalog', 'kash-naturals'),
+        'edit_theme_options',
+        'kash-curated-products',
+        'kash_curated_render_admin_page'
+    );
+}
+add_action('admin_menu', 'kash_curated_admin_menu');
+
+/**
+ * Render the dedicated WP Admin Settings Page
+ */
+function kash_curated_render_admin_page() {
+    if (!current_user_can('edit_theme_options')) {
+        return;
+    }
+
+    // Handle Form Submission
+    if (isset($_POST['kash_save_curated']) && check_admin_referer('kash_curated_settings_nonce', 'kash_curated_nonce')) {
+        if (isset($_POST['kash_curated_products_count'])) {
+            $new_count = max(1, intval($_POST['kash_curated_products_count']));
+            set_theme_mod('kash_curated_products_count', $new_count);
+            
+            // Also sync to front page post meta if front page exists
+            $fp_id = (int) get_option('page_on_front');
+            if ($fp_id) {
+                update_post_meta($fp_id, '_kash_curated_products_count', $new_count);
+            }
+        }
+        if (isset($_POST['kash_curated_product_cat'])) {
+            set_theme_mod('kash_curated_product_cat', sanitize_text_field($_POST['kash_curated_product_cat']));
+        }
+        if (isset($_POST['kash_curated_product_cat_slug'])) {
+            set_theme_mod('kash_curated_product_cat_slug', sanitize_title($_POST['kash_curated_product_cat_slug']));
+        }
+        if (isset($_POST['kash_curated_heading'])) {
+            set_theme_mod('kash_curated_heading', sanitize_text_field($_POST['kash_curated_heading']));
+        }
+        if (isset($_POST['kash_curated_subheading'])) {
+            set_theme_mod('kash_curated_subheading', sanitize_text_field($_POST['kash_curated_subheading']));
+        }
+        if (isset($_POST['kash_curated_desc'])) {
+            set_theme_mod('kash_curated_desc', sanitize_textarea_field($_POST['kash_curated_desc']));
+        }
+        set_theme_mod('kash_curated_enable', isset($_POST['kash_curated_enable']) ? true : false);
+
+        echo '<div class="notice notice-success is-dismissible" style="margin-top: 15px;"><p><strong>' . esc_html__('Settings saved successfully! Homepage product catalog updated.', 'kash-naturals') . '</strong></p></div>';
+    }
+
+    $current_count = intval(get_theme_mod('kash_curated_products_count', 3));
+    $current_cat   = get_theme_mod('kash_curated_product_cat', 'home');
+    $current_slug  = get_theme_mod('kash_curated_product_cat_slug', '');
+    $current_head  = get_theme_mod('kash_curated_heading', __('Curated For The Royal Taste', 'kash-naturals'));
+    $current_sub   = get_theme_mod('kash_curated_subheading', __('— SIGNATURE SELECTION —', 'kash-naturals'));
+    $current_desc  = get_theme_mod('kash_curated_desc', __('Explore our signature handcrafted royal digestives, artisanal Belgian chocolates, and luxury treats.', 'kash-naturals'));
+    $current_en    = (bool) get_theme_mod('kash_curated_enable', true);
+
+    // Dynamic categories from WooCommerce
+    $categories = array();
+    if (class_exists('WooCommerce')) {
+        $terms = get_terms(array('taxonomy' => 'product_cat', 'hide_empty' => false));
+        if (!empty($terms) && !is_wp_error($terms)) {
+            foreach ($terms as $t) {
+                $categories[$t->slug] = $t->name . ' (' . $t->count . ' products)';
+            }
+        }
+    }
+    ?>
+    <div class="wrap" style="max-width: 880px;">
+        <h1 style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <span class="dashicons dashicons-products" style="font-size: 32px; width: 32px; height: 32px; color: #0a331a;"></span>
+            <?php esc_html_e('Homepage Product Catalog Settings', 'kash-naturals'); ?>
+        </h1>
+
+        <div style="background: #ffffff; border-radius: 12px; border: 1px solid #ccd0d4; padding: 26px 32px; box-shadow: 0 3px 12px rgba(0,0,0,0.04);">
+            <p style="font-size: 14px; color: #444; margin-top: 0; margin-bottom: 22px;">
+                <?php esc_html_e('Manage the light-background Product Catalog section shown on your homepage. You can set any number of products to display, choose which category to show, and customize all titles.', 'kash-naturals'); ?>
+            </p>
+
+            <form method="post" action="">
+                <?php wp_nonce_field('kash_curated_settings_nonce', 'kash_curated_nonce'); ?>
+
+                <table class="form-table" style="margin-top: 0;">
+                    <tr>
+                        <th scope="row" style="width: 250px;">
+                            <label for="kash_curated_products_count" style="font-weight: 700; font-size: 14px; color: #0a331a;">
+                                <?php esc_html_e('Number of Products to Display', 'kash-naturals'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="number" id="kash_curated_products_count" name="kash_curated_products_count" value="<?php echo esc_attr($current_count); ?>" min="1" max="999" step="1" style="width: 130px; font-size: 18px; font-weight: bold; padding: 8px 12px; border-radius: 6px; border: 2px solid #0a331a; color: #0a331a;" required />
+                            <p class="description" style="margin-top: 6px; color: #555; font-size: 13px;">
+                                <strong><?php esc_html_e('Numbers can be anything!', 'kash-naturals'); ?></strong> <?php esc_html_e('Enter any number you wish (e.g. 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, etc.). Displayed in clean 3-in-a-row cards on desktop.', 'kash-naturals'); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="kash_curated_product_cat" style="font-weight: 700; font-size: 14px;">
+                                <?php esc_html_e('Collection / Category', 'kash-naturals'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <select id="kash_curated_product_cat" name="kash_curated_product_cat" style="min-width: 280px; font-size: 14px; padding: 6px 10px; border-radius: 6px;">
+                                <option value="home" <?php selected($current_cat, 'home'); ?>><?php esc_html_e('Home Collection (slug: home)', 'kash-naturals'); ?></option>
+                                <option value="all" <?php selected($current_cat, 'all'); ?>><?php esc_html_e('-- All Products (Latest) --', 'kash-naturals'); ?></option>
+                                <?php foreach ($categories as $c_slug => $c_name) : 
+                                    if ($c_slug === 'home') continue;
+                                ?>
+                                    <option value="<?php echo esc_attr($c_slug); ?>" <?php selected($current_cat, $c_slug); ?>><?php echo esc_html($c_name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description" style="margin-top: 6px; color: #555;">
+                                <?php esc_html_e('Select the category to query products from. Default is Home (slug: home).', 'kash-naturals'); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="kash_curated_product_cat_slug" style="font-weight: 700; font-size: 14px;">
+                                <?php esc_html_e('Manual Category Slug (Optional)', 'kash-naturals'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="text" id="kash_curated_product_cat_slug" name="kash_curated_product_cat_slug" value="<?php echo esc_attr($current_slug); ?>" placeholder="home" class="regular-text" style="border-radius: 6px;" />
+                            <p class="description" style="margin-top: 6px; color: #555;">
+                                <?php esc_html_e('Optional override if you want to type a specific slug like "home" directly.', 'kash-naturals'); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="kash_curated_heading" style="font-weight: 700; font-size: 14px;">
+                                <?php esc_html_e('Section Main Title', 'kash-naturals'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="text" id="kash_curated_heading" name="kash_curated_heading" value="<?php echo esc_attr($current_head); ?>" class="regular-text" style="border-radius: 6px;" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="kash_curated_subheading" style="font-weight: 700; font-size: 14px;">
+                                <?php esc_html_e('Subheading / Eyebrow', 'kash-naturals'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="text" id="kash_curated_subheading" name="kash_curated_subheading" value="<?php echo esc_attr($current_sub); ?>" class="regular-text" style="border-radius: 6px;" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="kash_curated_desc" style="font-weight: 700; font-size: 14px;">
+                                <?php esc_html_e('Section Description', 'kash-naturals'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <textarea id="kash_curated_desc" name="kash_curated_desc" rows="3" class="large-text" style="border-radius: 6px;"><?php echo esc_textarea($current_desc); ?></textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="kash_curated_enable" style="font-weight: 700; font-size: 14px;">
+                                <?php esc_html_e('Enable Section', 'kash-naturals'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <label>
+                                <input type="checkbox" id="kash_curated_enable" name="kash_curated_enable" value="1" <?php checked($current_en, true); ?> />
+                                <?php esc_html_e('Display this product catalog section on the homepage', 'kash-naturals'); ?>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+
+                <p class="submit" style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 14px;">
+                    <input type="submit" name="kash_save_curated" class="button button-primary button-large" value="<?php esc_attr_e('Save Changes', 'kash-naturals'); ?>" style="background: #0a331a; border-color: #0a331a; font-weight: bold; border-radius: 6px; padding: 6px 28px; font-size: 15px;" />
+                    <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=kash_curated_collections_options')); ?>" class="button button-secondary" style="border-radius: 6px; padding: 6px 16px;">
+                        <?php esc_html_e('Open in Live Customizer', 'kash-naturals'); ?>
+                    </a>
+                </p>
+            </form>
+        </div>
+    </div>
+    <?php
+}
+
+/**
+ * Add Meta Box on the Front Page editor in WP Admin
+ */
+function kash_curated_add_page_metabox() {
+    global $post;
+    if (!$post) {
+        return;
+    }
+
+    $front_page_id = (int) get_option('page_on_front');
+    $is_front_page = ($front_page_id && (int) $post->ID === $front_page_id);
+    $slug          = $post->post_name;
+    $template      = get_post_meta($post->ID, '_wp_page_template', true);
+
+    if ($is_front_page || $slug === 'home' || $template === 'front-page.php') {
+        add_meta_box(
+            'kash_curated_homepage_metabox',
+            __('Homepage Product Catalog Section Settings', 'kash-naturals'),
+            'kash_curated_render_page_metabox',
+            'page',
+            'normal',
+            'high'
+        );
+    }
+}
+add_action('add_meta_boxes', 'kash_curated_add_page_metabox');
+
+function kash_curated_render_page_metabox($post) {
+    wp_nonce_field('kash_curated_metabox_save', 'kash_curated_metabox_nonce');
+
+    $meta_count = get_post_meta($post->ID, '_kash_curated_products_count', true);
+    if ($meta_count === '' || $meta_count === false) {
+        $count_val = get_theme_mod('kash_curated_products_count', 3);
+    } else {
+        $count_val = intval($meta_count);
+    }
+
+    $meta_cat = get_post_meta($post->ID, '_kash_curated_product_cat', true);
+    if (empty($meta_cat)) {
+        $meta_cat = get_theme_mod('kash_curated_product_cat', 'home');
+    }
+    ?>
+    <div style="padding: 6px 0;">
+        <p style="margin-bottom: 16px; color: #555; font-size: 13px;">
+            <?php esc_html_e('Customize the products shown in the 3-in-a-row light collection catalog on the homepage.', 'kash-naturals'); ?>
+        </p>
+
+        <table class="form-table" style="margin: 0;">
+            <tr>
+                <th scope="row" style="width: 240px; font-weight: 600;">
+                    <label for="kash_mb_products_count"><?php esc_html_e('Number of Products to Display', 'kash-naturals'); ?></label>
+                </th>
+                <td>
+                    <input type="number" id="kash_mb_products_count" name="kash_curated_products_count" value="<?php echo esc_attr($count_val); ?>" min="1" max="999" step="1" style="width: 120px; font-weight: bold; font-size: 16px; padding: 5px 10px; border-radius: 4px;" />
+                    <span class="description" style="margin-left: 12px; color: #555;">
+                        <strong><?php esc_html_e('Numbers can be anything!', 'kash-naturals'); ?></strong> <?php esc_html_e('(e.g. 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, etc.)', 'kash-naturals'); ?>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row" style="font-weight: 600;">
+                    <label for="kash_mb_product_cat"><?php esc_html_e('Collection / Category Slug', 'kash-naturals'); ?></label>
+                </th>
+                <td>
+                    <input type="text" id="kash_mb_product_cat" name="kash_curated_product_cat" value="<?php echo esc_attr($meta_cat); ?>" placeholder="home" class="regular-text" style="border-radius: 4px;" />
+                    <span class="description" style="margin-left: 12px; color: #555;">
+                        <?php esc_html_e('Default is "home" (product-category/home/).', 'kash-naturals'); ?>
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <?php
+}
+
+function kash_curated_save_page_metabox($post_id) {
+    if (!isset($_POST['kash_curated_metabox_nonce']) || !wp_verify_nonce($_POST['kash_curated_metabox_nonce'], 'kash_curated_metabox_save')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    if (!current_user_can('edit_page', $post_id)) {
+        return;
+    }
+
+    if (isset($_POST['kash_curated_products_count'])) {
+        $count = max(1, intval($_POST['kash_curated_products_count']));
+        update_post_meta($post_id, '_kash_curated_products_count', $count);
+        set_theme_mod('kash_curated_products_count', $count);
+    }
+
+    if (isset($_POST['kash_curated_product_cat'])) {
+        $cat = sanitize_title($_POST['kash_curated_product_cat']);
+        update_post_meta($post_id, '_kash_curated_product_cat', $cat);
+        set_theme_mod('kash_curated_product_cat', $cat);
+    }
+}
+add_action('save_post', 'kash_curated_save_page_metabox');

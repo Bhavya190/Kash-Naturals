@@ -5619,8 +5619,8 @@ img {
         gap: 24px;
     }
 
-    /* 3rd Card centered across 2 columns on tablet if 3 items */
-    .kash-curated-card:nth-child(3):last-child {
+    /* Any odd trailing card centered across 2 columns on tablet */
+    .kash-curated-card:nth-child(odd):last-child {
         grid-column: span 2;
         max-width: 480px;
         justify-self: center;
@@ -5652,7 +5652,7 @@ img {
         gap: 24px;
     }
 
-    .kash-curated-card:nth-child(3):last-child {
+    .kash-curated-card:nth-child(odd):last-child {
         grid-column: span 1;
         max-width: 100%;
     }
