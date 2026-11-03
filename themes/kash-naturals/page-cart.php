@@ -100,7 +100,56 @@ $shop_url      = function_exists('wc_get_page_permalink') ? wc_get_page_permalin
         </div>
 
         <!-- Free Shipping Threshold Banner (Synced with Drawer & Checkout) -->
-        <div class="kash-free-shipping-card" id="kash-cart-shipping-card">
+        <?php
+        // Prepare initial cart state from WooCommerce
+        $wc_cart_items_json = array();
+        $is_wc_active = class_exists('WooCommerce');
+        $is_wc_cart_empty = true;
+        $has_wc_items = false;
+
+        if ($is_wc_active && function_exists('WC') && WC()->cart) {
+            if (WC()->cart->is_empty()) {
+                $is_wc_cart_empty = true;
+                $has_wc_items = false;
+            } else {
+                $is_wc_cart_empty = false;
+                $has_wc_items = true;
+                foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                    $_product = apply_filters('woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key);
+                    if ($_product && $_product->exists() && $cart_item['quantity'] > 0) {
+                        $pid = $cart_item['product_id'];
+                        $var_id = !empty($cart_item['variation_id']) ? $cart_item['variation_id'] : 0;
+                        $img_id = $_product->get_image_id();
+                        $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'medium') : $theme_uri . '/assets/images/jar-royal-mukhwas.jpg';
+                        $price = floatval($_product->get_price());
+                        $regular = floatval($_product->get_regular_price());
+                        if (!$regular || $regular <= $price) {
+                            $regular = $price + 121;
+                        }
+                        $wc_cart_items_json[] = array(
+                            'id' => $var_id ? $var_id : $pid,
+                            'product_id' => $pid,
+                            'variation_id' => $var_id,
+                            'key' => $cart_item_key,
+                            'name' => $_product->get_name(),
+                            'price' => $price,
+                            'regular_price' => $regular,
+                            'qty' => $cart_item['quantity'],
+                            'image' => $img_url,
+                            'remove_url' => wc_get_cart_remove_url($cart_item_key),
+                            'tags' => array('100% Vegetarian', 'Artisanal Jar')
+                        );
+                    }
+                }
+            }
+        }
+
+        $cart_count_total = count($wc_cart_items_json);
+        $cart_grid_display = $is_wc_cart_empty ? 'display: none;' : 'display: grid;';
+        $empty_box_display = $is_wc_cart_empty ? 'display: block;' : 'display: none;';
+        $shipping_card_display = $is_wc_cart_empty ? 'display: none;' : 'display: block;';
+        ?>
+        <div class="kash-free-shipping-card" id="kash-cart-shipping-card" style="<?php echo esc_attr($shipping_card_display); ?>">
             <div class="shipping-text" id="kash-cart-shipping-text">
                 <i class="fa-solid fa-truck-fast" style="color: #c68b27;"></i>
                 <span>Add <strong>₹462</strong> more to unlock <strong>FREE Express Shipping</strong>!</span>
@@ -112,53 +161,14 @@ $shop_url      = function_exists('wc_get_page_permalink') ? wc_get_page_permalin
 
         <!-- Render Cart Content Wrap -->
         <div class="kash-cart-content-wrap">
-            <?php
-            // Always render the custom high-fidelity Kash Naturals Cart UI across all environments
-            $wc_cart_items_json = array();
-            $is_wc_active = class_exists('WooCommerce');
-            $is_wc_cart_empty = false;
-            $has_wc_items = false;
-
-            if ($is_wc_active && function_exists('WC') && WC()->cart) {
-                if (WC()->cart->is_empty()) {
-                    $is_wc_cart_empty = true;
-                } else {
-                    $has_wc_items = true;
-                    foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
-                        $_product = apply_filters('woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key);
-                        if ($_product && $_product->exists() && $cart_item['quantity'] > 0) {
-                            $pid = $cart_item['product_id'];
-                            $img_id = $_product->get_image_id();
-                            $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'medium') : $theme_uri . '/assets/images/jar-royal-mukhwas.jpg';
-                            $price = floatval($_product->get_price());
-                            $regular = floatval($_product->get_regular_price());
-                            if (!$regular || $regular <= $price) {
-                                $regular = $price + 121;
-                            }
-                            $wc_cart_items_json[] = array(
-                                'id' => $pid,
-                                'key' => $cart_item_key,
-                                'name' => $_product->get_name(),
-                                'price' => $price,
-                                'regular_price' => $regular,
-                                'qty' => $cart_item['quantity'],
-                                'image' => $img_url,
-                                'remove_url' => wc_get_cart_remove_url($cart_item_key),
-                                'tags' => array('100% Vegetarian', 'Artisanal Jar')
-                            );
-                        }
-                    }
-                }
-            }
-            ?>
-            <div class="kash-cart-grid-layout" id="kash-standalone-cart">
+            <div class="kash-cart-grid-layout" id="kash-standalone-cart" style="<?php echo esc_attr($cart_grid_display); ?>">
                     <!-- Left: Items Card -->
                     <div class="kash-cart-main-col">
                         <div class="kash-card-box kash-cart-items-card">
                             <div class="kash-card-header">
                                 <div class="header-left">
                                     <h2 class="kash-card-title"><?php esc_html_e('Artisanal Items in Bag', 'kash-naturals'); ?></h2>
-                                    <span class="kash-badge-count" id="cart-page-badge-count">3 Items</span>
+                                    <span class="kash-badge-count" id="cart-page-badge-count"><?php echo esc_html($cart_count_total . ($cart_count_total === 1 ? ' Item' : ' Items')); ?></span>
                                 </div>
                                 <button type="button" class="btn-clear-cart-clean" id="btn-cart-page-clear">
                                     <i class="fa-regular fa-trash-can"></i> <?php esc_html_e('Clear Bag', 'kash-naturals'); ?>
@@ -166,99 +176,44 @@ $shop_url      = function_exists('wc_get_page_permalink') ? wc_get_page_permalin
                             </div>
 
                             <div class="kash-cart-items-list" id="cart-page-items-list">
-                                <!-- Populated dynamically by client-side script from localStorage or fallback defaults -->
-                                <div class="kash-cart-item-row" data-id="1">
-                                    <div class="item-thumb-col">
-                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/jar-royal-mukhwas.jpg'); ?>" alt="Kash Natural Raj Ratan">
-                                    </div>
-                                    <div class="item-info-col">
-                                        <a href="<?php echo esc_url(home_url('/product/kash-natural-raj-ratan')); ?>" class="item-title">
-                                            <?php esc_html_e('Kash Natural Raj Ratan – Sweet & Salty Mukhwas | Traditional Indian Mouth Freshener, 200g', 'kash-naturals'); ?>
-                                        </a>
-                                        <div class="item-price-strip">
-                                            <del class="price-original">₹300.00</del>
-                                            <span class="price-current">₹179.00</span>
-                                            <span class="badge-saving"><?php esc_html_e('Save ₹121.00', 'kash-naturals'); ?></span>
+                                <?php if (!empty($wc_cart_items_json)) : ?>
+                                    <?php foreach ($wc_cart_items_json as $item) : 
+                                        $line_total = $item['price'] * $item['qty'];
+                                        $save_per_item = max(0, $item['regular_price'] - $item['price']);
+                                        $savings_total = $save_per_item * $item['qty'];
+                                    ?>
+                                        <div class="kash-cart-item-row" data-key="<?php echo esc_attr($item['key']); ?>" data-id="<?php echo esc_attr($item['id']); ?>" data-var-id="<?php echo esc_attr($item['variation_id']); ?>">
+                                            <div class="item-thumb-col">
+                                                <img src="<?php echo esc_url($item['image']); ?>" alt="<?php echo esc_attr($item['name']); ?>">
+                                            </div>
+                                            <div class="item-info-col">
+                                                <a href="<?php echo esc_url($shop_url); ?>" class="item-title">
+                                                    <?php echo esc_html($item['name']); ?>
+                                                </a>
+                                                <div class="item-price-strip">
+                                                    <del class="price-original">₹<?php echo number_format($item['regular_price'] * $item['qty'], 2); ?></del>
+                                                    <span class="price-current">₹<?php echo number_format($line_total, 2); ?></span>
+                                                    <span class="badge-saving"><?php printf(esc_html__('Save ₹%s', 'kash-naturals'), number_format($savings_total, 2)); ?></span>
+                                                </div>
+                                                <div class="item-tags">
+                                                    <span class="tag-meta"><i class="fa-solid fa-leaf"></i> <?php esc_html_e('100% Vegetarian', 'kash-naturals'); ?></span>
+                                                    <span class="tag-meta"><?php esc_html_e('Artisanal Batch', 'kash-naturals'); ?></span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions-col">
+                                                <div class="kash-qty-selector">
+                                                    <button type="button" class="qty-btn btn-minus" data-key="<?php echo esc_attr($item['key']); ?>" data-id="<?php echo esc_attr($item['id']); ?>" data-action="decrease">&minus;</button>
+                                                    <span class="qty-value"><?php echo esc_html($item['qty']); ?></span>
+                                                    <button type="button" class="qty-btn btn-plus" data-key="<?php echo esc_attr($item['key']); ?>" data-id="<?php echo esc_attr($item['id']); ?>" data-action="increase">&plus;</button>
+                                                </div>
+                                                <div class="item-subtotal">₹<?php echo number_format($line_total, 2); ?></div>
+                                                <button type="button" class="item-trash-btn" title="<?php esc_attr_e('Remove Item', 'kash-naturals'); ?>" data-key="<?php echo esc_attr($item['key']); ?>" data-id="<?php echo esc_attr($item['id']); ?>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="item-tags">
-                                            <span class="tag-meta"><i class="fa-solid fa-leaf"></i> 100% Vegetarian</span>
-                                            <span class="tag-meta">200g Artisanal Jar</span>
-                                        </div>
-                                    </div>
-                                    <div class="item-actions-col">
-                                        <div class="kash-qty-selector">
-                                            <button type="button" class="qty-btn btn-minus" data-action="decrease">&minus;</button>
-                                            <span class="qty-value">1</span>
-                                            <button type="button" class="qty-btn btn-plus" data-action="increase">&plus;</button>
-                                        </div>
-                                        <div class="item-subtotal">₹179.00</div>
-                                        <button type="button" class="item-trash-btn" title="Remove Item" data-id="1">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="kash-cart-item-row" data-id="2">
-                                    <div class="item-thumb-col">
-                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/product-royal-mukhwas.jpg'); ?>" alt="Jamun Shots Mukhwas">
-                                    </div>
-                                    <div class="item-info-col">
-                                        <a href="<?php echo esc_url(home_url('/shop')); ?>" class="item-title">
-                                            <?php esc_html_e('Kash Natural – Jamun Shots Mukhwas | Premium Indian Mouth Freshener | Sweet & Tangy After-Meal Digestive', 'kash-naturals'); ?>
-                                        </a>
-                                        <div class="item-price-strip">
-                                            <del class="price-original">₹300.00</del>
-                                            <span class="price-current">₹179.00</span>
-                                            <span class="badge-saving"><?php esc_html_e('Save ₹121.00', 'kash-naturals'); ?></span>
-                                        </div>
-                                        <div class="item-tags">
-                                            <span class="tag-meta"><i class="fa-solid fa-leaf"></i> 100% Vegetarian</span>
-                                            <span class="tag-meta">Real Jamun Pulp</span>
-                                        </div>
-                                    </div>
-                                    <div class="item-actions-col">
-                                        <div class="kash-qty-selector">
-                                            <button type="button" class="qty-btn btn-minus" data-action="decrease">&minus;</button>
-                                            <span class="qty-value">1</span>
-                                            <button type="button" class="qty-btn btn-plus" data-action="increase">&plus;</button>
-                                        </div>
-                                        <div class="item-subtotal">₹179.00</div>
-                                        <button type="button" class="item-trash-btn" title="Remove Item" data-id="2">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="kash-cart-item-row" data-id="3">
-                                    <div class="item-thumb-col">
-                                        <img src="<?php echo esc_url($theme_uri . '/assets/images/jar-sweet-saunf.jpg'); ?>" alt="Gotli Tal Mukhwas">
-                                    </div>
-                                    <div class="item-info-col">
-                                        <a href="<?php echo esc_url(home_url('/shop')); ?>" class="item-title">
-                                            <?php esc_html_e('Kash Natural Gotli Tal Mukhwas, Crispy Salty Mix, 200g', 'kash-naturals'); ?>
-                                        </a>
-                                        <div class="item-price-strip">
-                                            <del class="price-original">₹300.00</del>
-                                            <span class="price-current">₹179.00</span>
-                                            <span class="badge-saving"><?php esc_html_e('Save ₹121.00', 'kash-naturals'); ?></span>
-                                        </div>
-                                        <div class="item-tags">
-                                            <span class="tag-meta"><i class="fa-solid fa-leaf"></i> 100% Vegetarian</span>
-                                            <span class="tag-meta">Crispy Mango Kernels</span>
-                                        </div>
-                                    </div>
-                                    <div class="item-actions-col">
-                                        <div class="kash-qty-selector">
-                                            <button type="button" class="qty-btn btn-minus" data-action="decrease">&minus;</button>
-                                            <span class="qty-value">1</span>
-                                            <button type="button" class="qty-btn btn-plus" data-action="increase">&plus;</button>
-                                        </div>
-                                        <div class="item-subtotal">₹179.00</div>
-                                        <button type="button" class="item-trash-btn" title="Remove Item" data-id="3">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </div>
 
                             <div class="kash-cart-footer-nav">
@@ -368,39 +323,18 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
 (function() {
     function initCartPage() {
         var cartContainer = document.getElementById('kash-standalone-cart');
-        if (!cartContainer) return;
+        var emptyBoxEl = document.getElementById('kash-cart-empty-box');
+        var badgeCountEl = document.getElementById('cart-page-badge-count');
+        var shippingCardEl = document.getElementById('kash-cart-shipping-card');
+        var itemsListEl = document.getElementById('cart-page-items-list');
+        var headerBadge = document.getElementById('mini-cart-count');
+        var clearBtn = document.getElementById('btn-cart-page-clear');
 
-        var defaultDemoCart = [
-            {
-                id: 1,
-                name: "Kash Natural Raj Ratan – Sweet & Salty Mukhwas | Traditional Indian Mouth Freshener, 200g",
-                price: 179,
-                regular_price: 300,
-                qty: 1,
-                image: "<?php echo esc_url($theme_uri . '/assets/images/jar-royal-mukhwas.jpg'); ?>",
-                tags: ["100% Vegetarian", "200g Artisanal Jar"]
-            },
-            {
-                id: 2,
-                name: "Kash Natural – Jamun Shots Mukhwas | Premium Indian Mouth Freshener | Sweet & Tangy After-Meal Digestive",
-                price: 179,
-                regular_price: 300,
-                qty: 1,
-                image: "<?php echo esc_url($theme_uri . '/assets/images/product-royal-mukhwas.jpg'); ?>",
-                tags: ["100% Vegetarian", "Real Jamun Pulp"]
-            },
-            {
-                id: 3,
-                name: "Kash Natural Gotli Tal Mukhwas, Crispy Salty Mix, 200g",
-                price: 179,
-                regular_price: 300,
-                qty: 1,
-                image: "<?php echo esc_url($theme_uri . '/assets/images/jar-sweet-saunf.jpg'); ?>",
-                tags: ["100% Vegetarian", "Crispy Mango Kernels"]
-            }
-        ];
+        var ajaxUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url)
+            ? kash_dynamic_data.ajax_url
+            : '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
 
-        // Retrieve existing cart or initialize with real WooCommerce or demo items
+        // Cart state initialized strictly from WooCommerce
         var cart = [];
         if (window.hasWcItems && window.kashWooCartItems && window.kashWooCartItems.length > 0) {
             cart = window.kashWooCartItems;
@@ -413,45 +347,39 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
                 var raw = localStorage.getItem('kash_cart');
                 if (raw) cart = JSON.parse(raw);
             } catch(e) {}
-            if (!cart || cart.length === 0) {
-                cart = defaultDemoCart;
-                try { localStorage.setItem('kash_cart', JSON.stringify(cart)); } catch(e) {}
-            }
         }
+        if (!Array.isArray(cart)) cart = [];
 
         var isCouponApplied = false;
 
         function renderCartPageUI() {
-            var itemsListEl = document.getElementById('cart-page-items-list');
-            var emptyBoxEl = document.getElementById('kash-cart-empty-box');
-            var badgeCountEl = document.getElementById('cart-page-badge-count');
-            var shippingCardEl = document.getElementById('kash-cart-shipping-card');
-
             if (!cart || cart.length === 0) {
-                cartContainer.style.display = 'none';
+                if (cartContainer) cartContainer.style.display = 'none';
                 if (shippingCardEl) shippingCardEl.style.display = 'none';
                 if (emptyBoxEl) emptyBoxEl.style.display = 'block';
+                if (badgeCountEl) badgeCountEl.textContent = '0 Items';
+                if (headerBadge) headerBadge.textContent = '0';
                 return;
             }
 
-            cartContainer.style.display = 'grid';
+            if (cartContainer) cartContainer.style.display = 'grid';
             if (shippingCardEl) shippingCardEl.style.display = 'block';
             if (emptyBoxEl) emptyBoxEl.style.display = 'none';
 
             var totalCount = cart.reduce(function(sum, item) { return sum + (item.qty || 1); }, 0);
             if (badgeCountEl) badgeCountEl.textContent = totalCount + (totalCount === 1 ? ' Item' : ' Items');
+            if (headerBadge) headerBadge.textContent = totalCount;
 
-            // Render items
             var html = '';
             var subtotal = 0;
             var totalSavings = 0;
 
             cart.forEach(function(item) {
                 var qty = item.qty || 1;
-                var price = parseFloat(item.price) || 179;
+                var price = parseFloat(item.price) || 0;
                 var regularPrice = parseFloat(item.regular_price) || (price + 121);
                 var lineTotal = price * qty;
-                var savePerItem = regularPrice - price;
+                var savePerItem = Math.max(0, regularPrice - price);
                 subtotal += lineTotal;
                 totalSavings += (savePerItem * qty);
 
@@ -463,12 +391,16 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
                     tagsHtml = '<span class="tag-meta"><i class="fa-solid fa-leaf"></i> 100% Vegetarian</span><span class="tag-meta">Artisanal Batch</span>';
                 }
 
-                html += '<div class="kash-cart-item-row" data-id="' + item.id + '">' +
+                var itemKeyAttr = item.key ? (' data-key="' + item.key + '"') : '';
+                var itemIdAttr = ' data-id="' + item.id + '"';
+                var varIdAttr = item.variation_id ? (' data-var-id="' + item.variation_id + '"') : '';
+
+                html += '<div class="kash-cart-item-row"' + itemKeyAttr + itemIdAttr + varIdAttr + '>' +
                     '<div class="item-thumb-col">' +
                         '<img src="' + imgUrl + '" alt="' + item.name + '" />' +
                     '</div>' +
                     '<div class="item-info-col">' +
-                        '<a href="<?php echo esc_url(home_url('/shop')); ?>" class="item-title">' + item.name + '</a>' +
+                        '<a href="<?php echo esc_url($shop_url); ?>" class="item-title">' + item.name + '</a>' +
                         '<div class="item-price-strip">' +
                             '<del class="price-original">₹' + (regularPrice * qty).toFixed(2) + '</del>' +
                             '<span class="price-current">₹' + lineTotal.toFixed(2) + '</span>' +
@@ -478,12 +410,12 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
                     '</div>' +
                     '<div class="item-actions-col">' +
                         '<div class="kash-qty-selector">' +
-                            '<button type="button" class="qty-btn btn-minus" data-id="' + item.id + '" data-action="decrease">&minus;</button>' +
+                            '<button type="button" class="qty-btn btn-minus"' + itemKeyAttr + itemIdAttr + ' data-action="decrease">&minus;</button>' +
                             '<span class="qty-value">' + qty + '</span>' +
-                            '<button type="button" class="qty-btn btn-plus" data-id="' + item.id + '" data-action="increase">&plus;</button>' +
+                            '<button type="button" class="qty-btn btn-plus"' + itemKeyAttr + itemIdAttr + ' data-action="increase">&plus;</button>' +
                         '</div>' +
                         '<div class="item-subtotal">₹' + lineTotal.toFixed(2) + '</div>' +
-                        '<button type="button" class="item-trash-btn" title="Remove Item" data-id="' + item.id + '">' +
+                        '<button type="button" class="item-trash-btn" title="Remove Item"' + itemKeyAttr + itemIdAttr + '>' +
                             '<i class="fa-regular fa-trash-can"></i>' +
                         '</button>' +
                     '</div>' +
@@ -494,12 +426,11 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
 
             // Free shipping calculation against ₹999 threshold
             var shippingThreshold = 999;
-            var shippingFee = 49;
+            var shippingFee = (subtotal >= shippingThreshold || subtotal === 0) ? 0 : 49;
             var shippingTextEl = document.getElementById('kash-cart-shipping-text');
             var shippingFillEl = document.getElementById('kash-cart-shipping-fill');
 
             if (subtotal >= shippingThreshold) {
-                shippingFee = 0;
                 if (shippingTextEl) {
                     shippingTextEl.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #27ae60;"></i> <span><strong>Congratulations!</strong> You have unlocked <strong>FREE Express Shipping</strong>!</span>';
                 }
@@ -515,7 +446,7 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
 
             // Summary Totals
             var discountVal = isCouponApplied ? (subtotal * 0.10) : 0;
-            var finalTotal = subtotal - discountVal + shippingFee;
+            var finalTotal = Math.max(0, subtotal - discountVal + shippingFee);
 
             var subtotalEl = document.getElementById('cart-page-subtotal-val');
             var shippingEl = document.getElementById('cart-page-shipping-val');
@@ -537,53 +468,172 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
                     discountRow.style.display = 'none';
                 }
             }
+        }
 
-            // Sync with global header badge if exists
-            var headerBadge = document.getElementById('mini-cart-count');
-            if (headerBadge) headerBadge.textContent = totalCount;
+        // Helper: Update cart from backend response
+        function applyBackendCart(wcCart) {
+            if (wcCart && Array.isArray(wcCart.items)) {
+                if (wcCart.items.length === 0) {
+                    cart = [];
+                    localStorage.removeItem('kash_cart');
+                } else {
+                    cart = wcCart.items.map(function(item) {
+                        return {
+                            id: item.id,
+                            key: item.key,
+                            variation_id: item.variation_id || 0,
+                            name: item.name,
+                            price: item.price,
+                            regular_price: item.price + 121,
+                            image: item.image,
+                            qty: item.qty,
+                            tags: ['100% Vegetarian', 'Artisanal Jar']
+                        };
+                    });
+                    localStorage.setItem('kash_cart', JSON.stringify(cart));
+                }
+                renderCartPageUI();
+            }
+        }
+
+        // Helper: Remove item by key or id
+        function removeItemFromCart(key, id) {
+            if (key) {
+                cart = cart.filter(function(i) { return i.key !== key; });
+            } else if (id) {
+                cart = cart.filter(function(i) { return i.id != id; });
+            }
+            if (cart.length === 0) {
+                localStorage.removeItem('kash_cart');
+            } else {
+                localStorage.setItem('kash_cart', JSON.stringify(cart));
+            }
+            renderCartPageUI();
+
+            jQuery.ajax({
+                type: 'POST',
+                url: ajaxUrl,
+                data: {
+                    action: 'kash_remove_cart_item',
+                    item_key: key || '',
+                    product_id: id || 0
+                },
+                dataType: 'json',
+                success: function(res) {
+                    if (res && res.success && res.data && res.data.cart) {
+                        applyBackendCart(res.data.cart);
+                    }
+                    if (typeof window.syncWithWooCommerceCart === 'function') {
+                        window.syncWithWooCommerceCart();
+                    }
+                    jQuery(document.body).trigger('wc_fragment_refresh');
+                }
+            });
         }
 
         // Event delegation for qty change & trash
-        cartContainer.addEventListener('click', function(e) {
-            var target = e.target.closest('button');
-            if (!target) return;
+        if (cartContainer) {
+            cartContainer.addEventListener('click', function(e) {
+                var target = e.target.closest('button');
+                if (!target) return;
 
-            var id = target.getAttribute('data-id');
-            var action = target.getAttribute('data-action');
+                var key = target.getAttribute('data-key');
+                var id = target.getAttribute('data-id');
+                var action = target.getAttribute('data-action');
 
-            if (action === 'increase' && id) {
-                var item = cart.find(function(i) { return i.id == id; });
-                if (item) {
-                    item.qty = (item.qty || 1) + 1;
-                    localStorage.setItem('kash_cart', JSON.stringify(cart));
-                    renderCartPageUI();
-                }
-            } else if (action === 'decrease' && id) {
-                var item = cart.find(function(i) { return i.id == id; });
-                if (item) {
-                    if (item.qty > 1) {
-                        item.qty -= 1;
-                    } else {
-                        cart = cart.filter(function(i) { return i.id != id; });
+                if (action === 'increase' && (key || id)) {
+                    var item = cart.find(function(i) { return (key && i.key === key) || (id && i.id == id); });
+                    if (item) {
+                        item.qty = (item.qty || 1) + 1;
+                        localStorage.setItem('kash_cart', JSON.stringify(cart));
+                        renderCartPageUI();
+
+                        jQuery.ajax({
+                            type: 'POST',
+                            url: ajaxUrl,
+                            data: {
+                                action: 'kash_update_cart_qty',
+                                item_key: key || (item.key || ''),
+                                product_id: id || item.id,
+                                quantity: item.qty
+                            },
+                            dataType: 'json',
+                            success: function(res) {
+                                if (res && res.success && res.data && res.data.cart) {
+                                    applyBackendCart(res.data.cart);
+                                }
+                                jQuery(document.body).trigger('wc_fragment_refresh');
+                            }
+                        });
                     }
-                    localStorage.setItem('kash_cart', JSON.stringify(cart));
-                    renderCartPageUI();
-                }
-            } else if (target.classList.contains('item-trash-btn') && id) {
-                cart = cart.filter(function(i) { return i.id != id; });
-                localStorage.setItem('kash_cart', JSON.stringify(cart));
-                renderCartPageUI();
-            }
-        });
+                } else if (action === 'decrease' && (key || id)) {
+                    var item = cart.find(function(i) { return (key && i.key === key) || (id && i.id == id); });
+                    if (item) {
+                        if (item.qty > 1) {
+                            item.qty -= 1;
+                            localStorage.setItem('kash_cart', JSON.stringify(cart));
+                            renderCartPageUI();
 
-        // Clear Bag Button
-        var clearBtn = document.getElementById('btn-cart-page-clear');
+                            jQuery.ajax({
+                                type: 'POST',
+                                url: ajaxUrl,
+                                data: {
+                                    action: 'kash_update_cart_qty',
+                                    item_key: key || (item.key || ''),
+                                    product_id: id || item.id,
+                                    quantity: item.qty
+                                },
+                                dataType: 'json',
+                                success: function(res) {
+                                    if (res && res.success && res.data && res.data.cart) {
+                                        applyBackendCart(res.data.cart);
+                                    }
+                                    jQuery(document.body).trigger('wc_fragment_refresh');
+                                }
+                            });
+                        } else {
+                            removeItemFromCart(key, id);
+                        }
+                    }
+                } else if (target.classList.contains('item-trash-btn') && (key || id)) {
+                    removeItemFromCart(key, id);
+                }
+            });
+        }
+
+        // Clear Bag Button (Removes all items on server & resets UI immediately)
         if (clearBtn) {
-            clearBtn.addEventListener('click', function() {
+            clearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 if (confirm('Are you sure you want to remove all items from your bag?')) {
                     cart = [];
-                    localStorage.setItem('kash_cart', JSON.stringify(cart));
+                    localStorage.removeItem('kash_cart');
                     renderCartPageUI();
+
+                    jQuery.ajax({
+                        type: 'POST',
+                        url: ajaxUrl,
+                        data: {
+                            action: 'kash_clear_cart'
+                        },
+                        dataType: 'json',
+                        success: function(res) {
+                            cart = [];
+                            localStorage.removeItem('kash_cart');
+                            renderCartPageUI();
+                            if (headerBadge) headerBadge.textContent = '0';
+                            if (typeof window.syncWithWooCommerceCart === 'function') {
+                                window.syncWithWooCommerceCart();
+                            }
+                            jQuery(document.body).trigger('wc_fragment_refresh');
+                        },
+                        error: function() {
+                            cart = [];
+                            localStorage.removeItem('kash_cart');
+                            renderCartPageUI();
+                        }
+                    });
                 }
             });
         }

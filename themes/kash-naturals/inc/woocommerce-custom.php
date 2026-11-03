@@ -703,32 +703,55 @@ add_action('wp_ajax_nopriv_kash_add_to_cart', 'kash_naturals_ajax_add_to_cart');
  * AJAX Handler: Update Cart Item Quantity
  */
 function kash_naturals_ajax_update_cart_qty() {
-    $item_key   = isset($_POST['item_key']) ? sanitize_text_field($_POST['item_key']) : '';
-    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-    $quantity   = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
+    $item_key     = isset($_POST['item_key']) ? sanitize_text_field(wp_unslash($_POST['item_key'])) : '';
+    $product_id   = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+    $variation_id = isset($_POST['variation_id']) ? intval($_POST['variation_id']) : 0;
+    $quantity     = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
 
     if (!function_exists('WC') || !WC()->cart) {
         wp_send_json_error(array('message' => __('WooCommerce cart not initialized.', 'kash-naturals')));
     }
 
     $cart = WC()->cart;
+    $handled = false;
+
+    // 1. Try by exact item_key
     if ($item_key && isset($cart->get_cart()[$item_key])) {
         if ($quantity <= 0) {
             $cart->remove_cart_item($item_key);
         } else {
             $cart->set_quantity($item_key, $quantity, true);
         }
-    } elseif ($product_id) {
+        $handled = true;
+    }
+
+    // 2. Search by key, variation_id, or product_id
+    if (!$handled) {
         foreach ($cart->get_cart() as $key => $cart_item) {
-            if ($cart_item['product_id'] == $product_id) {
+            $matches = false;
+            if ($item_key && $key === $item_key) {
+                $matches = true;
+            } elseif ($variation_id && !empty($cart_item['variation_id']) && $cart_item['variation_id'] == $variation_id) {
+                $matches = true;
+            } elseif ($product_id && ($cart_item['product_id'] == $product_id || (!empty($cart_item['variation_id']) && $cart_item['variation_id'] == $product_id))) {
+                $matches = true;
+            }
+
+            if ($matches) {
                 if ($quantity <= 0) {
                     $cart->remove_cart_item($key);
                 } else {
                     $cart->set_quantity($key, $quantity, true);
                 }
+                $handled = true;
                 break;
             }
         }
+    }
+
+    $cart->calculate_totals();
+    if (method_exists($cart, 'maybe_set_cart_cookies')) {
+        $cart->maybe_set_cart_cookies();
     }
 
     wp_send_json_success(array(
@@ -742,19 +765,42 @@ add_action('wp_ajax_nopriv_kash_update_cart_qty', 'kash_naturals_ajax_update_car
  * AJAX Handler: Remove Single Cart Item
  */
 function kash_naturals_ajax_remove_cart_item() {
-    $item_key   = isset($_POST['item_key']) ? sanitize_text_field($_POST['item_key']) : '';
-    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+    $item_key     = isset($_POST['item_key']) ? sanitize_text_field(wp_unslash($_POST['item_key'])) : '';
+    $product_id   = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+    $variation_id = isset($_POST['variation_id']) ? intval($_POST['variation_id']) : 0;
+
+    $removed = false;
 
     if (function_exists('WC') && WC()->cart) {
-        if ($item_key && isset(WC()->cart->get_cart()[$item_key])) {
-            WC()->cart->remove_cart_item($item_key);
-        } elseif ($product_id) {
-            foreach (WC()->cart->get_cart() as $key => $cart_item) {
-                if ($cart_item['product_id'] == $product_id) {
-                    WC()->cart->remove_cart_item($key);
+        $cart = WC()->cart;
+
+        // 1. Try removing by exact item_key
+        if ($item_key && isset($cart->get_cart()[$item_key])) {
+            $removed = $cart->remove_cart_item($item_key);
+        }
+
+        // 2. Fallback search by key, variation_id, or product_id
+        if (!$removed) {
+            foreach ($cart->get_cart() as $key => $cart_item) {
+                $matches = false;
+                if ($item_key && $key === $item_key) {
+                    $matches = true;
+                } elseif ($variation_id && !empty($cart_item['variation_id']) && $cart_item['variation_id'] == $variation_id) {
+                    $matches = true;
+                } elseif ($product_id && ($cart_item['product_id'] == $product_id || (!empty($cart_item['variation_id']) && $cart_item['variation_id'] == $product_id))) {
+                    $matches = true;
+                }
+
+                if ($matches) {
+                    $removed = $cart->remove_cart_item($key);
                     break;
                 }
             }
+        }
+
+        $cart->calculate_totals();
+        if (method_exists($cart, 'maybe_set_cart_cookies')) {
+            $cart->maybe_set_cart_cookies();
         }
     }
 
@@ -767,6 +813,32 @@ add_action('wp_ajax_kash_remove_cart_item', 'kash_naturals_ajax_remove_cart_item
 add_action('wp_ajax_nopriv_kash_remove_cart_item', 'kash_naturals_ajax_remove_cart_item');
 
 /**
+ * AJAX Handler: Clear / Empty Entire Cart
+ */
+function kash_naturals_ajax_clear_cart() {
+    if (function_exists('WC') && WC()->cart) {
+        WC()->cart->empty_cart();
+        WC()->cart->calculate_totals();
+        if (WC()->session) {
+            WC()->session->set('cart', array());
+        }
+        if (method_exists(WC()->cart, 'maybe_set_cart_cookies')) {
+            WC()->cart->maybe_set_cart_cookies();
+        }
+        if (function_exists('wc_clear_notices')) {
+            wc_clear_notices();
+        }
+    }
+
+    wp_send_json_success(array(
+        'message' => __('All items removed from your bag.', 'kash-naturals'),
+        'cart'    => kash_naturals_get_cart_payload(),
+    ));
+}
+add_action('wp_ajax_kash_clear_cart', 'kash_naturals_ajax_clear_cart');
+add_action('wp_ajax_nopriv_kash_clear_cart', 'kash_naturals_ajax_clear_cart');
+
+/**
  * AJAX Handler: Remove All Out-of-Stock Items from Cart
  */
 function kash_naturals_ajax_remove_out_of_stock() {
@@ -777,6 +849,10 @@ function kash_naturals_ajax_remove_out_of_stock() {
             if (!$_product || !$_product->exists() || !$_product->is_in_stock() || $_product->get_stock_status() === 'outofstock') {
                 $cart->remove_cart_item($cart_item_key);
             }
+        }
+        $cart->calculate_totals();
+        if (method_exists($cart, 'maybe_set_cart_cookies')) {
+            $cart->maybe_set_cart_cookies();
         }
     }
 
