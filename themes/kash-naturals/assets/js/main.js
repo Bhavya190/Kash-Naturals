@@ -533,6 +533,9 @@ jQuery(document).ready(function ($) {
                             localStorage.removeItem('kash_cart');
                             updateCartCountBadge();
                             renderCartDrawer();
+                            if (typeof window.renderCartPageUI === 'function') {
+                                window.renderCartPageUI();
+                            }
                         }
                     }
                 }

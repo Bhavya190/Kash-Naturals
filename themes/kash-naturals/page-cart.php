@@ -354,17 +354,38 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
 
         function renderCartPageUI() {
             if (!cart || cart.length === 0) {
-                if (cartContainer) cartContainer.style.display = 'none';
-                if (shippingCardEl) shippingCardEl.style.display = 'none';
-                if (emptyBoxEl) emptyBoxEl.style.display = 'block';
+                if (cartContainer) {
+                    cartContainer.classList.add('is-empty');
+                    cartContainer.style.setProperty('display', 'none', 'important');
+                }
+                if (shippingCardEl) {
+                    shippingCardEl.classList.add('is-empty');
+                    shippingCardEl.style.setProperty('display', 'none', 'important');
+                }
+                if (emptyBoxEl) {
+                    emptyBoxEl.classList.add('is-active');
+                    emptyBoxEl.style.setProperty('display', 'block', 'important');
+                }
+                if (itemsListEl) {
+                    itemsListEl.innerHTML = '';
+                }
                 if (badgeCountEl) badgeCountEl.textContent = '0 Items';
                 if (headerBadge) headerBadge.textContent = '0';
                 return;
             }
 
-            if (cartContainer) cartContainer.style.display = 'grid';
-            if (shippingCardEl) shippingCardEl.style.display = 'block';
-            if (emptyBoxEl) emptyBoxEl.style.display = 'none';
+            if (cartContainer) {
+                cartContainer.classList.remove('is-empty');
+                cartContainer.style.removeProperty('display');
+            }
+            if (shippingCardEl) {
+                shippingCardEl.classList.remove('is-empty');
+                shippingCardEl.style.removeProperty('display');
+            }
+            if (emptyBoxEl) {
+                emptyBoxEl.classList.remove('is-active');
+                emptyBoxEl.style.setProperty('display', 'none', 'important');
+            }
 
             var totalCount = cart.reduce(function(sum, item) { return sum + (item.qty || 1); }, 0);
             if (badgeCountEl) badgeCountEl.textContent = totalCount + (totalCount === 1 ? ' Item' : ' Items');
@@ -469,6 +490,7 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
                 }
             }
         }
+        window.renderCartPageUI = renderCartPageUI;
 
         // Helper: Update cart from backend response
         function applyBackendCart(wcCart) {
@@ -498,11 +520,24 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
 
         // Helper: Remove item by key or id
         function removeItemFromCart(key, id) {
+            // Remove DOM element immediately for responsive feedback
+            var rowEl = null;
+            if (key) {
+                rowEl = document.querySelector('.kash-cart-item-row[data-key="' + key + '"]');
+            }
+            if (!rowEl && id) {
+                rowEl = document.querySelector('.kash-cart-item-row[data-id="' + id + '"]');
+            }
+            if (rowEl) {
+                rowEl.remove();
+            }
+
             if (key) {
                 cart = cart.filter(function(i) { return i.key !== key; });
             } else if (id) {
                 cart = cart.filter(function(i) { return i.id != id; });
             }
+
             if (cart.length === 0) {
                 localStorage.removeItem('kash_cart');
             } else {
@@ -522,11 +557,22 @@ window.isWcCartEmpty = <?php echo $is_wc_cart_empty ? 'true' : 'false'; ?>;
                 success: function(res) {
                     if (res && res.success && res.data && res.data.cart) {
                         applyBackendCart(res.data.cart);
+                    } else if (cart.length === 0) {
+                        cart = [];
+                        localStorage.removeItem('kash_cart');
+                        renderCartPageUI();
                     }
                     if (typeof window.syncWithWooCommerceCart === 'function') {
                         window.syncWithWooCommerceCart();
                     }
                     jQuery(document.body).trigger('wc_fragment_refresh');
+                },
+                error: function() {
+                    if (cart.length === 0) {
+                        cart = [];
+                        localStorage.removeItem('kash_cart');
+                        renderCartPageUI();
+                    }
                 }
             });
         }

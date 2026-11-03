@@ -2044,13 +2044,25 @@ img.amz-ref-logo {
 
 /* 2-Column Cart Grid Layout */
 .kash-cart-grid-layout {
-    display: grid !important;
+    display: grid;
     grid-template-columns: 1fr 360px !important;
     gap: 28px !important;
     align-items: start !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+}
+
+.kash-cart-grid-layout.is-empty,
+#kash-standalone-cart.is-empty,
+.kash-free-shipping-card.is-empty,
+#kash-cart-shipping-card.is-empty {
+    display: none !important;
+}
+
+.kash-empty-cart-box.is-active,
+#kash-cart-empty-box.is-active {
+    display: block !important;
 }
 
 /* Card Boxes */
@@ -3252,7 +3264,7 @@ img.amz-ref-logo {
 }
 
 @media (max-width: 991px) {
-    .kash-cart-grid-layout,
+    .kash-cart-grid-layout:not(.is-empty),
     .wc-block-cart.is-large,
     .wp-block-woocommerce-cart.is-large {
         display: flex !important;
