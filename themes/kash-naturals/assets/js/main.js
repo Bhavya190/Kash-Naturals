@@ -520,16 +520,23 @@ jQuery(document).ready(function ($) {
     }
     window.syncWithWooCommerceCart = syncWithWooCommerceCart;
 
-    function syncAddToCartWooCommerce(productId, quantity) {
+    function syncAddToCartWooCommerce(productId, quantity, variationId, variationData) {
         if (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.is_wc_active && kash_dynamic_data.ajax_url) {
+            const postPayload = {
+                action: 'kash_add_to_cart',
+                product_id: productId,
+                quantity: quantity
+            };
+            if (variationId) {
+                postPayload.variation_id = variationId;
+            }
+            if (variationData) {
+                postPayload.variation = variationData;
+            }
             $.ajax({
                 type: 'POST',
                 url: kash_dynamic_data.ajax_url,
-                data: {
-                    action: 'kash_add_to_cart',
-                    product_id: productId,
-                    quantity: quantity
-                },
+                data: postPayload,
                 dataType: 'json',
                 success: function (res) {
                     if (res && !res.success && res.data && res.data.message) {

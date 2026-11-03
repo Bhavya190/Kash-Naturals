@@ -123,19 +123,137 @@ if ($product && is_a($product, 'WC_Product')) {
         }
     }
 
-    // Pricing & Currency
+    // Variable Products & Variations Detection
+    $is_variable = $product->is_type('variable');
+    $available_variations = array();
+    $variations_json_data = array();
+    $default_variation_id = 0;
+    $default_variation_data = null;
+
+    // Pricing & Currency Defaults
     $currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹';
     $price_raw = floatval($product->get_price()) ?: 0;
     $reg_raw   = floatval($product->get_regular_price()) ?: $price_raw;
 
-    if (function_exists('wc_price')) {
-        $price_formatted = wc_price($price_raw);
-        $reg_formatted   = ($reg_raw > $price_raw) ? wc_price($reg_raw) : '';
-    } else {
-        $price_formatted = $currency_symbol . number_format($price_raw, 2);
-        $reg_formatted   = ($reg_raw > $price_raw) ? ($currency_symbol . number_format($reg_raw, 2)) : '';
+    // Process WooCommerce Variations if Variable Product
+    if ($is_variable) {
+        $available_variations = $product->get_available_variations();
+        if (!empty($available_variations)) {
+            $default_attributes = $product->get_default_attributes();
+
+            foreach ($available_variations as $var_idx => $v) {
+                $vid = $v['variation_id'];
+                $v_obj = wc_get_product($vid);
+                if (!$v_obj) continue;
+
+                // Human-readable attribute label (e.g. "200 GM", "500 GM")
+                $attr_labels = array();
+                if (!empty($v['attributes'])) {
+                    foreach ($v['attributes'] as $attr_k => $attr_v) {
+                        if ($attr_v === '' || $attr_v === null) continue;
+                        $tax_k = str_replace('attribute_', '', $attr_k);
+                        if (taxonomy_exists($tax_k)) {
+                            $t = get_term_by('slug', $attr_v, $tax_k);
+                            $attr_labels[] = ($t && !is_wp_error($t)) ? $t->name : $attr_v;
+                        } else {
+                            $attr_labels[] = $attr_v;
+                        }
+                    }
+                }
+                $v_label = !empty($attr_labels) ? implode(' - ', $attr_labels) : '';
+                if (empty($v_label)) {
+                    $v_weight = $v_obj->get_weight();
+                    if ($v_weight) {
+                        $v_label = $v_weight . 'g';
+                    } else {
+                        $v_label = sprintf(__('Option #%d', 'kash-naturals'), ($var_idx + 1));
+                    }
+                }
+
+                $v_price = floatval($v['display_price']) ?: 0;
+                $v_reg   = floatval($v['display_regular_price']) ?: $v_price;
+                $v_discount = ($v_reg > $v_price && $v_reg > 0) ? round((($v_reg - $v_price) / $v_reg) * 100) : 0;
+                $v_in_stock = !empty($v['is_in_stock']);
+                $v_max_qty  = (!empty($v['max_qty']) && intval($v['max_qty']) > 0) ? intval($v['max_qty']) : ($v_obj->get_stock_quantity() ?: 20);
+
+                // Badge determination
+                $v_badge = '';
+                if ($v_discount > 0) {
+                    $v_badge = sprintf(__('Save %d%%', 'kash-naturals'), $v_discount);
+                } elseif ($var_idx === 0) {
+                    $v_badge = __('Best Seller', 'kash-naturals');
+                } elseif ($var_idx === 1) {
+                    $v_badge = __('Value Pack', 'kash-naturals');
+                }
+
+                $v_price_html = function_exists('wc_price') ? wc_price($v_price) : ($currency_symbol . number_format($v_price, 2));
+                $v_reg_html   = ($v_reg > $v_price) ? (function_exists('wc_price') ? wc_price($v_reg) : ($currency_symbol . number_format($v_reg, 2))) : '';
+
+                // Variation image
+                $v_img = (!empty($v['image']['src']) && strpos($v['image']['src'], 'woocommerce-placeholder') === false) ? $v['image']['src'] : $main_img;
+
+                $variations_json_data[$vid] = array(
+                    'id'            => $vid,
+                    'label'         => $v_label,
+                    'badge'         => $v_badge,
+                    'price'         => $v_price,
+                    'regular_price' => $v_reg,
+                    'price_html'    => $v_price_html,
+                    'regular_html'  => $v_reg_html,
+                    'discount'      => $v_discount,
+                    'in_stock'      => $v_in_stock,
+                    'max_qty'       => $v_max_qty,
+                    'sku'           => !empty($v['sku']) ? $v['sku'] : ($product->get_sku() ?: ('KASH-' . $product_id)),
+                    'image'         => $v_img,
+                    'attributes'    => $v['attributes'],
+                );
+
+                // Check default variation match
+                $is_default_match = false;
+                if (!empty($default_attributes)) {
+                    $matched = true;
+                    foreach ($default_attributes as $dk => $dv) {
+                        $full_k = 'attribute_' . $dk;
+                        if (isset($v['attributes'][$full_k]) && $v['attributes'][$full_k] !== $dv) {
+                            $matched = false;
+                            break;
+                        }
+                    }
+                    if ($matched) {
+                        $is_default_match = true;
+                    }
+                }
+
+                if ($is_default_match) {
+                    $default_variation_id = $vid;
+                    $default_variation_data = $variations_json_data[$vid];
+                } elseif ($default_variation_id === 0) {
+                    $default_variation_id = $vid;
+                    $default_variation_data = $variations_json_data[$vid];
+                } elseif ($default_variation_data && !$default_variation_data['in_stock'] && $v_in_stock) {
+                    $default_variation_id = $vid;
+                    $default_variation_data = $variations_json_data[$vid];
+                }
+            }
+        }
     }
-    $discount_percent = ($reg_raw > $price_raw && $reg_raw > 0) ? round((($reg_raw - $price_raw) / $reg_raw) * 100) : 0;
+
+    if ($default_variation_data) {
+        $price_raw        = $default_variation_data['price'];
+        $reg_raw          = $default_variation_data['regular_price'];
+        $price_formatted  = $default_variation_data['price_html'];
+        $reg_formatted    = $default_variation_data['regular_html'];
+        $discount_percent = $default_variation_data['discount'];
+    } else {
+        if (function_exists('wc_price')) {
+            $price_formatted = wc_price($price_raw);
+            $reg_formatted   = ($reg_raw > $price_raw) ? wc_price($reg_raw) : '';
+        } else {
+            $price_formatted = $currency_symbol . number_format($price_raw, 2);
+            $reg_formatted   = ($reg_raw > $price_raw) ? ($currency_symbol . number_format($reg_raw, 2)) : '';
+        }
+        $discount_percent = ($reg_raw > $price_raw && $reg_raw > 0) ? round((($reg_raw - $price_raw) / $reg_raw) * 100) : 0;
+    }
 
     // Ratings & Reviews
     $avg_rating = $product->get_average_rating();
@@ -143,9 +261,16 @@ if ($product && is_a($product, 'WC_Product')) {
     $review_count = $product->get_review_count() ?: 0;
 
     // Stock Status
-    $is_in_stock = $product->is_in_stock();
-    $stock_status = $product->get_stock_status();
-    $stock_qty = $product->managing_stock() ? $product->get_stock_quantity() : null;
+    if ($default_variation_data) {
+        $is_in_stock = $default_variation_data['in_stock'];
+        $stock_status = $is_in_stock ? 'instock' : 'outofstock';
+        $stock_qty = $default_variation_data['max_qty'];
+    } else {
+        $is_in_stock = $product->is_in_stock();
+        $stock_status = $product->get_stock_status();
+        $stock_qty = $product->managing_stock() ? $product->get_stock_quantity() : null;
+    }
+
     $stock_display_text = $is_in_stock ? __('In Stock (Ready to Ship)', 'kash-naturals') : __('Out of Stock (Unavailable)', 'kash-naturals');
     if ($is_in_stock && $stock_qty !== null && $stock_qty > 0 && $stock_qty <= 5) {
         $stock_display_text = sprintf(__('Only %d left in stock - Order Soon', 'kash-naturals'), $stock_qty);
@@ -196,12 +321,14 @@ if ($product && is_a($product, 'WC_Product')) {
             $weight_str = '200g Glass Jar';
         }
     }
-    $sku_str = $product->get_sku() ?: ('KASH-' . $product_id);
+    $sku_str = ($default_variation_data && !empty($default_variation_data['sku'])) ? $default_variation_data['sku'] : ($product->get_sku() ?: ('KASH-' . $product_id));
 
-    $custom_ing = get_post_meta($product_id, '_ingredients', true);
-    $allergen_advice = get_post_meta($product_id, '_allergen_advice', true);
-    $shelf_life = get_post_meta($product_id, '_shelf_life', true);
-    $storage_inst = get_post_meta($product_id, '_storage_instructions', true);
+    $custom_highlights = get_post_meta($product_id, '_product_highlights', true);
+    $dietary_type      = get_post_meta($product_id, '_dietary_type', true);
+    $custom_ing        = get_post_meta($product_id, '_ingredients', true);
+    $allergen_advice   = get_post_meta($product_id, '_allergen_advice', true);
+    $shelf_life        = get_post_meta($product_id, '_shelf_life', true);
+    $storage_inst      = get_post_meta($product_id, '_storage_instructions', true);
 
     $nutri_energy = get_post_meta($product_id, '_nutrition_energy', true) ?: '385 kcal';
     $nutri_protein = get_post_meta($product_id, '_nutrition_protein', true) ?: '4.2 g';
@@ -214,7 +341,7 @@ if ($product && is_a($product, 'WC_Product')) {
     $flavor_notes = get_post_meta($product_id, '_flavor_notes', true);
     $cocoa_origin = get_post_meta($product_id, '_cocoa_origin', true);
 
-    $pack_2_label = get_post_meta($product_id, '_pack_size_2_label', true) ?: '500g Value Jar';
+    $pack_2_label = get_post_meta($product_id, '_pack_size_2_label', true);
     $pack_2_price = floatval(get_post_meta($product_id, '_pack_size_2_price', true)) ?: ($price_raw * 2.2);
 
     $ingredients_display = !empty($custom_ing) ? $custom_ing : __('Authentic fennel seeds (saunf), natural menthol, cardamom (elaichi), silver foil (varak), pure rose petals, dates, betel leaves extract, rock sugar, Permitted Natural Flavors.', 'kash-naturals');
@@ -352,9 +479,9 @@ if ($product && is_a($product, 'WC_Product')) {
 
                     <!-- Overlapping Top-Right Actions: Discount Tag + Share Button -->
                     <div class="product-top-right-actions">
-                        <?php if (!empty($discount_percent)) : ?>
-                            <span class="product-discount-tag"><?php echo esc_html($discount_percent); ?>% OFF</span>
-                        <?php endif; ?>
+                        <span class="product-discount-tag" id="productImageDiscountTag" <?php echo ($discount_percent <= 0) ? 'style="display:none;"' : ''; ?>>
+                            <?php echo esc_html($discount_percent); ?>% OFF
+                        </span>
 
                         <!-- Overlapping Share Button on Image -->
                         <div class="product-share-wrap">
@@ -490,7 +617,7 @@ if ($product && is_a($product, 'WC_Product')) {
                     <a href="<?php echo esc_url($c_link); ?>" class="product-cat-tag-pill" style="text-decoration:none;">
                         <?php echo esc_html($c_name); ?>
                     </a>
-                    <span class="product-sku-code">SKU: <?php echo esc_html($sku_str); ?></span>
+                    <span class="product-sku-code">SKU: <span id="productSkuDisplay"><?php echo esc_html($sku_str); ?></span></span>
                 </div>
 
                 <h1 class="product-title-main"><?php echo esc_html($product_name); ?></h1>
@@ -501,28 +628,31 @@ if ($product && is_a($product, 'WC_Product')) {
                         <div class="stars-gold">★★★★★</div>
                         <span class="rating-num"><strong><?php echo esc_html($rating_num_str); ?></strong> (<?php echo esc_html($review_count); ?> <?php esc_html_e('Customer Reviews', 'kash-naturals'); ?>)</span>
                     </div>
-                    <?php if ($is_in_stock) : ?>
-                        <div class="stock-status-badge in-stock">
-                            <i class="fa-solid fa-circle-check"></i> <?php echo esc_html($stock_display_text); ?>
-                        </div>
-                    <?php else : ?>
-                        <div class="stock-status-badge out-of-stock">
-                            <i class="fa-solid fa-circle-xmark"></i> <?php echo esc_html($stock_display_text); ?>
-                        </div>
-                    <?php endif; ?>
+                    <div class="stock-status-badge <?php echo $is_in_stock ? 'in-stock' : 'out-of-stock'; ?>" id="productStockBadge">
+                        <i class="fa-solid <?php echo $is_in_stock ? 'fa-circle-check' : 'fa-circle-xmark'; ?>"></i> 
+                        <span class="stock-badge-text"><?php echo esc_html($stock_display_text); ?></span>
+                    </div>
                 </div>
 
                 <!-- Price Box -->
                 <div class="product-price-display-box">
-                    <span class="current-price-val"><?php echo wp_kses_post($price_formatted); ?></span>
-                    <?php if (!empty($reg_formatted)) : ?>
-                        <span class="regular-price-val"><?php echo wp_kses_post($reg_formatted); ?></span>
-                    <?php endif; ?>
+                    <span class="current-price-val" id="productMainPrice"><?php echo wp_kses_post($price_formatted); ?></span>
+                    <span class="regular-price-val" id="productRegularPrice" <?php echo empty($reg_formatted) ? 'style="display:none;"' : ''; ?>>
+                        <?php echo wp_kses_post($reg_formatted); ?>
+                    </span>
                     <span class="price-tax-note">(<?php esc_html_e('Inclusive of all taxes & doorstep packaging', 'kash-naturals'); ?>)</span>
+                    <span class="product-savings-badge" id="productSavingsBadge" <?php echo ($discount_percent <= 0) ? 'style="display:none;"' : ''; ?>>
+                        <?php printf(esc_html__('Save %d%%', 'kash-naturals'), $discount_percent); ?>
+                    </span>
                 </div>
 
-                <?php if (!empty($flavor_notes) || !empty($cacao_pct)) : ?>
+                <?php if (!empty($flavor_notes) || !empty($cacao_pct) || !empty($dietary_type) || !empty($cocoa_origin)) : ?>
                     <div class="product-artisan-highlights-pill-row" style="display:flex; gap:10px; margin: 14px 0; flex-wrap:wrap;">
+                        <?php if (!empty($dietary_type)) : ?>
+                            <span style="background: rgba(44, 95, 62, 0.1); color: #2C5F3E; font-weight:700; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem;">
+                                <i class="fa-solid fa-leaf"></i> <?php echo esc_html($dietary_type); ?>
+                            </span>
+                        <?php endif; ?>
                         <?php if (!empty($cacao_pct)) : ?>
                             <span style="background: rgba(44, 95, 62, 0.1); color: #2C5F3E; font-weight:700; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem;">
                                 <i class="fa-solid fa-percent"></i> <?php echo esc_html($cacao_pct); ?> Pure Origin
@@ -533,26 +663,143 @@ if ($product && is_a($product, 'WC_Product')) {
                                 <i class="fa-solid fa-wand-magic-sparkles"></i> <?php echo esc_html($flavor_notes); ?>
                             </span>
                         <?php endif; ?>
+                        <?php if (!empty($cocoa_origin)) : ?>
+                            <span style="background: rgba(30, 41, 59, 0.08); color: #1e293b; font-weight:700; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem;">
+                                <i class="fa-solid fa-location-dot"></i> <?php echo esc_html($cocoa_origin); ?>
+                            </span>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
-                <!-- Short Editorial Description -->
+                <!-- Short Editorial Description & Highlights -->
                 <div class="product-editorial-desc">
-                    <?php echo wpautop(wp_kses_post($short_desc)); ?>
+                    <?php
+                    // Helper to format highlights and description cleanly
+                    if (!function_exists('kash_display_editorial_content')) {
+                        function kash_display_editorial_content($s_desc, $pid, $cust_highlights) {
+                            if (stripos($s_desc, 'Top highlights') !== false) {
+                                preg_match('/Top highlights\s+(.*?)(?:About this item\s*(.*))?$/is', $s_desc, $matches);
+                                $specs_str = isset($matches[1]) ? trim($matches[1]) : '';
+                                $about_str = isset($matches[2]) ? trim($matches[2]) : '';
+
+                                $labels = array('Flavour', 'Brand', 'Item Weight', 'Package Information', 'Speciality', 'Package Weight', 'Number of Pieces', 'Net Quantity', 'Region of Origin', 'Cultivation Method Claim', 'Diet Type', 'Country of Origin');
+                                $pattern = '/(?=' . implode('|', array_map('preg_quote', $labels)) . ')/i';
+                                $parts = preg_split($pattern, $specs_str, -1, PREG_SPLIT_NO_EMPTY);
+
+                                $specs = array();
+                                if (!empty($parts)) {
+                                    foreach ($parts as $part) {
+                                        foreach ($labels as $label) {
+                                            if (stripos($part, $label) === 0) {
+                                                $val = trim(substr($part, strlen($label)));
+                                                $val = ltrim($val, ': ');
+                                                if (!empty($val)) {
+                                                    $specs[$label] = $val;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                echo '<div class="kash-parsed-highlights-card" style="margin-bottom: 18px;">';
+                                if (!empty($specs)) {
+                                    echo '<div class="kash-specs-grid-table" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: #FAF7F2; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(44, 95, 62, 0.12); margin-bottom: 14px;">';
+                                    foreach ($specs as $s_label => $s_val) {
+                                        $icon = 'fa-solid fa-circle-check';
+                                        if ($s_label === 'Flavour') $icon = 'fa-solid fa-wand-magic-sparkles';
+                                        elseif ($s_label === 'Brand') $icon = 'fa-solid fa-crown';
+                                        elseif (strpos($s_label, 'Weight') !== false || $s_label === 'Net Quantity') $icon = 'fa-solid fa-scale-balanced';
+                                        elseif ($s_label === 'Speciality' || $s_label === 'Diet Type') $icon = 'fa-solid fa-leaf';
+                                        elseif ($s_label === 'Package Information') $icon = 'fa-solid fa-box-archive';
+                                        elseif ($s_label === 'Region of Origin' || $s_label === 'Country of Origin') $icon = 'fa-solid fa-location-dot';
+
+                                        echo '<div class="kash-spec-grid-item" style="display:flex; flex-direction:column; gap:2px;">';
+                                        echo '<span class="spec-label" style="font-size: 0.76rem; color: #666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;"><i class="' . esc_attr($icon) . '" style="color:#2C5F3E;"></i> ' . esc_html($s_label) . '</span>';
+                                        echo '<span class="spec-value" style="font-size: 0.9rem; color: #1C2B1F; font-weight:700;">' . esc_html($s_val) . '</span>';
+                                        echo '</div>';
+                                    }
+                                    echo '</div>';
+                                }
+
+                                if (!empty($about_str)) {
+                                    echo '<div class="kash-about-item-block">';
+                                    echo '<h4 style="font-size: 0.92rem; font-weight:700; color:#1C2B1F; margin: 0 0 8px;"><i class="fa-solid fa-circle-info" style="color:#2C5F3E;"></i> ' . esc_html__('About This Item:', 'kash-naturals') . '</h4>';
+                                    $points = preg_split('/(?<=[.!?])\s+(?=[A-Z])|\[|\]/', $about_str, -1, PREG_SPLIT_NO_EMPTY);
+                                    if (count($points) > 1) {
+                                        echo '<ul class="kash-about-bullets-list" style="margin:0 0 14px; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:6px;">';
+                                        foreach ($points as $pt) {
+                                            $pt = trim($pt);
+                                            if (!empty($pt) && strlen($pt) > 4) {
+                                                echo '<li style="display:flex; align-items:flex-start; gap:8px; font-size:0.9rem; color:#444; line-height:1.5;"><i class="fa-solid fa-circle-check" style="color:#2C5F3E; font-size:0.8rem; margin-top:4px; flex-shrink:0;"></i> <span>' . esc_html($pt) . '</span></li>';
+                                            }
+                                        }
+                                        echo '</ul>';
+                                    } else {
+                                        echo '<p style="font-size:0.92rem; color:#444; line-height:1.6; margin:0 0 12px;">' . esc_html($about_str) . '</p>';
+                                    }
+                                    echo '</div>';
+                                }
+                                echo '</div>';
+                                return;
+                            }
+
+                            if (!empty($cust_highlights)) {
+                                $lines = explode("\n", str_replace("\r", "", $cust_highlights));
+                                echo '<div class="kash-custom-highlights-card" style="margin-bottom: 14px;">';
+                                echo '<ul class="kash-about-bullets-list" style="margin:0 0 14px; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:6px;">';
+                                foreach ($lines as $line) {
+                                    $line = trim($line);
+                                    if (!empty($line)) {
+                                        echo '<li style="display:flex; align-items:flex-start; gap:8px; font-size:0.9rem; color:#444; line-height:1.5;"><i class="fa-solid fa-circle-check" style="color:#2C5F3E; font-size:0.8rem; margin-top:4px; flex-shrink:0;"></i> <span>' . esc_html($line) . '</span></li>';
+                                    }
+                                }
+                                echo '</ul>';
+                                echo '</div>';
+                            }
+
+                            echo wpautop(wp_kses_post($s_desc));
+                        }
+                    }
+                    kash_display_editorial_content($short_desc, $product_id, $custom_highlights);
+                    ?>
                 </div>
 
                 <!-- Weight / Size Selection Pills -->
                 <div class="product-option-selector">
                     <label class="selector-label"><?php esc_html_e('SELECT PACK SIZE:', 'kash-naturals'); ?></label>
                     <div class="size-pills-wrap">
-                        <button type="button" class="size-pill-btn active" onclick="selectPackSize(this, '<?php echo esc_js($weight_str); ?>', <?php echo esc_js($price_raw); ?>)">
-                            <span><?php echo esc_html($weight_str); ?></span>
-                            <span class="pill-best-val"><?php esc_html_e('Best Seller', 'kash-naturals'); ?></span>
-                        </button>
-                        <button type="button" class="size-pill-btn" onclick="selectPackSize(this, '<?php echo esc_js($pack_2_label); ?>', <?php echo esc_js($pack_2_price); ?>)">
-                            <span><?php echo esc_html($pack_2_label); ?></span>
-                            <span class="pill-save-val"><?php esc_html_e('Value Pack', 'kash-naturals'); ?></span>
-                        </button>
+                        <?php if ($is_variable && !empty($variations_json_data)) : ?>
+                            <?php foreach ($variations_json_data as $vid => $vdata) : 
+                                $is_active = ($vid === $default_variation_id);
+                                $is_oos = !$vdata['in_stock'];
+                            ?>
+                                <button type="button" 
+                                        class="size-pill-btn <?php echo $is_active ? 'active' : ''; ?> <?php echo $is_oos ? 'is-pill-oos' : ''; ?>" 
+                                        data-variation-id="<?php echo esc_attr($vid); ?>"
+                                        onclick="kashSelectVariation(<?php echo esc_attr($vid); ?>)">
+                                    <span><?php echo esc_html($vdata['label']); ?></span>
+                                    <?php if (!empty($vdata['badge'])) : ?>
+                                        <span class="<?php echo ($vdata['discount'] > 0) ? 'pill-save-val' : 'pill-best-val'; ?>">
+                                            <?php echo esc_html($vdata['badge']); ?>
+                                        </span>
+                                    <?php elseif ($is_oos) : ?>
+                                        <span class="pill-oos-val"><?php esc_html_e('Out of Stock', 'kash-naturals'); ?></span>
+                                    <?php endif; ?>
+                                </button>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <button type="button" class="size-pill-btn active" onclick="selectPackSize(this, '<?php echo esc_js($weight_str); ?>', <?php echo esc_js($price_raw); ?>)">
+                                <span><?php echo esc_html($weight_str); ?></span>
+                                <span class="pill-best-val"><?php esc_html_e('Best Seller', 'kash-naturals'); ?></span>
+                            </button>
+                            <?php if (!empty($pack_2_label) && !empty(get_post_meta($product_id, '_pack_size_2_label', true))) : ?>
+                                <button type="button" class="size-pill-btn" onclick="selectPackSize(this, '<?php echo esc_js($pack_2_label); ?>', <?php echo esc_js($pack_2_price); ?>)">
+                                    <span><?php echo esc_html($pack_2_label); ?></span>
+                                    <span class="pill-save-val"><?php esc_html_e('Value Pack', 'kash-naturals'); ?></span>
+                                </button>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -564,28 +811,27 @@ if ($product && is_a($product, 'WC_Product')) {
                         <button type="button" class="qty-btn plus" onclick="updateQty(1)" aria-label="Increase quantity">+</button>
                     </div>
 
-                    <?php if ($is_in_stock) : ?>
-                        <button type="button" class="btn-add-to-cart-gold add-to-cart-btn add_to_cart_button ajax_add_to_cart" 
-                                id="singleProductAddToCartBtn"
-                                data-product-id="<?php echo esc_attr($product_id); ?>" 
-                                data-product_id="<?php echo esc_attr($product_id); ?>" 
-                                data-product-name="<?php echo esc_attr($product_name); ?>" 
-                                data-product-price="<?php echo esc_attr($price_raw); ?>" 
-                                data-product-img="<?php echo esc_url($main_img); ?>" 
-                                onclick="handleSingleAddToCart(<?php echo esc_attr($product_id); ?>)">
-                            <i class="fa-solid fa-cart-shopping"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
-                        </button>
+                    <button type="button" class="btn-add-to-cart-gold add-to-cart-btn add_to_cart_button ajax_add_to_cart <?php echo !$is_in_stock ? 'btn-out-of-stock' : ''; ?>" 
+                            id="singleProductAddToCartBtn"
+                            data-product-id="<?php echo esc_attr($product_id); ?>" 
+                            data-variation-id="<?php echo esc_attr($default_variation_id); ?>" 
+                            data-product_id="<?php echo esc_attr($product_id); ?>" 
+                            data-product-name="<?php echo esc_attr($product_name); ?>" 
+                            data-product-price="<?php echo esc_attr($price_raw); ?>" 
+                            data-product-img="<?php echo esc_url($main_img); ?>" 
+                            <?php echo !$is_in_stock ? 'disabled' : ''; ?>
+                            onclick="handleSingleAddToCart(<?php echo esc_attr($product_id); ?>)">
+                        <i class="fa-solid <?php echo $is_in_stock ? 'fa-cart-shopping' : 'fa-ban'; ?>"></i> 
+                        <span class="btn-label-text"><?php echo $is_in_stock ? esc_html__('ADD TO CART', 'kash-naturals') : esc_html__('OUT OF STOCK', 'kash-naturals'); ?></span>
+                    </button>
 
-                        <button type="button" class="btn-buy-now-green" 
-                                id="singleProductBuyNowBtn"
-                                onclick="handleBuyNow(<?php echo esc_attr($product_id); ?>)">
-                            <i class="fa-solid fa-bolt"></i> <?php esc_html_e('BUY IT NOW', 'kash-naturals'); ?>
-                        </button>
-                    <?php else : ?>
-                        <button type="button" class="btn-add-to-cart-gold btn-out-of-stock" disabled style="background:#4b5563 !important; cursor:not-allowed !important; opacity:0.8; box-shadow:none !important; color:#fff !important;">
-                            <i class="fa-solid fa-ban"></i> <?php esc_html_e('OUT OF STOCK', 'kash-naturals'); ?>
-                        </button>
-                    <?php endif; ?>
+                    <button type="button" class="btn-buy-now-green <?php echo !$is_in_stock ? 'btn-out-of-stock' : ''; ?>" 
+                            id="singleProductBuyNowBtn"
+                            data-variation-id="<?php echo esc_attr($default_variation_id); ?>" 
+                            <?php echo !$is_in_stock ? 'disabled' : ''; ?>
+                            onclick="handleBuyNow(<?php echo esc_attr($product_id); ?>)">
+                        <i class="fa-solid fa-bolt"></i> <?php esc_html_e('BUY IT NOW', 'kash-naturals'); ?>
+                    </button>
                 </div>
 
                 <!-- Pincode Delivery Checker Box -->
@@ -974,9 +1220,144 @@ function onLinkCopied() {
     }
 }
 
+const kashVariationsData = <?php echo !empty($variations_json_data) ? wp_json_encode($variations_json_data) : '{}'; ?>;
+let activeVariationId = <?php echo intval($default_variation_id); ?>;
+
+function kashSelectVariation(vid) {
+    if (!kashVariationsData || !kashVariationsData[vid]) return;
+    const v = kashVariationsData[vid];
+    activeVariationId = vid;
+
+    // 1. Highlight pill
+    document.querySelectorAll('.size-pill-btn').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-variation-id')) === vid) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // 2. Update price and regular price
+    const mainPriceEl = document.getElementById('productMainPrice');
+    const regPriceEl  = document.getElementById('productRegularPrice');
+    const savingsEl   = document.getElementById('productSavingsBadge');
+    const imgDiscEl   = document.getElementById('productImageDiscountTag');
+
+    if (mainPriceEl) {
+        mainPriceEl.innerHTML = v.price_html;
+    }
+    if (regPriceEl) {
+        if (v.regular_html) {
+            regPriceEl.innerHTML = v.regular_html;
+            regPriceEl.style.display = 'inline-block';
+        } else {
+            regPriceEl.style.display = 'none';
+        }
+    }
+    if (savingsEl) {
+        if (v.discount > 0) {
+            savingsEl.textContent = 'Save ' + v.discount + '%';
+            savingsEl.style.display = 'inline-block';
+        } else {
+            savingsEl.style.display = 'none';
+        }
+    }
+    if (imgDiscEl) {
+        if (v.discount > 0) {
+            imgDiscEl.textContent = v.discount + '% OFF';
+            imgDiscEl.style.display = 'inline-block';
+        } else {
+            imgDiscEl.style.display = 'none';
+        }
+    }
+
+    // 3. Update stock badge and buttons
+    const stockBadge = document.getElementById('productStockBadge');
+    const addBtn     = document.getElementById('singleProductAddToCartBtn');
+    const buyBtn     = document.getElementById('singleProductBuyNowBtn');
+
+    if (stockBadge) {
+        if (v.in_stock) {
+            stockBadge.className = 'stock-status-badge in-stock';
+            let stockTxt = 'In Stock (Ready to Ship)';
+            if (v.max_qty > 0 && v.max_qty <= 5) {
+                stockTxt = 'Only ' + v.max_qty + ' left in stock - Order Soon';
+            }
+            stockBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> <span class="stock-badge-text">' + stockTxt + '</span>';
+        } else {
+            stockBadge.className = 'stock-status-badge out-of-stock';
+            stockBadge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> <span class="stock-badge-text">Out of Stock (Unavailable)</span>';
+        }
+    }
+
+    if (addBtn) {
+        addBtn.setAttribute('data-variation-id', vid);
+        addBtn.setAttribute('data-product-price', v.price);
+        if (v.in_stock) {
+            addBtn.disabled = false;
+            addBtn.classList.remove('btn-out-of-stock');
+            addBtn.innerHTML = '<i class="fa-solid fa-cart-shopping"></i> <span class="btn-label-text">ADD TO CART</span>';
+        } else {
+            addBtn.disabled = true;
+            addBtn.classList.add('btn-out-of-stock');
+            addBtn.innerHTML = '<i class="fa-solid fa-ban"></i> <span class="btn-label-text">OUT OF STOCK</span>';
+        }
+    }
+
+    if (buyBtn) {
+        buyBtn.setAttribute('data-variation-id', vid);
+        if (v.in_stock) {
+            buyBtn.disabled = false;
+            buyBtn.classList.remove('btn-out-of-stock');
+        } else {
+            buyBtn.disabled = true;
+            buyBtn.classList.add('btn-out-of-stock');
+        }
+    }
+
+    // 4. Update SKU
+    const skuEl = document.getElementById('productSkuDisplay');
+    if (skuEl && v.sku) {
+        skuEl.textContent = v.sku;
+    }
+
+    // 5. Update Quantity Max
+    const qtyInput = document.getElementById('productQtyInput');
+    if (qtyInput) {
+        qtyInput.setAttribute('max', v.max_qty || 20);
+        let cur = parseInt(qtyInput.value) || 1;
+        if (cur > (v.max_qty || 20)) {
+            qtyInput.value = v.max_qty || 20;
+        }
+    }
+
+    // 6. Update Product Image if variation has its own picture
+    if (v.image) {
+        const primaryImg = document.getElementById('primaryProductImg');
+        if (primaryImg && primaryImg.src !== v.image) {
+            primaryImg.style.opacity = '0.35';
+            setTimeout(() => {
+                primaryImg.src = v.image;
+                primaryImg.style.opacity = '1';
+            }, 120);
+        }
+    }
+}
+
 function selectPackSize(btn, sizeName, price) {
     document.querySelectorAll('.size-pill-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    
+    // Update simple product price display
+    const mainPriceEl = document.getElementById('productMainPrice');
+    const currency = '<?php echo esc_js($currency_symbol); ?>';
+    if (mainPriceEl && price) {
+        mainPriceEl.textContent = currency + parseFloat(price).toFixed(2);
+    }
+    const addBtn = document.getElementById('singleProductAddToCartBtn');
+    if (addBtn && price) {
+        addBtn.setAttribute('data-product-price', price);
+    }
 }
 
 function updateQty(delta) {
@@ -1015,44 +1396,83 @@ function checkDeliveryPincode() {
 function handleSingleAddToCart(id) {
     const qtyInput = document.getElementById('productQtyInput');
     const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
-    
-    // WooCommerce AJAX Add to Cart if parameters exist
-    if (typeof kash_wc_params !== 'undefined' && kash_wc_params.ajax_url) {
-        jQuery.ajax({
-            type: 'POST',
-            url: kash_wc_params.ajax_url,
-            data: {
-                action: 'woocommerce_add_to_cart',
-                product_id: id,
-                quantity: qty
-            },
-            success: function() {
-                jQuery(document.body).trigger('wc_fragment_refresh');
-            }
-        });
+    const addBtn = document.getElementById('singleProductAddToCartBtn');
+    if (addBtn && addBtn.disabled) return;
+
+    const varId = activeVariationId || (addBtn ? parseInt(addBtn.getAttribute('data-variation-id')) : 0);
+    const varData = (varId && kashVariationsData && kashVariationsData[varId]) ? kashVariationsData[varId] : null;
+
+    if (addBtn) {
+        addBtn.classList.add('loading');
+        addBtn.disabled = true;
     }
 
-    if (typeof window.addToCart === 'function') {
-        window.addToCart(id, qty);
-    } else {
-        let cart = JSON.parse(localStorage.getItem('kash_cart') || '[]');
-        const existing = cart.find(i => i.id == id);
-        if (existing) {
-            existing.qty += qty;
-        } else {
-            cart.push({ id: id, qty: qty });
+    const ajaxUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url)
+        ? kash_dynamic_data.ajax_url
+        : ((typeof kash_wc_params !== 'undefined') ? kash_wc_params.ajax_url : '<?php echo esc_js(admin_url('admin-ajax.php')); ?>');
+
+    const postData = {
+        action: 'kash_add_to_cart',
+        product_id: id,
+        quantity: qty
+    };
+    if (varId) {
+        postData.variation_id = varId;
+        if (varData && varData.attributes) {
+            postData.variation = varData.attributes;
         }
-        localStorage.setItem('kash_cart', JSON.stringify(cart));
-        const badge = document.querySelector('.cart-count-badge, .cart-count-badge-orange, #mini-cart-count');
-        if (badge) badge.textContent = cart.length;
     }
+
+    jQuery.ajax({
+        type: 'POST',
+        url: ajaxUrl,
+        data: postData,
+        dataType: 'json',
+        success: function(res) {
+            if (addBtn) {
+                addBtn.classList.remove('loading');
+                addBtn.disabled = false;
+            }
+            if (res && res.success) {
+                if (typeof showToast === 'function') {
+                    showToast(res.data.message || 'Added to cart!');
+                }
+                if (typeof openCartDrawer === 'function') {
+                    openCartDrawer();
+                }
+                if (typeof syncWithWooCommerceCart === 'function') {
+                    syncWithWooCommerceCart();
+                }
+                jQuery(document.body).trigger('wc_fragment_refresh');
+            } else {
+                const msg = (res && res.data && res.data.message) ? res.data.message : 'Could not add to cart.';
+                if (typeof showToast === 'function') {
+                    showToast(msg, 'info');
+                } else {
+                    alert(msg);
+                }
+            }
+        },
+        error: function() {
+            if (addBtn) {
+                addBtn.classList.remove('loading');
+                addBtn.disabled = false;
+            }
+            if (typeof addToCart === 'function') {
+                addToCart(varId || id, qty);
+            }
+        }
+    });
 }
 
 function handleBuyNow(id) {
     const qtyInput = document.getElementById('productQtyInput');
     const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+    const varId = activeVariationId || 0;
+    const targetId = varId ? varId : id;
+    
     <?php if (function_exists('wc_get_checkout_url')) : ?>
-        window.location.href = '<?php echo esc_js(wc_get_checkout_url()); ?>?add-to-cart=' + id + '&quantity=' + qty;
+        window.location.href = '<?php echo esc_js(wc_get_checkout_url()); ?>?add-to-cart=' + targetId + '&quantity=' + qty;
     <?php else : ?>
         handleSingleAddToCart(id);
     <?php endif; ?>

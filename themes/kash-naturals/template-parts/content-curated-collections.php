@@ -164,13 +164,22 @@ if (class_exists('WooCommerce')) {
                     $img_url = $theme_uri . '/assets/images/product-royal-mukhwas.jpg';
                 }
 
-                $sale_price = $wc_prod->get_price();
-                $reg_price  = $wc_prod->get_regular_price();
-                $is_sale    = $wc_prod->is_on_sale() && !empty($reg_price) && floatval($reg_price) > floatval($sale_price);
+                $is_variable = $wc_prod->is_type('variable');
+                if ($is_variable) {
+                    $sale_price    = $wc_prod->get_variation_price('min', true);
+                    $reg_price     = $wc_prod->get_variation_regular_price('max', true);
+                    $price_display = $wc_prod->get_price_html();
+                    $is_sale       = $wc_prod->is_on_sale();
+                } else {
+                    $sale_price    = $wc_prod->get_price();
+                    $reg_price     = $wc_prod->get_regular_price();
+                    $price_display = !empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0');
+                    $is_sale       = $wc_prod->is_on_sale() && !empty($reg_price) && floatval($reg_price) > floatval($sale_price);
+                }
 
                 $discount_pct = 0;
                 $savings_display = '';
-                if ($is_sale && floatval($reg_price) > 0) {
+                if ($is_sale && floatval($reg_price) > 0 && floatval($sale_price) > 0) {
                     $savings_val  = floatval($reg_price) - floatval($sale_price);
                     $discount_pct = round(($savings_val / floatval($reg_price)) * 100);
                     $savings_display = sprintf(__('Save %s%s', 'kash-naturals'), $currency_symbol, number_format_i18n($savings_val));
@@ -200,14 +209,15 @@ if (class_exists('WooCommerce')) {
                 $products_list[] = array(
                     'id'                => $pid,
                     'title'             => $wc_prod->get_name(),
+                    'is_variable'       => $is_variable,
                     'link'              => get_permalink($pid),
                     'image'             => $img_url,
                     'category'          => $cat_badge,
                     'desc'              => $p_desc_short,
                     'rating'            => $rating_str,
-                    'price_display'     => !empty($sale_price) ? $currency_symbol . $sale_price : $currency_symbol . '0',
+                    'price_display'     => !empty($price_display) ? $price_display : (!empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0')),
                     'raw_price'         => $sale_price,
-                    'old_price_display' => $is_sale ? $currency_symbol . $reg_price : '',
+                    'old_price_display' => (!$is_variable && $is_sale) ? ($currency_symbol . $reg_price) : '',
                     'discount_pct'      => $discount_pct,
                     'savings_display'   => $savings_display,
                     'in_stock'          => $wc_prod->is_in_stock(),
@@ -371,17 +381,24 @@ if (empty($products_list)) {
                             </a>
 
                             <?php if ($is_in_stock) : ?>
-                                <button type="button" class="kash-curated-btn-cart add-to-cart-btn add_to_cart_button ajax_add_to_cart" 
-                                    data-product-id="<?php echo esc_attr($item['id']); ?>" 
-                                    data-product_id="<?php echo esc_attr($item['id']); ?>" 
-                                    data-product-name="<?php echo esc_attr($item['title']); ?>" 
-                                    data-product-price="<?php echo esc_attr($item['raw_price']); ?>" 
-                                    data-product-img="<?php echo esc_url($item['image']); ?>" 
-                                    aria-label="<?php echo esc_attr(sprintf(__('Add %s to cart', 'kash-naturals'), $item['title'])); ?>"
-                                    title="<?php esc_attr_e('Add to Cart', 'kash-naturals'); ?>">
-                                    <i class="fa-solid fa-cart-plus"></i>
-                                    <span><?php esc_html_e('Add to Cart', 'kash-naturals'); ?></span>
-                                </button>
+                                <?php if (!empty($item['is_variable'])) : ?>
+                                    <a href="<?php echo esc_url($item['link']); ?>" class="kash-curated-btn-cart" style="text-decoration:none;" aria-label="<?php echo esc_attr(sprintf(__('Choose pack size for %s', 'kash-naturals'), $item['title'])); ?>">
+                                        <i class="fa-solid fa-layer-group"></i>
+                                        <span><?php esc_html_e('Select Options', 'kash-naturals'); ?></span>
+                                    </a>
+                                <?php else : ?>
+                                    <button type="button" class="kash-curated-btn-cart add-to-cart-btn add_to_cart_button ajax_add_to_cart" 
+                                        data-product-id="<?php echo esc_attr($item['id']); ?>" 
+                                        data-product_id="<?php echo esc_attr($item['id']); ?>" 
+                                        data-product-name="<?php echo esc_attr($item['title']); ?>" 
+                                        data-product-price="<?php echo esc_attr($item['raw_price']); ?>" 
+                                        data-product-img="<?php echo esc_url($item['image']); ?>" 
+                                        aria-label="<?php echo esc_attr(sprintf(__('Add %s to cart', 'kash-naturals'), $item['title'])); ?>"
+                                        title="<?php esc_attr_e('Add to Cart', 'kash-naturals'); ?>">
+                                        <i class="fa-solid fa-cart-plus"></i>
+                                        <span><?php esc_html_e('Add to Cart', 'kash-naturals'); ?></span>
+                                    </button>
+                                <?php endif; ?>
                             <?php else : ?>
                                 <button type="button" class="kash-curated-btn-cart is-oos" disabled title="<?php esc_attr_e('Out of stock', 'kash-naturals'); ?>">
                                     <i class="fa-solid fa-ban"></i>

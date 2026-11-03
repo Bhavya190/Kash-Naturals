@@ -280,8 +280,19 @@ if (class_exists('WooCommerce')) {
             $shop_query->the_post();
             $wc_prod = wc_get_product(get_the_ID());
             if ($wc_prod && $wc_prod->is_visible()) {
-                $sale_price = $wc_prod->get_price();
-                $raw_price = floatval($sale_price);
+                $is_variable = $wc_prod->is_type('variable');
+                
+                if ($is_variable) {
+                    $sale_price = $wc_prod->get_variation_price('min', true);
+                    $raw_price = floatval($sale_price);
+                    $reg_price = $wc_prod->get_variation_regular_price('max', true);
+                    $price_html = $wc_prod->get_price_html();
+                } else {
+                    $sale_price = $wc_prod->get_price();
+                    $raw_price = floatval($sale_price);
+                    $reg_price = $wc_prod->get_regular_price();
+                    $price_html = !empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0');
+                }
 
                 // Precise price filter validation
                 if ($min_price > 0 && $raw_price < $min_price) {
@@ -298,8 +309,6 @@ if (class_exists('WooCommerce')) {
 
                 $cats = wc_get_product_category_list($wc_prod->get_id());
                 $cat_names = wp_strip_all_tags($cats);
-
-                $reg_price = $wc_prod->get_regular_price();
 
                 $badge = 'Fresh Batch';
                 if (!$wc_prod->is_in_stock()) {
@@ -321,11 +330,12 @@ if (class_exists('WooCommerce')) {
                 $dynamic_products[] = array(
                     'id'            => $wc_prod->get_id(),
                     'name'          => $wc_prod->get_name(),
+                    'is_variable'   => $is_variable,
                     'category'      => $current_category,
                     'category_name' => !empty($cat_names) ? $cat_names : __('Specialty', 'kash-naturals'),
-                    'price'         => !empty($sale_price) ? $currency_symbol . $sale_price : $currency_symbol . '0',
+                    'price'         => !empty($price_html) ? $price_html : (!empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0')),
                     'raw_price'     => !empty($sale_price) ? $sale_price : 0,
-                    'regular_price' => (!empty($reg_price) && $reg_price > $sale_price) ? $currency_symbol . $reg_price : '',
+                    'regular_price' => (!$is_variable && !empty($reg_price) && $reg_price > $sale_price) ? ($currency_symbol . $reg_price) : '',
                     'image'         => $img_url,
                     'badge'         => $badge,
                     'rating'        => $rating_str,
@@ -342,12 +352,25 @@ if (class_exists('WooCommerce')) {
 
 $filtered_products = $dynamic_products;
 $current_page_base = ($current_category !== 'all' && is_product_category()) ? get_term_link(get_queried_object()) : $shop_base_url;
+
+$cat_custom_sub   = '';
+$cat_custom_badge = '';
+if (function_exists('is_product_category') && is_product_category()) {
+    $q_term = get_queried_object();
+    if ($q_term && isset($q_term->term_id)) {
+        $cat_custom_sub   = get_term_meta($q_term->term_id, '_kash_cat_subtitle', true);
+        $cat_custom_badge = get_term_meta($q_term->term_id, '_kash_cat_badge', true);
+    }
+}
 ?>
 
 <!-- Luxury Page Header Banner -->
 <div class="shop-page-header">
     <div class="container text-center">
-        <span class="shop-header-subtitle"><?php esc_html_e('100% NATURAL • ARTISANAL QUALITY • PAN-INDIA DELIVERY', 'kash-naturals'); ?></span>
+        <?php if (!empty($cat_custom_badge)) : ?>
+            <span class="shop-header-badge-tag" style="display:inline-block; background:rgba(196,124,5,0.15); color:#c47c05; font-weight:800; font-size:0.75rem; letter-spacing:1px; text-transform:uppercase; padding:4px 14px; border-radius:20px; margin-bottom:8px; border:1px solid rgba(196,124,5,0.3);"><?php echo esc_html($cat_custom_badge); ?></span>
+        <?php endif; ?>
+        <span class="shop-header-subtitle"><?php echo !empty($cat_custom_sub) ? esc_html($cat_custom_sub) : esc_html__('100% NATURAL • ARTISANAL QUALITY • PAN-INDIA DELIVERY', 'kash-naturals'); ?></span>
         <h1 class="shop-header-title"><?php echo esc_html($page_display_title); ?></h1>
         <div class="shop-breadcrumb">
             <a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home', 'kash-naturals'); ?></a>
@@ -583,9 +606,15 @@ $current_page_base = ($current_category !== 'all' && is_product_category()) ? ge
                                             <?php endif; ?>
                                         </div>
                                         <?php if ($is_in_stock) : ?>
-                                            <button type="button" class="btn-add-cart-exact add-to-cart-btn add_to_cart_button ajax_add_to_cart" data-product-id="<?php echo esc_attr($prod['id']); ?>" data-product_id="<?php echo esc_attr($prod['id']); ?>" data-product-name="<?php echo esc_attr($prod['name']); ?>" data-product-price="<?php echo esc_attr($prod['raw_price']); ?>" data-product-img="<?php echo esc_url($prod['image']); ?>">
-                                                <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
-                                            </button>
+                                            <?php if (!empty($prod['is_variable'])) : ?>
+                                                <a href="<?php echo esc_url($prod_link); ?>" class="btn-add-cart-exact" style="text-decoration:none;">
+                                                    <i class="fa-solid fa-layer-group"></i> <?php esc_html_e('SELECT OPTIONS', 'kash-naturals'); ?>
+                                                </a>
+                                            <?php else : ?>
+                                                <button type="button" class="btn-add-cart-exact add-to-cart-btn add_to_cart_button ajax_add_to_cart" data-product-id="<?php echo esc_attr($prod['id']); ?>" data-product_id="<?php echo esc_attr($prod['id']); ?>" data-product-name="<?php echo esc_attr($prod['name']); ?>" data-product-price="<?php echo esc_attr($prod['raw_price']); ?>" data-product-img="<?php echo esc_url($prod['image']); ?>">
+                                                    <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
+                                                </button>
+                                            <?php endif; ?>
                                         <?php else : ?>
                                             <button type="button" class="btn-add-cart-exact btn-out-of-stock" disabled title="<?php esc_attr_e('Product is currently out of stock', 'kash-naturals'); ?>">
                                                 <i class="fa-solid fa-ban"></i> <?php esc_html_e('OUT OF STOCK', 'kash-naturals'); ?>

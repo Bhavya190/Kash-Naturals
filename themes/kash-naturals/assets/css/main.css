@@ -11395,6 +11395,54 @@ img.amz-ref-logo {
     box-shadow: 0 4px 14px rgba(44, 95, 62, 0.15);
 }
 
+.size-pill-btn.is-pill-oos {
+    opacity: 0.65;
+    background: #fbfbfc;
+    border-color: #d1d5db;
+}
+
+.pill-oos-val {
+    font-size: 0.72rem;
+    color: #dc2626;
+    font-weight: 800;
+    margin-top: 2px;
+}
+
+.product-savings-badge {
+    display: inline-block;
+    background: #eef8ef;
+    color: #166534;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(22, 101, 52, 0.2);
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.kash-specs-grid-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    background: #FAF7F2;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(44, 95, 62, 0.12);
+}
+
+.kash-spec-grid-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.btn-add-to-cart-gold.loading {
+    opacity: 0.75;
+    pointer-events: none;
+    position: relative;
+}
+
 /* Purchase Controls */
 .purchase-action-controls {
     display: flex;
