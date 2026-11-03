@@ -966,9 +966,8 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        // 2. If marked as variable or product title indicates standard 200g artisanal jar, fetch on-demand!
-        const hasWeightHint = prodName && (prodName.toLowerCase().indexOf('200g') !== -1 || prodName.toLowerCase().indexOf('200 g') !== -1 || prodName.toLowerCase().indexOf('mukhwas') !== -1);
-        if (isVariable || hasWeightHint) {
+        // 2. If marked as variable in backend but variations not loaded into memory, fetch on-demand!
+        if (isVariable || (match && match.is_variable)) {
             const targetProdId = prodId || (match ? match.id : 0);
             const origHtml = $btn.html();
             $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
@@ -986,22 +985,6 @@ jQuery(document).ready(function ($) {
                             match.variations = res.data.variations;
                         }
                         openVariantModal(res.data);
-                    } else if (hasWeightHint) {
-                        // Client-side synthesis fallback if server has no extra variations configured
-                        const basePrice = parseFloat($btn.data('product-price')) || (match ? match.price : 179);
-                        const pImg = $btn.data('product-img') || (match ? match.image : '');
-                        const synthVariations = [
-                            { id: targetProdId, label: '200 GM', price: basePrice, regular_price: Math.round(basePrice * 1.5), in_stock: true, image: pImg },
-                            { id: targetProdId + '_500g', label: '500 GM (Value Pack)', price: Math.round(basePrice * 2.2), regular_price: Math.round(basePrice * 3.3), in_stock: true, image: pImg }
-                        ];
-                        openVariantModal({
-                            id: targetProdId,
-                            name: prodName || (match ? match.name : 'Artisanal Specialty'),
-                            image: pImg,
-                            price: basePrice,
-                            is_variable: true,
-                            variations: synthVariations
-                        });
                     } else if (match) {
                         addToCart(match.id, 1);
                     } else if (prodId) {
@@ -1010,22 +993,7 @@ jQuery(document).ready(function ($) {
                 },
                 error: function () {
                     $btn.prop('disabled', false).html(origHtml);
-                    if (hasWeightHint) {
-                        const basePrice = parseFloat($btn.data('product-price')) || (match ? match.price : 179);
-                        const pImg = $btn.data('product-img') || (match ? match.image : '');
-                        const synthVariations = [
-                            { id: targetProdId, label: '200 GM', price: basePrice, regular_price: Math.round(basePrice * 1.5), in_stock: true, image: pImg },
-                            { id: targetProdId + '_500g', label: '500 GM (Value Pack)', price: Math.round(basePrice * 2.2), regular_price: Math.round(basePrice * 3.3), in_stock: true, image: pImg }
-                        ];
-                        openVariantModal({
-                            id: targetProdId,
-                            name: prodName || (match ? match.name : 'Artisanal Specialty'),
-                            image: pImg,
-                            price: basePrice,
-                            is_variable: true,
-                            variations: synthVariations
-                        });
-                    } else if (match) {
+                    if (match) {
                         addToCart(match.id, 1);
                     } else if (prodId) {
                         addToCart(prodId, 1);

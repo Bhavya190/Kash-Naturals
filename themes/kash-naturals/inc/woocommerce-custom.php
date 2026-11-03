@@ -730,9 +730,9 @@ function kash_get_product_variations_data($product_or_id) {
         }
     }
 
-    // 2. Direct query for child variation posts if get_available_variations() returned empty
-    // (e.g. variations created in WP Admin without explicit prices, or unpurchasable status)
-    if (empty($variations_list) && ($product->is_type('variable') || method_exists($product, 'get_children'))) {
+    // 2. Direct query for child variation posts if variable product but get_available_variations() returned empty
+    // (e.g. variations created in WP Admin without explicit individual prices entered)
+    if (empty($variations_list) && $product->is_type('variable')) {
         $child_ids = array();
         if (method_exists($product, 'get_children')) {
             $child_ids = (array)$product->get_children();
@@ -778,15 +778,8 @@ function kash_get_product_variations_data($product_or_id) {
                     $v_label = $w ? ($w . 'g') : $v_obj->get_name();
                 }
 
-                $v_raw_price = floatval($v_obj->get_price());
-                if (!$v_raw_price) {
-                    if (stripos($v_label, '500') !== false) {
-                        $v_raw_price = round($parent_price * 2.2);
-                    } else {
-                        $v_raw_price = $parent_price;
-                    }
-                }
-                $v_reg = floatval($v_obj->get_regular_price()) ?: round($v_raw_price * 1.5);
+                $v_raw_price = floatval($v_obj->get_price()) ?: $parent_price;
+                $v_reg = floatval($v_obj->get_regular_price()) ?: $v_raw_price;
                 $v_img_id = $v_obj->get_image_id();
                 $v_img = $v_img_id ? wp_get_attachment_image_url($v_img_id, 'kash-product-card') : $main_img;
 
@@ -805,10 +798,10 @@ function kash_get_product_variations_data($product_or_id) {
         }
     }
 
-    // 3. Fallback: Custom Pack Size Meta Fields (_pack_size_1_label, _pack_size_2_label, _pack_size_2_price)
+    // 3. Fallback: Custom Pack Size Meta Fields explicitly configured in backend editor (_pack_size_2_label)
     if (empty($variations_list)) {
         $p2_label = get_post_meta($product_id, '_pack_size_2_label', true);
-        if (!empty($p2_label)) {
+        if (!empty($p2_label) && trim($p2_label) !== '') {
             $p1_label = get_post_meta($product_id, '_pack_size_1_label', true) ?: '200 GM';
             $p2_price = floatval(get_post_meta($product_id, '_pack_size_2_price', true)) ?: round($parent_price * 2.2);
             $p2_reg   = round($p2_price * 1.5);
@@ -839,85 +832,7 @@ function kash_get_product_variations_data($product_or_id) {
         }
     }
 
-    // 4. Fallback: Product Attributes with multiple options (e.g. Weight: 200 GM | 500 GM)
-    if (empty($variations_list)) {
-        $attributes = $product->get_attributes();
-        if (!empty($attributes) && is_array($attributes)) {
-            foreach ($attributes as $attr_name => $attr_obj) {
-                if (is_a($attr_obj, 'WC_Product_Attribute')) {
-                    $options = $attr_obj->get_options();
-                    if (is_array($options) && count($options) > 1) {
-                        foreach ($options as $opt) {
-                            $opt_label = '';
-                            if ($attr_obj->is_taxonomy()) {
-                                $term = get_term_by('id', $opt, $attr_name);
-                                if ($term && !is_wp_error($term)) {
-                                    $opt_label = $term->name;
-                                }
-                            } else {
-                                $opt_label = (string)$opt;
-                            }
-                            if (!$opt_label) continue;
-
-                            $opt_price = $parent_price;
-                            if (stripos($opt_label, '500') !== false) {
-                                $opt_price = round($parent_price * 2.2);
-                            }
-                            $opt_reg = round($opt_price * 1.5);
-
-                            $variations_list[] = array(
-                                'id'            => $product_id . '_' . sanitize_title($opt_label),
-                                'label'         => $opt_label,
-                                'price'         => $opt_price,
-                                'price_html'    => $currency_symbol . number_format($opt_price),
-                                'regular_price' => $opt_reg,
-                                'in_stock'      => $product->is_in_stock(),
-                                'stock_status'  => $product->get_stock_status(),
-                                'image'         => $main_img,
-                                'attributes'    => array('attribute_' . sanitize_title($attr_name) => $opt_label),
-                            );
-                        }
-                        if (!empty($variations_list)) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // 5. Ultimate Fallback: Artisanal Mukhwas Pack Sizes (200 GM & 500 GM)
-    // If the product title mentions '200g' or '200 GM' or if it's a mukhwas jar product
-    if (empty($variations_list) && $parent_price > 0) {
-        $p_title = $product->get_name();
-        $is_mukhwas_or_jar = (stripos($p_title, '200g') !== false || stripos($p_title, '200 gm') !== false || stripos($p_title, 'mukhwas') !== false || stripos($p_title, 'digestive') !== false || stripos($p_title, 'freshener') !== false);
-        if ($is_mukhwas_or_jar) {
-            $p500_price = round($parent_price * 2.2);
-            $variations_list[] = array(
-                'id'            => $product_id,
-                'label'         => '200 GM',
-                'price'         => $parent_price,
-                'price_html'    => $currency_symbol . number_format($parent_price),
-                'regular_price' => $parent_reg,
-                'in_stock'      => $product->is_in_stock(),
-                'stock_status'  => $product->get_stock_status(),
-                'image'         => $main_img,
-                'attributes'    => array('attribute_pack_size' => '200 GM'),
-            );
-            $variations_list[] = array(
-                'id'            => $product_id . '_500g',
-                'label'         => '500 GM (Value Pack)',
-                'price'         => $p500_price,
-                'price_html'    => $currency_symbol . number_format($p500_price),
-                'regular_price' => round($p500_price * 1.5),
-                'in_stock'      => $product->is_in_stock(),
-                'stock_status'  => $product->get_stock_status(),
-                'image'         => $main_img,
-                'attributes'    => array('attribute_pack_size' => '500 GM'),
-            );
-        }
-    }
-
+    // If no variations exist in backend, return empty array (simple product)
     return $variations_list;
 }
 
