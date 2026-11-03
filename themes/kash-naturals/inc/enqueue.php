@@ -124,6 +124,7 @@ function kash_naturals_scripts() {
         'is_wc_active'    => class_exists('WooCommerce'),
         'cart_nonce'       => wp_create_nonce('kash_cart_nonce'),
         'newsletter_nonce' => wp_create_nonce('kash_newsletter_nonce'),
+        'contact_nonce'    => wp_create_nonce('kash_contact_nonce'),
         'currency_symbol'  => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
     ));
 

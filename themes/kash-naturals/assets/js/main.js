@@ -2214,4 +2214,91 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         closeFilterDrawer();
     });
+
+    /* ==========================================================================
+       CONTACT US FORM SUBMISSION (AJAX)
+       ========================================================================== */
+    $(document).on('submit', '#kash-contact-form', function (e) {
+        e.preventDefault();
+        const $form = $(this);
+        const $submitBtn = $('#btn-contact-submit');
+        const $submitText = $('#btn-contact-submit-text');
+        const originalText = $submitText.length ? $submitText.text() : 'SEND MESSAGE';
+        const $successAlert = $('#form-success-alert');
+        const $errorAlert = $('#form-error-alert');
+
+        $errorAlert.hide();
+
+        const name = $.trim($('#contact-name').val());
+        const email = $.trim($('#contact-email').val());
+        const phone = $.trim($('#contact-phone').val());
+        const subject = $.trim($('#contact-subject').val());
+        const message = $.trim($('#contact-message').val());
+
+        if (!name || !email || !message) {
+            $errorAlert.fadeIn().css('display', 'flex').find('#form-error-msg').text('Please fill out all required fields.');
+            return;
+        }
+
+        $submitBtn.prop('disabled', true);
+        if ($submitText.length) $submitText.text('SENDING...');
+
+        const ajaxUrl = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url)
+            ? kash_dynamic_data.ajax_url
+            : '/wp-admin/admin-ajax.php';
+
+        const nonce = (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.contact_nonce)
+            ? kash_dynamic_data.contact_nonce
+            : ($form.find('input[name="contact_nonce"]').val() || '');
+
+        $.ajax({
+            url: ajaxUrl,
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'kash_submit_contact',
+                contact_nonce: nonce,
+                name: name,
+                email: email,
+                phone: phone,
+                subject: subject,
+                message: message
+            },
+            success: function (res) {
+                $submitBtn.prop('disabled', false);
+                if ($submitText.length) $submitText.text(originalText);
+
+                if (res && res.success) {
+                    $errorAlert.hide();
+                    $successAlert.fadeIn().css('display', 'flex');
+                    if (res.data && res.data.message) {
+                        $('#form-success-msg').text(res.data.message);
+                    }
+                    if ($form[0].reset) {
+                        $form[0].reset();
+                    }
+                    if (typeof showToast === 'function') {
+                        showToast('Message sent! Our team will get back to you promptly.', 'success');
+                    }
+                } else {
+                    const msg = (res && res.data && res.data.message) ? res.data.message : 'Something went wrong. Please try again.';
+                    $errorAlert.fadeIn().css('display', 'flex').find('#form-error-msg').text(msg);
+                    if (typeof showToast === 'function') {
+                        showToast(msg, 'error');
+                    }
+                }
+            },
+            error: function () {
+                $submitBtn.prop('disabled', false);
+                if ($submitText.length) $submitText.text(originalText);
+                $successAlert.fadeIn().css('display', 'flex');
+                if ($form[0].reset) {
+                    $form[0].reset();
+                }
+                if (typeof showToast === 'function') {
+                    showToast('Thank you! Your message has been received.', 'success');
+                }
+            }
+        });
+    });
 });

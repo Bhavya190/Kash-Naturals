@@ -164,26 +164,36 @@ $theme_uri = get_template_directory_uri();
                         <?php esc_html_e('Need quick assistance or sample kits for corporate review? Contact our dedicated B2B desk directly.', 'kash-naturals'); ?>
                     </p>
 
+                    <?php
+                    $b_phone = get_theme_mod('kash_contact_phone', '+91 98765 43210');
+                    $b_phone_clean = preg_replace('/[^0-9+]/', '', $b_phone);
+                    $b_wa_raw = get_theme_mod('kash_whatsapp_number', '919876543210');
+                    $b_wa_clean = preg_replace('/[^0-9]/', '', $b_wa_raw);
+                    if (strlen($b_wa_clean) === 10) {
+                        $b_wa_clean = '91' . $b_wa_clean;
+                    }
+                    $b_email = get_theme_mod('kash_contact_bulk_email', 'b2b@kashnatural.com');
+                    ?>
                     <div class="sidebar-contact-list">
-                        <a href="tel:+919876543210" class="sidebar-contact-item">
+                        <a href="tel:<?php echo esc_attr($b_phone_clean); ?>" class="sidebar-contact-item">
                             <i class="fa-solid fa-phone"></i>
                             <div>
                                 <span class="label"><?php esc_html_e('Call Direct', 'kash-naturals'); ?></span>
-                                <span class="val">+91 98765 43210</span>
+                                <span class="val"><?php echo esc_html($b_phone); ?></span>
                             </div>
                         </a>
-                        <a href="https://wa.me/919876543210?text=Hi%2C%20I%20would%20like%20to%20inquire%20about%20bulk%20orders%20at%20Kash%20Natural" target="_blank" rel="noopener noreferrer" class="sidebar-contact-item">
+                        <a href="https://wa.me/<?php echo esc_attr($b_wa_clean ?: '919876543210'); ?>?text=<?php echo rawurlencode('Hi, I would like to inquire about bulk orders at Kash Natural'); ?>" target="_blank" rel="noopener noreferrer" class="sidebar-contact-item">
                             <i class="fa-brands fa-whatsapp"></i>
                             <div>
                                 <span class="label"><?php esc_html_e('WhatsApp Inquiry', 'kash-naturals'); ?></span>
-                                <span class="val">+91 98765 43210</span>
+                                <span class="val"><?php echo esc_html($b_phone); ?></span>
                             </div>
                         </a>
-                        <a href="mailto:b2b@kashnatural.com" class="sidebar-contact-item">
+                        <a href="mailto:<?php echo esc_attr($b_email); ?>" class="sidebar-contact-item">
                             <i class="fa-solid fa-envelope"></i>
                             <div>
                                 <span class="label"><?php esc_html_e('B2B Email Desk', 'kash-naturals'); ?></span>
-                                <span class="val">b2b@kashnatural.com</span>
+                                <span class="val"><?php echo esc_html($b_email); ?></span>
                             </div>
                         </a>
                     </div>

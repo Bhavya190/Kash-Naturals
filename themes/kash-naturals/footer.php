@@ -79,9 +79,14 @@ if (!defined('ABSPATH')) {
             <div class="footer-col contact-col">
                 <h4 class="footer-col-title"><?php esc_html_e('CONTACT US', 'kash-naturals'); ?></h4>
                 <ul class="footer-contact-list">
-                    <li><i class="fa-solid fa-phone"></i> +91 98765 43210</li>
-                    <li><i class="fa-solid fa-envelope"></i> info@kashnatural.com</li>
-                    <li><i class="fa-solid fa-location-dot"></i> Pan India Delivery</li>
+                    <?php 
+                    $f_phone = get_theme_mod('kash_contact_phone', '+91 98765 43210');
+                    $f_email = get_theme_mod('kash_contact_email', 'info@kashnatural.com');
+                    $f_phone_clean = preg_replace('/[^0-9+]/', '', $f_phone);
+                    ?>
+                    <li><a href="tel:<?php echo esc_attr($f_phone_clean); ?>"><i class="fa-solid fa-phone"></i> <?php echo esc_html($f_phone); ?></a></li>
+                    <li><a href="mailto:<?php echo esc_attr($f_email); ?>"><i class="fa-solid fa-envelope"></i> <?php echo esc_html($f_email); ?></a></li>
+                    <li><i class="fa-solid fa-location-dot"></i> <?php echo esc_html(get_theme_mod('kash_contact_hq_sub', __('Pan India Delivery', 'kash-naturals'))); ?></li>
                 </ul>
                 <div class="footer-amazon-badge">
                     <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">

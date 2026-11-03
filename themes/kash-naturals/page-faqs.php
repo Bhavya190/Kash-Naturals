@@ -43,11 +43,20 @@ get_header();
                     </ul>
                 </div>
 
+                <?php
+                $faq_wa_raw = get_theme_mod('kash_whatsapp_number', '919876543210');
+                $faq_wa_clean = preg_replace('/[^0-9]/', '', $faq_wa_raw);
+                if (strlen($faq_wa_clean) === 10) {
+                    $faq_wa_clean = '91' . $faq_wa_clean;
+                }
+                $faq_sec_email = get_theme_mod('kash_contact_secondary_email', 'support@kashnatural.com');
+                $faq_b2b_email = get_theme_mod('kash_contact_bulk_email', 'b2b@kashnatural.com');
+                ?>
                 <div class="policy-help-card">
                     <i class="fa-brands fa-whatsapp"></i>
                     <h4><?php esc_html_e('Still Have Questions?', 'kash-naturals'); ?></h4>
                     <p><?php esc_html_e('Connect directly with our customer support team via WhatsApp for instant assistance.', 'kash-naturals'); ?></p>
-                    <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" class="btn-sidebar-contact"><?php esc_html_e('WhatsApp Support', 'kash-naturals'); ?></a>
+                    <a href="https://wa.me/<?php echo esc_attr($faq_wa_clean ?: '919876543210'); ?>" target="_blank" rel="noopener noreferrer" class="btn-sidebar-contact"><?php esc_html_e('WhatsApp Support', 'kash-naturals'); ?></a>
                 </div>
             </aside>
 
@@ -129,7 +138,7 @@ get_header();
                                 <i class="fa-solid fa-chevron-down faq-chevron"></i>
                             </summary>
                             <div class="faq-answer-exact">
-                                <p><?php esc_html_e('Please take a clear photo/video of the damaged parcel and email it to support@kashnatural.com within 48 hours. We will send a free replacement immediately.', 'kash-naturals'); ?></p>
+                                <p><?php printf(esc_html__('Please take a clear photo/video of the damaged parcel and email it to %s within 48 hours. We will send a free replacement immediately.', 'kash-naturals'), esc_html($faq_sec_email)); ?></p>
                             </div>
                         </details>
                     </div>
@@ -146,7 +155,7 @@ get_header();
                                 <i class="fa-solid fa-chevron-down faq-chevron"></i>
                             </summary>
                             <div class="faq-answer-exact">
-                                <p><?php esc_html_e('Yes! We specialize in custom-branded luxury hampers, festive gift boxes, and wedding return gifts. Write to b2b@kashnatural.com for catalog and wholesale pricing.', 'kash-naturals'); ?></p>
+                                <p><?php printf(esc_html__('Yes! We specialize in custom-branded luxury hampers, festive gift boxes, and wedding return gifts. Write to %s for catalog and wholesale pricing.', 'kash-naturals'), esc_html($faq_b2b_email)); ?></p>
                             </div>
                         </details>
                     </div>

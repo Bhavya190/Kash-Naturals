@@ -1246,6 +1246,289 @@ function kash_naturals_customize_register($wp_customize) {
             'left'  => __('Bottom Left', 'kash-naturals'),
         ),
     ));
+
+    /* ==========================================================================
+       CONTACT PAGE & COMPANY DETAILS OPTIONS
+       ========================================================================== */
+    $wp_customize->add_section('kash_contact_options', array(
+        'title'       => __('Contact Page & Company Details', 'kash-naturals'),
+        'description' => __('Customize phone numbers, WhatsApp links, email addresses, business hours, headquarters location, and contact form details displayed on the Contact page and across the website.', 'kash-naturals'),
+        'priority'    => 43,
+    ));
+
+    // Header Subtitle
+    $wp_customize->add_setting('kash_contact_header_subtitle', array(
+        'default'           => "WE'RE HERE TO HELP YOU • GET IN TOUCH WITH US",
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_header_subtitle', array(
+        'label'    => __('Header Subtitle', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    // Header Title
+    $wp_customize->add_setting('kash_contact_header_title', array(
+        'default'           => 'Contact Kash Natural',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_header_title', array(
+        'label'    => __('Header Main Title', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    // Card 1: Phone / WhatsApp Number
+    $wp_customize->add_setting('kash_contact_phone_title', array(
+        'default'           => 'Call & WhatsApp',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_phone_title', array(
+        'label'    => __('Card 1 Title (Phone/WhatsApp)', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_phone', array(
+        'default'           => '+91 98765 43210',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_phone', array(
+        'label'       => __('Phone / WhatsApp Number', 'kash-naturals'),
+        'description' => __('Formatted number shown on Contact cards, Bulk orders, and Footer.', 'kash-naturals'),
+        'section'     => 'kash_contact_options',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_phone_timing', array(
+        'default'           => 'Mon - Sat: 10:00 AM - 7:00 PM',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_phone_timing', array(
+        'label'    => __('Business / Calling Hours', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    // Card 2: Email Details
+    $wp_customize->add_setting('kash_contact_email_title', array(
+        'default'           => 'Email Support',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_email_title', array(
+        'label'    => __('Card 2 Title (Email Support)', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_email', array(
+        'default'           => 'info@kashnatural.com',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    $wp_customize->add_control('kash_contact_email', array(
+        'label'       => __('Primary Support Email', 'kash-naturals'),
+        'description' => __('Main contact email shown on Contact card, Bulk order desk, and Footer.', 'kash-naturals'),
+        'section'     => 'kash_contact_options',
+        'type'        => 'email',
+    ));
+
+    $wp_customize->add_setting('kash_contact_email_secondary', array(
+        'default'           => 'support@kashnatural.com',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    $wp_customize->add_control('kash_contact_email_secondary', array(
+        'label'    => __('Secondary Support Email', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'email',
+    ));
+
+    // Card 3: Corporate & Bulk Orders
+    $wp_customize->add_setting('kash_contact_b2b_title', array(
+        'default'           => 'Corporate & Bulk Orders',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_b2b_title', array(
+        'label'    => __('Card 3 Title (Bulk / B2B)', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_b2b_email', array(
+        'default'           => 'b2b@kashnatural.com',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    $wp_customize->add_control('kash_contact_b2b_email', array(
+        'label'    => __('Corporate / B2B Email', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'email',
+    ));
+
+    $wp_customize->add_setting('kash_contact_b2b_sub', array(
+        'default'           => 'Custom Branding & Hampers',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_b2b_sub', array(
+        'label'    => __('Corporate / B2B Subtitle', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    // Card 4: Headquarters Location
+    $wp_customize->add_setting('kash_contact_hq_title', array(
+        'default'           => 'Headquarters',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_hq_title', array(
+        'label'    => __('Card 4 Title (Headquarters)', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_address', array(
+        'default'           => 'Surat, Gujarat, India',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_address', array(
+        'label'       => __('Headquarters Address / City', 'kash-naturals'),
+        'description' => __('Displayed on Contact card and Footer.', 'kash-naturals'),
+        'section'     => 'kash_contact_options',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_hq_sub', array(
+        'default'           => 'Pan India Insulated Shipping',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_hq_sub', array(
+        'label'    => __('Headquarters Subtitle', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    // Instant WhatsApp Card (Sidebar)
+    $wp_customize->add_setting('kash_contact_wa_title', array(
+        'default'           => 'Need Instant Help?',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_wa_title', array(
+        'label'    => __('WhatsApp Card Title', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_wa_desc', array(
+        'default'           => 'Chat directly with our support team on WhatsApp for quick order assistance and inquiries.',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('kash_contact_wa_desc', array(
+        'label'    => __('WhatsApp Card Description', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'textarea',
+    ));
+
+    $wp_customize->add_setting('kash_contact_wa_btn_text', array(
+        'default'           => 'CHAT ON WHATSAPP',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_wa_btn_text', array(
+        'label'    => __('WhatsApp Button Label', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_wa_prefill', array(
+        'default'           => 'Hi Kash Natural, I have an inquiry',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_wa_prefill', array(
+        'label'    => __('WhatsApp Pre-filled Message', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    // Contact Form Inquiries
+    $wp_customize->add_setting('kash_contact_form_recipient', array(
+        'default'           => 'info@kashnatural.com',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    $wp_customize->add_control('kash_contact_form_recipient', array(
+        'label'       => __('Contact Form Recipient Email', 'kash-naturals'),
+        'description' => __('Where customer messages submitted on the Contact form will be emailed.', 'kash-naturals'),
+        'section'     => 'kash_contact_options',
+        'type'        => 'email',
+    ));
+
+    $wp_customize->add_setting('kash_contact_form_badge', array(
+        'default'           => 'SEND A MESSAGE',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_form_badge', array(
+        'label'    => __('Form Badge Pill Text', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_form_heading', array(
+        'default'           => 'How Can We Help You?',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_form_heading', array(
+        'label'    => __('Form Main Heading', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_form_subtext', array(
+        'default'           => 'Have questions about our products, order status, or custom gifts? Fill out the form below and our team will get back to you promptly.',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('kash_contact_form_subtext', array(
+        'label'    => __('Form Subtext', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'textarea',
+    ));
+
+    // Google Maps Section
+    $wp_customize->add_setting('kash_contact_map_title', array(
+        'default'           => 'Pan-India Distribution & Support Hub',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_map_title', array(
+        'label'    => __('Map Section Title', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_map_subtitle', array(
+        'default'           => 'Delivering freshness from Surat to every state across India',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_map_subtitle', array(
+        'label'    => __('Map Section Subtitle', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_map_badge', array(
+        'default'           => 'All Pincodes Active',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_contact_map_badge', array(
+        'label'    => __('Map Delivery Status Badge', 'kash-naturals'),
+        'section'  => 'kash_contact_options',
+        'type'     => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_contact_map_iframe', array(
+        'default'           => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d119066.41709425492!2d72.75225624794274!3d21.16102683501712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04e59411d1563%3A0xfe4558290938b042!2sSurat%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control('kash_contact_map_iframe', array(
+        'label'       => __('Google Maps Embed URL', 'kash-naturals'),
+        'description' => __('Paste the embed src URL from Google Maps (Embed a map).', 'kash-naturals'),
+        'section'     => 'kash_contact_options',
+        'type'        => 'url',
+    ));
 }
 add_action('customize_register', 'kash_naturals_customize_register');
 
@@ -1560,3 +1843,361 @@ function kash_curated_save_page_metabox($post_id) {
     }
 }
 add_action('save_post', 'kash_curated_save_page_metabox');
+
+/**
+ * ============================================================================
+ * CONTACT US PAGE: DIRECT WP-ADMIN EDIT PAGE META BOX
+ * Allows changing WhatsApp, Phone, Emails, Address, and Form details directly
+ * in the Contact Us page editor (Pages -> Edit Contact Us).
+ * ============================================================================
+ */
+function kash_contact_add_page_metabox() {
+    global $post;
+    if (!$post) {
+        return;
+    }
+
+    $template = get_post_meta($post->ID, '_wp_page_template', true);
+    $slug     = $post->post_name;
+    $title    = strtolower($post->post_title);
+
+    if ($template === 'page-contact.php' || in_array($slug, array('contact', 'contact-us', 'contactus', 'reach-us')) || strpos($title, 'contact') !== false) {
+        add_meta_box(
+            'kash_contact_page_metabox',
+            __('📞 Contact Page & Company Details (WhatsApp, Email, Phone, Address)', 'kash-naturals'),
+            'kash_contact_render_page_metabox',
+            'page',
+            'normal',
+            'high'
+        );
+    }
+}
+add_action('add_meta_boxes', 'kash_contact_add_page_metabox');
+
+function kash_contact_render_page_metabox($post) {
+    wp_nonce_field('kash_contact_metabox_save', 'kash_contact_metabox_nonce');
+
+    // Helper to get meta or fallback to theme_mod or default
+    $get_val = function($key, $default = '') use ($post) {
+        $meta = get_post_meta($post->ID, '_kash_' . $key, true);
+        if ($meta !== '' && $meta !== false) {
+            return $meta;
+        }
+        return get_theme_mod('kash_' . $key, $default);
+    };
+
+    $header_sub     = $get_val('contact_header_subtitle', "WE'RE HERE TO HELP YOU • GET IN TOUCH WITH US");
+    $header_title   = $get_val('contact_header_title', 'Contact Kash Natural');
+    $phone_title    = $get_val('contact_phone_title', 'Call & WhatsApp');
+    $phone          = $get_val('contact_phone', '+91 98765 43210');
+    $timing         = $get_val('contact_phone_timing', 'Mon - Sat: 10:00 AM - 7:00 PM');
+    $email_title    = $get_val('contact_email_title', 'Email Support');
+    $email          = $get_val('contact_email', 'info@kashnatural.com');
+    $sec_email      = $get_val('contact_secondary_email', 'support@kashnatural.com');
+    $bulk_title     = $get_val('contact_bulk_title', 'Corporate & Bulk Orders');
+    $bulk_email     = $get_val('contact_bulk_email', 'b2b@kashnatural.com');
+    $bulk_sub       = $get_val('contact_bulk_sub', 'Custom Branding & Hampers');
+    $hq_title       = $get_val('contact_hq_title', 'Headquarters');
+    $hq_address     = $get_val('contact_hq_address', 'Surat, Gujarat, India');
+    $hq_sub         = $get_val('contact_hq_sub', 'Pan India Insulated Shipping');
+    $wa_number      = $get_val('whatsapp_number', '919876543210');
+    $wa_prefill     = $get_val('whatsapp_prefill_text', 'Hi Kash Natural, I have an inquiry');
+    $wa_card_title  = $get_val('contact_wa_card_title', 'Need Instant Help?');
+    $wa_card_desc   = $get_val('contact_wa_card_desc', 'Chat directly with our support team on WhatsApp for quick order assistance and inquiries.');
+    $wa_btn_text    = $get_val('contact_wa_btn_text', 'CHAT ON WHATSAPP');
+    $form_recipient = $get_val('contact_form_recipient', 'info@kashnatural.com');
+    $form_badge     = $get_val('contact_form_badge', 'SEND A MESSAGE');
+    $form_heading   = $get_val('contact_form_heading', 'How Can We Help You?');
+    $form_subtext   = $get_val('contact_form_subtext', 'Have questions about our products, order status, or custom gifts? Fill out the form below and our team will get back to you promptly.');
+    $map_title      = $get_val('contact_map_title', 'Pan-India Distribution & Support Hub');
+    $map_subtitle   = $get_val('contact_map_subtitle', 'Delivering freshness from Surat to every state across India');
+    $map_badge      = $get_val('contact_map_badge', 'All Pincodes Active');
+    $map_iframe     = $get_val('contact_map_iframe', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d119066.41709425492!2d72.75225624794274!3d21.16102683501712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04e59411d1563%3A0xfe4558290938b042!2sSurat%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin');
+    ?>
+    <style>
+        .kash-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .kash-meta-box-section { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .kash-meta-box-section h3 { margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0a331a; border-bottom: 2px solid #c2e2c6; padding-bottom: 6px; }
+        .kash-meta-field { margin-bottom: 12px; }
+        .kash-meta-field label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px; color: #2d3748; }
+        .kash-meta-field input[type="text"], .kash-meta-field input[type="email"], .kash-meta-field textarea { width: 100%; border-radius: 4px; padding: 6px 10px; border: 1px solid #cbd5e1; }
+        .kash-meta-field .description { color: #64748b; font-size: 12px; margin-top: 3px; display: block; }
+    </style>
+
+    <div style="padding: 10px 0;">
+        <p style="color: #4b5563; font-size: 13.5px; margin-bottom: 20px;">
+            <?php esc_html_e('Customize phone numbers, WhatsApp links, emails, office address, and contact form settings for this Contact page and across site references. Any changes here will automatically update the page and theme options.', 'kash-naturals'); ?>
+        </p>
+
+        <div class="kash-meta-grid">
+            
+            <!-- SECTION 1: Phone & WhatsApp Details -->
+            <div class="kash-meta-box-section">
+                <h3><i class="dashicons dashicons-phone" style="vertical-align: middle; margin-right: 4px;"></i> <?php esc_html_e('Phone & WhatsApp Support', 'kash-naturals'); ?></h3>
+                
+                <div class="kash-meta-field">
+                    <label for="kash_contact_phone"><?php esc_html_e('Phone / WhatsApp Display Number', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_phone" name="kash_contact_phone" value="<?php echo esc_attr($phone); ?>" placeholder="+91 98765 43210" />
+                    <span class="description"><?php esc_html_e('Formatted phone number displayed on cards and footer.', 'kash-naturals'); ?></span>
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_phone_timing"><?php esc_html_e('Support / Calling Hours', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_phone_timing" name="kash_contact_phone_timing" value="<?php echo esc_attr($timing); ?>" placeholder="Mon - Sat: 10:00 AM - 7:00 PM" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_whatsapp_number"><?php esc_html_e('WhatsApp Direct Number (with Country Code)', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_whatsapp_number" name="kash_whatsapp_number" value="<?php echo esc_attr($wa_number); ?>" placeholder="919876543210" />
+                    <span class="description"><?php esc_html_e('Used for wa.me link (e.g. 919876543210 - no plus or spaces needed).', 'kash-naturals'); ?></span>
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_whatsapp_prefill_text"><?php esc_html_e('WhatsApp Pre-filled Message', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_whatsapp_prefill_text" name="kash_whatsapp_prefill_text" value="<?php echo esc_attr($wa_prefill); ?>" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_phone_title"><?php esc_html_e('Card 1 Title', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_phone_title" name="kash_contact_phone_title" value="<?php echo esc_attr($phone_title); ?>" />
+                </div>
+            </div>
+
+            <!-- SECTION 2: Email & Corporate Inquiries -->
+            <div class="kash-meta-box-section">
+                <h3><i class="dashicons dashicons-email" style="vertical-align: middle; margin-right: 4px;"></i> <?php esc_html_e('Email Addresses & Corporate Orders', 'kash-naturals'); ?></h3>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_email"><?php esc_html_e('Primary Customer Support Email', 'kash-naturals'); ?></label>
+                    <input type="email" id="kash_contact_email" name="kash_contact_email" value="<?php echo esc_attr($email); ?>" placeholder="info@kashnatural.com" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_secondary_email"><?php esc_html_e('Secondary Support / Care Email', 'kash-naturals'); ?></label>
+                    <input type="email" id="kash_contact_secondary_email" name="kash_contact_secondary_email" value="<?php echo esc_attr($sec_email); ?>" placeholder="support@kashnatural.com" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_bulk_email"><?php esc_html_e('Corporate / B2B Orders Email', 'kash-naturals'); ?></label>
+                    <input type="email" id="kash_contact_bulk_email" name="kash_contact_bulk_email" value="<?php echo esc_attr($bulk_email); ?>" placeholder="b2b@kashnatural.com" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_bulk_sub"><?php esc_html_e('Corporate Orders Subtext', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_bulk_sub" name="kash_contact_bulk_sub" value="<?php echo esc_attr($bulk_sub); ?>" placeholder="Custom Branding & Hampers" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_email_title"><?php esc_html_e('Card 2 Title (Email Support)', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_email_title" name="kash_contact_email_title" value="<?php echo esc_attr($email_title); ?>" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_bulk_title"><?php esc_html_e('Card 3 Title (Corporate & Bulk)', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_bulk_title" name="kash_contact_bulk_title" value="<?php echo esc_attr($bulk_title); ?>" />
+                </div>
+            </div>
+
+            <!-- SECTION 3: Headquarters & Delivery Info -->
+            <div class="kash-meta-box-section">
+                <h3><i class="dashicons dashicons-location" style="vertical-align: middle; margin-right: 4px;"></i> <?php esc_html_e('Headquarters & Delivery Map', 'kash-naturals'); ?></h3>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_hq_address"><?php esc_html_e('Headquarters Address / Location', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_hq_address" name="kash_contact_hq_address" value="<?php echo esc_attr($hq_address); ?>" placeholder="Surat, Gujarat, India" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_hq_sub"><?php esc_html_e('Shipping / Fulfillment Note', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_hq_sub" name="kash_contact_hq_sub" value="<?php echo esc_attr($hq_sub); ?>" placeholder="Pan India Insulated Shipping" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_hq_title"><?php esc_html_e('Card 4 Title (Headquarters)', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_hq_title" name="kash_contact_hq_title" value="<?php echo esc_attr($hq_title); ?>" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_map_badge"><?php esc_html_e('Map Delivery Status Badge', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_map_badge" name="kash_contact_map_badge" value="<?php echo esc_attr($map_badge); ?>" placeholder="All Pincodes Active" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_map_iframe"><?php esc_html_e('Google Maps Embed URL (src URL)', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_map_iframe" name="kash_contact_map_iframe" value="<?php echo esc_attr($map_iframe); ?>" />
+                    <span class="description"><?php esc_html_e('Embed URL from Google Maps (src="...")', 'kash-naturals'); ?></span>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Sidebar Card & Form Settings -->
+            <div class="kash-meta-box-section">
+                <h3><i class="dashicons dashicons-admin-comments" style="vertical-align: middle; margin-right: 4px;"></i> <?php esc_html_e('Instant WhatsApp Card & Form Settings', 'kash-naturals'); ?></h3>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_form_recipient"><?php esc_html_e('Form Submission Recipient Email', 'kash-naturals'); ?></label>
+                    <input type="email" id="kash_contact_form_recipient" name="kash_contact_form_recipient" value="<?php echo esc_attr($form_recipient); ?>" placeholder="info@kashnatural.com" />
+                    <span class="description"><?php esc_html_e('Inquiries from the contact form will be emailed directly to this address.', 'kash-naturals'); ?></span>
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_wa_card_title"><?php esc_html_e('WhatsApp Card Title', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_wa_card_title" name="kash_contact_wa_card_title" value="<?php echo esc_attr($wa_card_title); ?>" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_wa_card_desc"><?php esc_html_e('WhatsApp Card Description', 'kash-naturals'); ?></label>
+                    <textarea id="kash_contact_wa_card_desc" name="kash_contact_wa_card_desc" rows="2"><?php echo esc_textarea($wa_card_desc); ?></textarea>
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_wa_btn_text"><?php esc_html_e('WhatsApp Button Text', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_wa_btn_text" name="kash_contact_wa_btn_text" value="<?php echo esc_attr($wa_btn_text); ?>" />
+                </div>
+
+                <div class="kash-meta-field">
+                    <label for="kash_contact_header_title"><?php esc_html_e('Header Title', 'kash-naturals'); ?></label>
+                    <input type="text" id="kash_contact_header_title" name="kash_contact_header_title" value="<?php echo esc_attr($header_title); ?>" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <?php
+}
+
+function kash_contact_save_page_metabox($post_id) {
+    if (!isset($_POST['kash_contact_metabox_nonce']) || !wp_verify_nonce($_POST['kash_contact_metabox_nonce'], 'kash_contact_metabox_save')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    if (!current_user_can('edit_page', $post_id)) {
+        return;
+    }
+
+    $text_fields = array(
+        'contact_header_subtitle',
+        'contact_header_title',
+        'contact_phone_title',
+        'contact_phone',
+        'contact_phone_timing',
+        'contact_email_title',
+        'contact_bulk_title',
+        'contact_bulk_sub',
+        'contact_hq_title',
+        'contact_hq_address',
+        'contact_hq_sub',
+        'whatsapp_number',
+        'whatsapp_prefill_text',
+        'contact_wa_card_title',
+        'contact_wa_card_desc',
+        'contact_wa_btn_text',
+        'contact_form_badge',
+        'contact_form_heading',
+        'contact_form_subtext',
+        'contact_map_title',
+        'contact_map_subtitle',
+        'contact_map_badge',
+    );
+
+    foreach ($text_fields as $f) {
+        $post_key = 'kash_' . $f;
+        if (isset($_POST[$post_key])) {
+            $val = sanitize_text_field($_POST[$post_key]);
+            update_post_meta($post_id, '_kash_' . $f, $val);
+            set_theme_mod('kash_' . $f, $val);
+        }
+    }
+
+    // Email fields
+    $email_fields = array('contact_email', 'contact_secondary_email', 'contact_bulk_email', 'contact_form_recipient');
+    foreach ($email_fields as $ef) {
+        $post_key = 'kash_' . $ef;
+        if (isset($_POST[$post_key])) {
+            $val = sanitize_email($_POST[$post_key]);
+            update_post_meta($post_id, '_kash_' . $ef, $val);
+            set_theme_mod('kash_' . $ef, $val);
+        }
+    }
+
+    // URL fields
+    if (isset($_POST['kash_contact_map_iframe'])) {
+        $val = esc_url_raw($_POST['kash_contact_map_iframe']);
+        update_post_meta($post_id, '_kash_contact_map_iframe', $val);
+        set_theme_mod('kash_contact_map_iframe', $val);
+    }
+}
+add_action('save_post', 'kash_contact_save_page_metabox');
+
+/**
+ * ============================================================================
+ * AJAX HANDLER FOR CONTACT FORM SUBMISSION
+ * Sends email to customizer/meta recipient via wp_mail()
+ * ============================================================================
+ */
+add_action('wp_ajax_kash_submit_contact', 'kash_handle_contact_submit');
+add_action('wp_ajax_nopriv_kash_submit_contact', 'kash_handle_contact_submit');
+
+function kash_handle_contact_submit() {
+    $nonce = isset($_POST['contact_nonce']) ? sanitize_text_field($_POST['contact_nonce']) : '';
+    if (!wp_verify_nonce($nonce, 'kash_contact_nonce')) {
+        $alt_nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        if (!wp_verify_nonce($alt_nonce, 'kash_contact_nonce')) {
+            wp_send_json_error(array(
+                'message' => __('Security check failed. Please refresh the page and try again.', 'kash-naturals'),
+            ));
+        }
+    }
+
+    $name    = isset($_POST['name']) ? sanitize_text_field(trim($_POST['name'])) : '';
+    $email   = isset($_POST['email']) ? sanitize_email(trim($_POST['email'])) : '';
+    $phone   = isset($_POST['phone']) ? sanitize_text_field(trim($_POST['phone'])) : '';
+    $subject = isset($_POST['subject']) ? sanitize_text_field(trim($_POST['subject'])) : 'General Inquiry';
+    $message = isset($_POST['message']) ? sanitize_textarea_field(trim($_POST['message'])) : '';
+
+    if (empty($name) || empty($email) || !is_email($email) || empty($message)) {
+        wp_send_json_error(array(
+            'message' => __('Please fill out all required fields with a valid email address.', 'kash-naturals'),
+        ));
+    }
+
+    // Determine recipient email (Customizer/Meta setting -> Admin email -> Fallback)
+    $recipient = get_theme_mod('kash_contact_form_recipient', get_option('admin_email', 'info@kashnatural.com'));
+    if (!is_email($recipient)) {
+        $recipient = get_option('admin_email');
+    }
+
+    $subject_labels = array(
+        'general'  => __('General Inquiry', 'kash-naturals'),
+        'order'    => __('Order Status & Shipping', 'kash-naturals'),
+        'bulk'     => __('Corporate / Bulk Orders', 'kash-naturals'),
+        'feedback' => __('Product Feedback', 'kash-naturals'),
+    );
+    $subject_text = isset($subject_labels[$subject]) ? $subject_labels[$subject] : $subject;
+
+    $mail_subject = sprintf(__('[Kash Natural] New Contact Message: %s from %s', 'kash-naturals'), $subject_text, $name);
+
+    $body  = "<h2>" . esc_html__('New Contact Form Submission', 'kash-naturals') . "</h2>\r\n";
+    $body .= "<p><strong>" . esc_html__('Name:', 'kash-naturals') . "</strong> " . esc_html($name) . "</p>\r\n";
+    $body .= "<p><strong>" . esc_html__('Email:', 'kash-naturals') . "</strong> " . esc_html($email) . "</p>\r\n";
+    if (!empty($phone)) {
+        $body .= "<p><strong>" . esc_html__('Phone:', 'kash-naturals') . "</strong> " . esc_html($phone) . "</p>\r\n";
+    }
+    $body .= "<p><strong>" . esc_html__('Subject:', 'kash-naturals') . "</strong> " . esc_html($subject_text) . "</p>\r\n";
+    $body .= "<p><strong>" . esc_html__('Message:', 'kash-naturals') . "</strong><br>" . nl2br(esc_html($message)) . "</p>\r\n";
+    $body .= "<hr><p style='color:#777;font-size:12px;'>" . sprintf(esc_html__('Sent from %s', 'kash-naturals'), esc_url(home_url('/contact/'))) . "</p>";
+
+    $headers = array(
+        'Content-Type: text/html; charset=UTF-8',
+        'Reply-To: ' . $name . ' <' . $email . '>',
+    );
+
+    @wp_mail($recipient, $mail_subject, $body, $headers);
+
+    wp_send_json_success(array(
+        'message' => __('Thank you for contacting Kash Natural! Your message has been sent successfully.', 'kash-naturals'),
+    ));
+}
+
+
