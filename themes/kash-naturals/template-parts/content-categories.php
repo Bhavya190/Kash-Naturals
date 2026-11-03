@@ -136,27 +136,31 @@ $actual_cat_count = count($display_cats);
 ?>
 
 <?php if (!empty($display_cats)) : ?>
-<section class="section-padding home-category-showcase">
+<section class="home-category-circles-showcase" aria-label="<?php esc_attr_e('Product Collections', 'kash-naturals'); ?>">
     <div class="container">
-        <div class="category-cards-grid cat-grid-cols-<?php echo intval($actual_cat_count); ?>" style="--cat-cols: <?php echo intval($actual_cat_count); ?>;">
+        <!-- Scrollable track on mobile/tablet, centered flex on desktop -->
+        <div class="kash-circle-cats-track cat-count-<?php echo intval($actual_cat_count); ?>">
             <?php foreach ($display_cats as $cat) : ?>
-                <div class="cat-exact-card">
-                    <div class="cat-card-image-wrap">
-                        <div class="cat-card-img-container">
-                            <img src="<?php echo esc_url($cat['image']); ?>" alt="<?php echo esc_attr($cat['title']); ?>" class="cat-card-img" loading="lazy">
-                        </div>
-                        <div class="cat-card-badge <?php echo esc_attr($cat['badge_class']); ?>">
-                            <i class="<?php echo esc_attr($cat['badge_icon']); ?>"></i>
+                <a href="<?php echo esc_url($cat['link']); ?>" class="kash-circle-cat-item" title="<?php echo esc_attr($cat['title']); ?>">
+                    <!-- Circular Medium Image Container -->
+                    <div class="kash-circle-cat-avatar">
+                        <img src="<?php echo esc_url($cat['image']); ?>" alt="<?php echo esc_attr($cat['title']); ?>" class="circle-cat-img" loading="lazy">
+                        
+                        <!-- Desktop & Laptop Hover Overlay (Reveals Category Name on Hover) -->
+                        <div class="kash-circle-cat-overlay" aria-hidden="true">
+                            <span class="circle-cat-hover-name"><?php echo esc_html($cat['title']); ?></span>
+                            <span class="circle-cat-hover-cta"><?php esc_html_e('SHOP NOW', 'kash-naturals'); ?> &rarr;</span>
                         </div>
                     </div>
-                    <div class="cat-card-body">
-                        <h3 class="cat-card-title"><?php echo esc_html($cat['title']); ?></h3>
-                        <p class="cat-card-subtitle"><?php echo esc_html($cat['subtitle']); ?></p>
-                        <a href="<?php echo esc_url($cat['link']); ?>" class="cat-card-shop-btn">
-                            <?php esc_html_e('SHOP NOW', 'kash-naturals'); ?> <i class="fa-solid fa-arrow-right"></i>
-                        </a>
+
+                    <!-- Tablet & Mobile Category Label (Displayed Under the Circle) -->
+                    <div class="kash-circle-cat-caption">
+                        <span class="circle-cat-title"><?php echo esc_html($cat['title']); ?></span>
+                        <?php if (!empty($cat['subtitle'])) : ?>
+                            <span class="circle-cat-count"><?php echo esc_html($cat['subtitle']); ?></span>
+                        <?php endif; ?>
                     </div>
-                </div>
+                </a>
             <?php endforeach; ?>
         </div>
     </div>

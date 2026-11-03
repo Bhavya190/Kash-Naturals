@@ -455,7 +455,7 @@ function kash_naturals_customize_register($wp_customize) {
        ========================================================================== */
     $wp_customize->add_section('kash_collection_showcase_options', array(
         'title'       => __('Homepage Category Showcase (Below Hero)', 'kash-naturals'),
-        'description' => __('Manage the category collection cards displayed right below the hero banner. Choose how many cards to show, select specific categories, or let WooCommerce show them automatically.', 'kash-naturals'),
+        'description' => __('Manage the circular category collection displayed right below the hero banner. Choose how many categories to show, select specific categories, or let WooCommerce show them automatically.', 'kash-naturals'),
         'priority'    => 28,
     ));
 
@@ -465,17 +465,17 @@ function kash_naturals_customize_register($wp_customize) {
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('kash_cats_count', array(
-        'label'       => __('Number of Category Cards to Show', 'kash-naturals'),
-        'description' => __('Choose how many cards to show on the homepage. The grid automatically expands evenly so no empty space appears.', 'kash-naturals'),
+        'label'       => __('Number of Categories to Show', 'kash-naturals'),
+        'description' => __('Choose how many circular categories to show on the homepage. On desktop they center evenly; on mobile and tablet they scroll horizontally.', 'kash-naturals'),
         'section'     => 'kash_collection_showcase_options',
         'type'        => 'select',
         'choices'     => array(
-            '1' => __('1 Card (Centered)', 'kash-naturals'),
-            '2' => __('2 Cards (2 Equal Columns)', 'kash-naturals'),
-            '3' => __('3 Cards (3 Equal Columns)', 'kash-naturals'),
-            '4' => __('4 Cards (4 Equal Columns - Default)', 'kash-naturals'),
-            '5' => __('5 Cards (5 Columns)', 'kash-naturals'),
-            '6' => __('6 Cards (2 Rows of 3)', 'kash-naturals'),
+            '1' => __('1 Category (Centered)', 'kash-naturals'),
+            '2' => __('2 Categories', 'kash-naturals'),
+            '3' => __('3 Categories', 'kash-naturals'),
+            '4' => __('4 Categories (Default)', 'kash-naturals'),
+            '5' => __('5 Categories', 'kash-naturals'),
+            '6' => __('6 Categories', 'kash-naturals'),
         ),
     ));
 
