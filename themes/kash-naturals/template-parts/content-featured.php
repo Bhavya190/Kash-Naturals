@@ -140,7 +140,7 @@ $mode_class = ($prod_count < 5) ? 'fav-static-grid' : 'fav-slider-mode';
                                                 <?php esc_html_e('View Product', 'kash-naturals'); ?> <i class="fa-solid fa-arrow-right"></i>
                                             </a>
                                             <?php if ($is_prod_in_stock) : ?>
-                                                <button type="button" class="fav-btn-quick-add add-to-cart-btn add_to_cart_button ajax_add_to_cart" data-product-id="<?php echo esc_attr($product['id']); ?>" data-product_id="<?php echo esc_attr($product['id']); ?>" data-product-name="<?php echo esc_attr($product['title']); ?>" data-product-price="<?php echo esc_attr($product['price']); ?>" data-product-img="<?php echo esc_url($product['image']); ?>" title="<?php esc_attr_e('Add to Cart', 'kash-naturals'); ?>">
+                                                <button type="button" class="fav-btn-quick-add add-to-cart-btn" data-product-id="<?php echo esc_attr($product['id']); ?>" data-product_id="<?php echo esc_attr($product['id']); ?>" data-product-name="<?php echo esc_attr($product['title']); ?>" data-product-price="<?php echo esc_attr($product['price']); ?>" data-product-img="<?php echo esc_url($product['image']); ?>" title="<?php esc_attr_e('Add to Cart', 'kash-naturals'); ?>">
                                                     <i class="fa-solid fa-plus"></i>
                                                 </button>
                                             <?php else : ?>

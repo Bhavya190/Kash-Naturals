@@ -585,8 +585,178 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    // Global Add To Cart Function with Live Stock Checks
-    window.addToCart = function (productId, quantity = 1) {
+    // Modal State for Variant Selection
+    let currentModalProduct = null;
+    let selectedModalVariation = null;
+
+    // Quick Variant Selection Modal
+    function openVariantModal(product) {
+        if (!product || !product.variations || !product.variations.length) {
+            addToCart(product ? product.id : 0, 1);
+            return;
+        }
+
+        currentModalProduct = product;
+        const firstInStock = product.variations.find(v => v.in_stock) || product.variations[0];
+        selectedModalVariation = firstInStock;
+
+        $('#variant-modal-qty-input').val(1);
+        $('#variant-modal-title').text(product.name);
+        const initialImg = (selectedModalVariation && selectedModalVariation.image) ? selectedModalVariation.image : (product.image || '');
+        $('#variant-modal-img').attr('src', initialImg).attr('alt', product.name);
+
+        updateVariantModalPriceDisplay(selectedModalVariation);
+
+        const $pillsContainer = $('#variant-modal-pills').empty();
+        product.variations.forEach(function (v) {
+            const isSelected = (selectedModalVariation && v.id === selectedModalVariation.id);
+            const isOos = !v.in_stock;
+            const pillLabel = v.label || (v.price ? ('₹' + v.price) : 'Option');
+            const priceLabel = v.price ? ('₹' + v.price) : '';
+
+            const $pill = $(`
+                <button type="button" class="v-pill ${isSelected ? 'active' : ''} ${isOos ? 'is-oos' : ''}" data-variation-id="${v.id}" ${isOos ? 'disabled' : ''}>
+                    <span class="v-pill-name">${pillLabel}</span>
+                    ${priceLabel ? `<span class="v-pill-price">${priceLabel}</span>` : ''}
+                    ${isOos ? '<span class="v-pill-badge oos">Out of Stock</span>' : ''}
+                </button>
+            `);
+
+            $pill.on('click', function (e) {
+                e.preventDefault();
+                if (isOos) return;
+                selectedModalVariation = v;
+                $('.v-pill').removeClass('active');
+                $(this).addClass('active');
+
+                if (v.image) {
+                    $('#variant-modal-img').attr('src', v.image);
+                }
+                updateVariantModalPriceDisplay(v);
+            });
+
+            $pillsContainer.append($pill);
+        });
+
+        $('#variant-selection-modal').addClass('active');
+        $('body').addClass('modal-open');
+    }
+    window.openVariantModal = openVariantModal;
+
+    function updateVariantModalPriceDisplay(variation) {
+        if (!variation) return;
+        const price = variation.price || 0;
+        const reg = variation.regular_price || 0;
+        let html = `<span class="v-current-price">₹${price}</span>`;
+        if (reg > price) {
+            html += `<span class="v-regular-price">₹${reg}</span>`;
+            const pct = Math.round(((reg - price) / reg) * 100);
+            html += `<span class="v-save-badge">Save ${pct}%</span>`;
+        }
+        $('#variant-modal-price').html(html);
+
+        const $btn = $('#btn-confirm-add-variant');
+        if (!variation.in_stock) {
+            $btn.prop('disabled', true).addClass('disabled').html('<i class="fa-solid fa-ban"></i> Out of Stock');
+        } else {
+            $btn.prop('disabled', false).removeClass('disabled').html('<i class="fa-solid fa-cart-shopping"></i> ADD TO BAG');
+        }
+    }
+
+    function closeVariantModal() {
+        $('#variant-selection-modal').removeClass('active');
+        $('body').removeClass('modal-open');
+        currentModalProduct = null;
+        selectedModalVariation = null;
+    }
+    window.closeVariantModal = closeVariantModal;
+
+    $(document).on('click', '#close-variant-modal', function (e) {
+        e.preventDefault();
+        closeVariantModal();
+    });
+
+    $(document).on('click', '#variant-selection-modal', function (e) {
+        if ($(e.target).is('#variant-selection-modal')) {
+            closeVariantModal();
+        }
+    });
+
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && $('#variant-selection-modal').hasClass('active')) {
+            closeVariantModal();
+        }
+    });
+
+    $(document).on('click', '#vqty-minus', function (e) {
+        e.preventDefault();
+        const $input = $('#variant-modal-qty-input');
+        let val = parseInt($input.val(), 10) || 1;
+        if (val > 1) {
+            $input.val(val - 1);
+        }
+    });
+
+    $(document).on('click', '#vqty-plus', function (e) {
+        e.preventDefault();
+        const $input = $('#variant-modal-qty-input');
+        let val = parseInt($input.val(), 10) || 1;
+        if (val < 20) {
+            $input.val(val + 1);
+        }
+    });
+
+    $(document).on('click', '#btn-confirm-add-variant', function (e) {
+        e.preventDefault();
+        if (!currentModalProduct || !selectedModalVariation) return;
+        if (!selectedModalVariation.in_stock) {
+            showToast('This variant is currently out of stock.', 'info');
+            return;
+        }
+
+        const qty = parseInt($('#variant-modal-qty-input').val(), 10) || 1;
+        const prod = currentModalProduct;
+        const variant = selectedModalVariation;
+
+        closeVariantModal();
+        addVariantToCart(prod, variant, qty);
+    });
+
+    function addVariantToCart(product, variant, quantity = 1) {
+        const qty = Math.max(1, parseInt(quantity, 10) || 1);
+        const varName = `${product.name} - ${variant.label}`;
+        const varPrice = variant.price || product.price || 0;
+        const varImg = variant.image || product.image || '';
+
+        let cart = getCart();
+        const existingIndex = cart.findIndex(item => item.variation_id == variant.id || (item.id == product.id && item.variation_id == variant.id));
+
+        if (existingIndex > -1) {
+            cart[existingIndex].qty += qty;
+        } else {
+            cart.push({
+                id: product.id,
+                variation_id: variant.id,
+                name: varName,
+                price: varPrice,
+                image: varImg,
+                qty: qty,
+                in_stock: true,
+                stock_status: variant.stock_status || 'instock',
+                attributes: variant.attributes || {}
+            });
+        }
+
+        saveCart(cart);
+        showToast(`Added "${varName}" to your shopping bag!`);
+        openCartDrawer();
+        syncAddToCartWooCommerce(product.id, qty, variant.id, variant.attributes || {});
+    }
+    window.addVariantToCart = addVariantToCart;
+
+    // Global Add To Cart Function with Live Stock & Variation Checks
+    window.addToCart = function (productId, quantity = 1, variationId = null, variationData = null) {
+        const qty = Math.max(1, parseInt(quantity, 10) || 1);
         let product = (PRODUCTS_DB && PRODUCTS_DB.length) ? PRODUCTS_DB.find(p => p.id == productId) : null;
         if (!product) {
             const $btn = $(`.add-to-cart-btn[data-product-id="${productId}"], .add-to-cart-btn[data-product_id="${productId}"]`).first();
@@ -612,6 +782,21 @@ jQuery(document).ready(function ($) {
             return;
         }
 
+        // If product has variations and no variation was explicitly chosen, prompt the user!
+        if (product.is_variable && product.variations && product.variations.length > 0 && !variationId) {
+            openVariantModal(product);
+            return;
+        }
+
+        // If variation was passed
+        if (variationId && product.variations && product.variations.length > 0) {
+            const vMatch = product.variations.find(v => v.id == variationId);
+            if (vMatch) {
+                addVariantToCart(product, vMatch, qty);
+                return;
+            }
+        }
+
         // Live Stock Validation Check
         if (product.in_stock === false || product.stock_status === 'outofstock') {
             showToast(`Sorry, "${product.name}" is currently out of stock.`, 'info');
@@ -621,26 +806,27 @@ jQuery(document).ready(function ($) {
         // Check remaining stock quantity if managed
         if (product.managing_stock && !product.backorders && typeof product.stock_quantity === 'number') {
             let currentCart = getCart();
-            const existingItem = currentCart.find(i => i.id == productId);
+            const existingItem = currentCart.find(i => i.id == productId && !i.variation_id);
             const currentQty = existingItem ? existingItem.qty : 0;
-            if (currentQty + quantity > product.stock_quantity) {
+            if (currentQty + qty > product.stock_quantity) {
                 showToast(`Only ${product.stock_quantity} item(s) available in stock for "${product.name}".`, 'info');
                 return;
             }
         }
 
         let cart = getCart();
-        const existingIndex = cart.findIndex(item => item.id == productId);
+        const existingIndex = cart.findIndex(item => item.id == productId && !item.variation_id);
 
         if (existingIndex > -1) {
-            cart[existingIndex].qty += quantity;
+            cart[existingIndex].qty += qty;
         } else {
             cart.push({
                 id: product.id,
+                variation_id: 0,
                 name: product.name,
                 price: product.price,
                 image: product.image,
-                qty: quantity,
+                qty: qty,
                 in_stock: true,
                 stock_status: 'instock',
                 stock_quantity: product.stock_quantity
@@ -650,15 +836,24 @@ jQuery(document).ready(function ($) {
         saveCart(cart);
         showToast(`Added "${product.name}" to your shopping bag!`);
         openCartDrawer();
-        syncAddToCartWooCommerce(product.id, quantity);
+        syncAddToCartWooCommerce(product.id, qty);
     };
 
     // Global Click Listener for all "ADD TO CART" / "ORDER NOW" / "+" Buttons Across Site
     $(document).on('click', '.fav-btn-quick-add, .add-to-cart-btn, .btn-add-to-cart-outline, .btn-combo-add-cart, .btn-add-cart-exact, .combo-ref-btn, .btn-combo-shop-now', function (e) {
         e.preventDefault();
         e.stopPropagation();
+        if (e.stopImmediatePropagation) {
+            e.stopImmediatePropagation();
+        }
 
         const $btn = $(this);
+
+        // Ignore single product page add to cart (handled specifically by handleSingleAddToCart)
+        if ($btn.is('#singleProductAddToCartBtn') || $btn.closest('.purchase-action-controls').length) {
+            return;
+        }
+
         if ($btn.hasClass('disabled') || $btn.prop('disabled')) {
             showToast('This product is currently out of stock.', 'info');
             return;
@@ -679,11 +874,19 @@ jQuery(document).ready(function ($) {
             match = PRODUCTS_DB.find(p => p.name.toLowerCase().includes(prodName.toLowerCase()) || prodName.toLowerCase().includes(p.name.toLowerCase()));
         }
 
-        if (match) {
-            addToCart(match.id, 1);
-        } else {
+        if (!match) {
             showToast('Product is currently unavailable or out of stock.', 'info');
+            return;
         }
+
+        // If product has variations (e.g. 200 GM or 500 GM), ask which variant to purchase!
+        if (match.is_variable && match.variations && match.variations.length > 0) {
+            openVariantModal(match);
+            return;
+        }
+
+        // Simple product: add strictly 1 product by default
+        addToCart(match.id, 1);
     });
 
     // Open/Close Cart Drawer

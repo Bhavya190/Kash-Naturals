@@ -268,7 +268,7 @@ $timer_label = get_theme_mod('kash_promo_timer_label', __('⚡ DEAL ENDS IN:', '
                     <!-- Action Buttons -->
                     <div class="deal-actions-row">
                         <?php if ($prod_id > 0) : ?>
-                            <button type="button" class="btn-deal-primary add-to-cart-btn add_to_cart_button ajax_add_to_cart" data-product-id="<?php echo esc_attr($prod_id); ?>" data-product_id="<?php echo esc_attr($prod_id); ?>" data-product-name="<?php echo esc_attr($title); ?>" data-product-price="<?php echo esc_attr($deal_price); ?>" data-product-img="<?php echo esc_url($image_url); ?>">
+                            <button type="button" class="btn-deal-primary add-to-cart-btn" data-product-id="<?php echo esc_attr($prod_id); ?>" data-product_id="<?php echo esc_attr($prod_id); ?>" data-product-name="<?php echo esc_attr($title); ?>" data-product-price="<?php echo esc_attr($deal_price); ?>" data-product-img="<?php echo esc_url($image_url); ?>">
                                 <i class="fa-solid fa-bag-shopping"></i>
                                 <span><?php echo esc_html($btn_text); ?></span>
                             </button>

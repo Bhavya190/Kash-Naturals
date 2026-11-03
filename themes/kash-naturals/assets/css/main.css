@@ -11240,11 +11240,12 @@ img.amz-ref-logo {
 
 .product-title-main {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(1.8rem, 2.6vw, 2.5rem);
-    font-weight: 800;
+    font-size: clamp(1.25rem, 1.65vw, 1.55rem);
+    font-weight: 700;
     color: #1C2B1F;
-    margin: 0 0 14px 0;
-    line-height: 1.22;
+    margin: 0 0 12px 0;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
     word-break: break-word;
 }
 
@@ -12594,9 +12595,9 @@ img.amz-ref-logo {
     }
 
     .product-title-main {
-        font-size: clamp(1.4rem, 5.5vw, 1.75rem);
+        font-size: clamp(1.15rem, 4.5vw, 1.35rem);
         margin-bottom: 10px;
-        line-height: 1.25;
+        line-height: 1.32;
         word-break: break-word;
         overflow-wrap: break-word;
         hyphens: none;
@@ -12982,7 +12983,8 @@ img.amz-ref-logo {
     }
 
     .product-title-main {
-        font-size: 1.35rem;
+        font-size: 1.15rem;
+        line-height: 1.35;
     }
 
     .current-price-val {
@@ -13749,4 +13751,319 @@ img.amz-ref-logo {
         height: 52px;
         font-size: 27px;
     }
+}
+
+/* ==========================================================================
+   QUICK VARIANT SELECTION MODAL
+   ========================================================================== */
+.variant-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 28, 20, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.variant-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.variant-modal-container {
+    background: #FFFDF9;
+    border: 1px solid rgba(198, 139, 39, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 500px;
+    padding: 28px;
+    position: relative;
+    transform: scale(0.94) translateY(12px);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.variant-modal-overlay.active .variant-modal-container {
+    transform: scale(1) translateY(0);
+}
+
+.variant-modal-container .close-modal-btn {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    font-size: 26px;
+    line-height: 1;
+    color: #888;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.variant-modal-container .close-modal-btn:hover {
+    color: #1a1a1a;
+    transform: scale(1.1);
+}
+
+.variant-modal-body {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.variant-modal-thumb {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f4efe6;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.variant-modal-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.variant-modal-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.variant-modal-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(44, 95, 62, 0.1);
+    color: #2C5F3E;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+
+.variant-modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #1C2B1F;
+    line-height: 1.32;
+    margin: 0 0 6px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.variant-modal-price {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.variant-modal-price .v-current-price {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #c68b27;
+}
+
+.variant-modal-price .v-regular-price {
+    font-size: 0.95rem;
+    color: #888;
+    text-decoration: line-through;
+    font-weight: 500;
+}
+
+.variant-modal-price .v-save-badge {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #2C5F3E;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.variant-pills-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.variant-modal-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.v-pill {
+    background: #ffffff;
+    border: 1.5px solid rgba(44, 95, 62, 0.25);
+    border-radius: 24px;
+    padding: 7px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #2C5F3E;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.v-pill:hover {
+    border-color: #2C5F3E;
+    background: rgba(44, 95, 62, 0.05);
+}
+
+.v-pill.active {
+    background: #2C5F3E;
+    color: #ffffff;
+    border-color: #2C5F3E;
+    box-shadow: 0 4px 12px rgba(44, 95, 62, 0.25);
+}
+
+.v-pill.is-oos {
+    opacity: 0.5;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.variant-modal-action-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.variant-modal-qty {
+    display: inline-flex;
+    align-items: center;
+    border: 1.5px solid #dcd7ce;
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+    height: 42px;
+}
+
+.variant-modal-qty .vqty-btn {
+    width: 34px;
+    height: 42px;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2C5F3E;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+
+.variant-modal-qty .vqty-btn:hover {
+    background: #f4efe6;
+}
+
+.variant-modal-qty input {
+    width: 36px;
+    height: 42px;
+    border: none;
+    text-align: center;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1C2B1F;
+    background: transparent;
+    padding: 0;
+}
+
+.btn-confirm-add-variant {
+    flex: 1;
+    height: 42px;
+    background: #c68b27;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(198, 139, 39, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-confirm-add-variant:hover {
+    background: #b17a1f;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(198, 139, 39, 0.4);
+}
+
+@media (max-width: 520px) {
+    .variant-modal-body {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .variant-modal-pills {
+        justify-content: center;
+    }
+    .variant-modal-action-row {
+        width: 100%;
+        flex-direction: column;
+    }
+    .variant-modal-qty {
+        width: 100%;
+        justify-content: center;
+    }
+    .btn-confirm-add-variant {
+        width: 100%;
+    }
+}
+
+.v-pill .v-pill-price {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    margin-left: 4px;
+}
+
+.v-pill.active .v-pill-price {
+    color: #f3dfb0;
+    opacity: 1;
+}
+
+@keyframes kashPillAlertPulse {
+    0% { box-shadow: 0 0 0 0 rgba(196, 124, 5, 0.4); transform: scale(1); }
+    50% { box-shadow: 0 0 0 10px rgba(196, 124, 5, 0); transform: scale(1.02); }
+    100% { box-shadow: 0 0 0 0 rgba(196, 124, 5, 0); transform: scale(1); }
+}
+
+.product-option-selector.selector-pulse-alert {
+    animation: kashPillAlertPulse 0.5s ease-in-out 3;
+    border: 2px solid #c47c05 !important;
+    border-radius: 12px;
+    padding: 10px;
+    background: rgba(196, 124, 5, 0.04);
 }

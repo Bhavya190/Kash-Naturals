@@ -78,7 +78,7 @@ $desc_short = wp_trim_words($desc, 12, '...');
                 <?php endif; ?>
             </div>
             <?php if ($is_in_stock) : ?>
-                <button type="button" class="btn-add-cart-exact add-to-cart-btn add_to_cart_button ajax_add_to_cart" data-product-id="<?php echo esc_attr($prod_id); ?>" data-product_id="<?php echo esc_attr($prod_id); ?>" data-product-name="<?php the_title_attribute(); ?>" data-product-price="<?php echo esc_attr($sale_price); ?>" data-product-img="<?php echo esc_url($img_url); ?>">
+                <button type="button" class="btn-add-cart-exact add-to-cart-btn" data-product-id="<?php echo esc_attr($prod_id); ?>" data-product_id="<?php echo esc_attr($prod_id); ?>" data-product-name="<?php the_title_attribute(); ?>" data-product-price="<?php echo esc_attr($sale_price); ?>" data-product-img="<?php echo esc_url($img_url); ?>">
                     <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
                 </button>
             <?php else : ?>

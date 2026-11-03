@@ -227,12 +227,6 @@ if ($product && is_a($product, 'WC_Product')) {
                 if ($is_default_match) {
                     $default_variation_id = $vid;
                     $default_variation_data = $variations_json_data[$vid];
-                } elseif ($default_variation_id === 0) {
-                    $default_variation_id = $vid;
-                    $default_variation_data = $variations_json_data[$vid];
-                } elseif ($default_variation_data && !$default_variation_data['in_stock'] && $v_in_stock) {
-                    $default_variation_id = $vid;
-                    $default_variation_data = $variations_json_data[$vid];
                 }
             }
         }
@@ -245,14 +239,21 @@ if ($product && is_a($product, 'WC_Product')) {
         $reg_formatted    = $default_variation_data['regular_html'];
         $discount_percent = $default_variation_data['discount'];
     } else {
-        if (function_exists('wc_price')) {
+        if ($is_variable && method_exists($product, 'get_price_html')) {
+            $price_formatted  = $product->get_price_html();
+            $reg_formatted    = '';
+            $discount_percent = 0;
+            $price_raw        = $product->get_variation_price('min', true);
+            $reg_raw          = $product->get_variation_regular_price('max', true);
+        } elseif (function_exists('wc_price')) {
             $price_formatted = wc_price($price_raw);
             $reg_formatted   = ($reg_raw > $price_raw) ? wc_price($reg_raw) : '';
+            $discount_percent = ($reg_raw > $price_raw && $reg_raw > 0) ? round((($reg_raw - $price_raw) / $reg_raw) * 100) : 0;
         } else {
             $price_formatted = $currency_symbol . number_format($price_raw, 2);
             $reg_formatted   = ($reg_raw > $price_raw) ? ($currency_symbol . number_format($reg_raw, 2)) : '';
+            $discount_percent = ($reg_raw > $price_raw && $reg_raw > 0) ? round((($reg_raw - $price_raw) / $reg_raw) * 100) : 0;
         }
-        $discount_percent = ($reg_raw > $price_raw && $reg_raw > 0) ? round((($reg_raw - $price_raw) / $reg_raw) * 100) : 0;
     }
 
     // Real WooCommerce Customer Reviews & Dynamic Rating
@@ -1002,7 +1003,7 @@ if ($product && is_a($product, 'WC_Product')) {
                     <div class="size-pills-wrap">
                         <?php if ($is_variable && !empty($variations_json_data)) : ?>
                             <?php foreach ($variations_json_data as $vid => $vdata) : 
-                                $is_active = ($vid === $default_variation_id);
+                                $is_active = ($default_variation_id > 0 && $vid === $default_variation_id);
                                 $is_oos = !$vdata['in_stock'];
                             ?>
                                 <button type="button" 
@@ -1042,7 +1043,7 @@ if ($product && is_a($product, 'WC_Product')) {
                         <button type="button" class="qty-btn plus" onclick="updateQty(1)" aria-label="Increase quantity">+</button>
                     </div>
 
-                    <button type="button" class="btn-add-to-cart-gold add-to-cart-btn add_to_cart_button ajax_add_to_cart <?php echo !$is_in_stock ? 'btn-out-of-stock' : ''; ?>" 
+                    <button type="button" class="btn-add-to-cart-gold <?php echo !$is_in_stock ? 'btn-out-of-stock' : ''; ?>" 
                             id="singleProductAddToCartBtn"
                             data-product-id="<?php echo esc_attr($product_id); ?>" 
                             data-variation-id="<?php echo esc_attr($default_variation_id); ?>" 
@@ -1052,6 +1053,9 @@ if ($product && is_a($product, 'WC_Product')) {
                             data-product-img="<?php echo esc_url($main_img); ?>" 
                             <?php echo !$is_in_stock ? 'disabled' : ''; ?>
                             onclick="handleSingleAddToCart(<?php echo esc_attr($product_id); ?>)">
+                        <i class="fa-solid <?php echo $is_in_stock ? 'fa-cart-shopping' : 'fa-ban'; ?>"></i> 
+                        <span class="btn-label-text"><?php echo $is_in_stock ? esc_html__('ADD TO CART', 'kash-naturals') : esc_html__('OUT OF STOCK', 'kash-naturals'); ?></span>
+                    </button>
                         <i class="fa-solid <?php echo $is_in_stock ? 'fa-cart-shopping' : 'fa-ban'; ?>"></i> 
                         <span class="btn-label-text"><?php echo $is_in_stock ? esc_html__('ADD TO CART', 'kash-naturals') : esc_html__('OUT OF STOCK', 'kash-naturals'); ?></span>
                     </button>
@@ -1847,6 +1851,22 @@ function checkDeliveryPincode() {
 }
 
 function handleSingleAddToCart(id) {
+    const isVariable = <?php echo $is_variable ? 'true' : 'false'; ?>;
+    if (isVariable && (!activeVariationId || activeVariationId <= 0)) {
+        if (typeof showToast === 'function') {
+            showToast('Please choose a pack size (e.g. 200 GM or 500 GM) before adding to bag.', 'info');
+        } else {
+            alert('Please choose a pack size before adding to bag.');
+        }
+        const selectorWrap = document.querySelector('.product-option-selector');
+        if (selectorWrap) {
+            selectorWrap.classList.add('selector-pulse-alert');
+            selectorWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => selectorWrap.classList.remove('selector-pulse-alert'), 1600);
+        }
+        return;
+    }
+
     const qtyInput = document.getElementById('productQtyInput');
     const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
     const addBtn = document.getElementById('singleProductAddToCartBtn');
@@ -1911,14 +1931,30 @@ function handleSingleAddToCart(id) {
                 addBtn.classList.remove('loading');
                 addBtn.disabled = false;
             }
-            if (typeof addToCart === 'function') {
-                addToCart(varId || id, qty);
+            if (typeof showToast === 'function') {
+                showToast('Unable to add product to cart at this moment.', 'info');
             }
         }
     });
 }
 
 function handleBuyNow(id) {
+    const isVariable = <?php echo $is_variable ? 'true' : 'false'; ?>;
+    if (isVariable && (!activeVariationId || activeVariationId <= 0)) {
+        if (typeof showToast === 'function') {
+            showToast('Please choose a pack size (e.g. 200 GM or 500 GM) before proceeding.', 'info');
+        } else {
+            alert('Please choose a pack size before proceeding.');
+        }
+        const selectorWrap = document.querySelector('.product-option-selector');
+        if (selectorWrap) {
+            selectorWrap.classList.add('selector-pulse-alert');
+            selectorWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => selectorWrap.classList.remove('selector-pulse-alert'), 1600);
+        }
+        return;
+    }
+
     const qtyInput = document.getElementById('productQtyInput');
     const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
     const varId = activeVariationId || 0;

@@ -381,24 +381,17 @@ if (empty($products_list)) {
                             </a>
 
                             <?php if ($is_in_stock) : ?>
-                                <?php if (!empty($item['is_variable'])) : ?>
-                                    <a href="<?php echo esc_url($item['link']); ?>" class="kash-curated-btn-cart" style="text-decoration:none;" aria-label="<?php echo esc_attr(sprintf(__('Choose pack size for %s', 'kash-naturals'), $item['title'])); ?>">
-                                        <i class="fa-solid fa-layer-group"></i>
-                                        <span><?php esc_html_e('Select Options', 'kash-naturals'); ?></span>
-                                    </a>
-                                <?php else : ?>
-                                    <button type="button" class="kash-curated-btn-cart add-to-cart-btn add_to_cart_button ajax_add_to_cart" 
-                                        data-product-id="<?php echo esc_attr($item['id']); ?>" 
-                                        data-product_id="<?php echo esc_attr($item['id']); ?>" 
-                                        data-product-name="<?php echo esc_attr($item['title']); ?>" 
-                                        data-product-price="<?php echo esc_attr($item['raw_price']); ?>" 
-                                        data-product-img="<?php echo esc_url($item['image']); ?>" 
-                                        aria-label="<?php echo esc_attr(sprintf(__('Add %s to cart', 'kash-naturals'), $item['title'])); ?>"
-                                        title="<?php esc_attr_e('Add to Cart', 'kash-naturals'); ?>">
-                                        <i class="fa-solid fa-cart-plus"></i>
-                                        <span><?php esc_html_e('Add to Cart', 'kash-naturals'); ?></span>
-                                    </button>
-                                <?php endif; ?>
+                                <button type="button" class="kash-curated-btn-cart add-to-cart-btn" 
+                                    data-product-id="<?php echo esc_attr($item['id']); ?>" 
+                                    data-product_id="<?php echo esc_attr($item['id']); ?>" 
+                                    data-product-name="<?php echo esc_attr($item['title']); ?>" 
+                                    data-product-price="<?php echo esc_attr($item['raw_price']); ?>" 
+                                    data-product-img="<?php echo esc_url($item['image']); ?>" 
+                                    aria-label="<?php echo esc_attr(sprintf(__('Add %s to cart', 'kash-naturals'), $item['title'])); ?>"
+                                    title="<?php echo !empty($item['is_variable']) ? esc_attr__('Select Pack Size', 'kash-naturals') : esc_attr__('Add to Cart', 'kash-naturals'); ?>">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                    <span><?php esc_html_e('Add to Cart', 'kash-naturals'); ?></span>
+                                </button>
                             <?php else : ?>
                                 <button type="button" class="kash-curated-btn-cart is-oos" disabled title="<?php esc_attr_e('Out of stock', 'kash-naturals'); ?>">
                                     <i class="fa-solid fa-ban"></i>

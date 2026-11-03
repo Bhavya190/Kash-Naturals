@@ -606,15 +606,9 @@ if (function_exists('is_product_category') && is_product_category()) {
                                             <?php endif; ?>
                                         </div>
                                         <?php if ($is_in_stock) : ?>
-                                            <?php if (!empty($prod['is_variable'])) : ?>
-                                                <a href="<?php echo esc_url($prod_link); ?>" class="btn-add-cart-exact" style="text-decoration:none;">
-                                                    <i class="fa-solid fa-layer-group"></i> <?php esc_html_e('SELECT OPTIONS', 'kash-naturals'); ?>
-                                                </a>
-                                            <?php else : ?>
-                                                <button type="button" class="btn-add-cart-exact add-to-cart-btn add_to_cart_button ajax_add_to_cart" data-product-id="<?php echo esc_attr($prod['id']); ?>" data-product_id="<?php echo esc_attr($prod['id']); ?>" data-product-name="<?php echo esc_attr($prod['name']); ?>" data-product-price="<?php echo esc_attr($prod['raw_price']); ?>" data-product-img="<?php echo esc_url($prod['image']); ?>">
-                                                    <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
-                                                </button>
-                                            <?php endif; ?>
+                                            <button type="button" class="btn-add-cart-exact add-to-cart-btn" data-product-id="<?php echo esc_attr($prod['id']); ?>" data-product_id="<?php echo esc_attr($prod['id']); ?>" data-product-name="<?php echo esc_attr($prod['name']); ?>" data-product-price="<?php echo esc_attr($prod['raw_price']); ?>" data-product-img="<?php echo esc_url($prod['image']); ?>" title="<?php echo !empty($prod['is_variable']) ? esc_attr__('Select Pack Size', 'kash-naturals') : esc_attr__('Add to Cart', 'kash-naturals'); ?>">
+                                                <i class="fa-solid fa-cart-plus"></i> <?php esc_html_e('ADD TO CART', 'kash-naturals'); ?>
+                                            </button>
                                         <?php else : ?>
                                             <button type="button" class="btn-add-cart-exact btn-out-of-stock" disabled title="<?php esc_attr_e('Product is currently out of stock', 'kash-naturals'); ?>">
                                                 <i class="fa-solid fa-ban"></i> <?php esc_html_e('OUT OF STOCK', 'kash-naturals'); ?>

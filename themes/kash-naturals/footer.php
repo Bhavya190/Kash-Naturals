@@ -494,6 +494,38 @@ if (!defined('ABSPATH')) {
     </div>
 
 
+    <!-- QUICK VARIANT SELECTION MODAL -->
+    <div class="variant-modal-overlay" id="variant-selection-modal">
+        <div class="variant-modal-container">
+            <button type="button" class="close-modal-btn" id="close-variant-modal" aria-label="<?php esc_attr_e('Close', 'kash-naturals'); ?>">&times;</button>
+            <div class="variant-modal-body">
+                <div class="variant-modal-thumb">
+                    <img id="variant-modal-img" src="" alt="Product">
+                </div>
+                <div class="variant-modal-info">
+                    <span class="variant-modal-badge"><?php esc_html_e('Choose Pack Size', 'kash-naturals'); ?></span>
+                    <h3 class="variant-modal-title" id="variant-modal-title"></h3>
+                    <div class="variant-modal-price" id="variant-modal-price"></div>
+                    
+                    <div class="variant-pills-label"><?php esc_html_e('Available Options:', 'kash-naturals'); ?></div>
+                    <div class="variant-modal-pills" id="variant-modal-pills"></div>
+
+                    <div class="variant-modal-action-row">
+                        <div class="variant-modal-qty">
+                            <button type="button" class="vqty-btn" id="vqty-minus" aria-label="Decrease">&minus;</button>
+                            <input type="number" id="variant-modal-qty-input" value="1" min="1" max="20" readonly>
+                            <button type="button" class="vqty-btn" id="vqty-plus" aria-label="Increase">&plus;</button>
+                        </div>
+                        <button type="button" class="btn-confirm-add-variant" id="btn-confirm-add-variant">
+                            <i class="fa-solid fa-cart-shopping"></i> <?php esc_html_e('ADD TO BAG', 'kash-naturals'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- 6. TOAST NOTIFICATION CONTAINER -->
     <div class="kash-toast-container" id="kash-toast-container"></div>
 
