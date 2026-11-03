@@ -15,6 +15,11 @@ if (!$is_enabled) {
     return;
 }
 
+// Only appear on the Home Page (not on inner pages / page changes)
+if (!is_front_page() && !is_home()) {
+    return;
+}
+
 $theme_uri    = get_template_directory_uri();
 $eyebrow      = get_theme_mod('kash_newsletter_eyebrow', __('🌿 ROYAL REWARDS CLUB', 'kash-naturals'));
 $headline     = get_theme_mod('kash_newsletter_headline', __('Unlock 10% Off Your First Order', 'kash-naturals'));

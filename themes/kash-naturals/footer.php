@@ -529,8 +529,12 @@ if (!defined('ABSPATH')) {
     <!-- 6. TOAST NOTIFICATION CONTAINER -->
     <div class="kash-toast-container" id="kash-toast-container"></div>
 
-    <!-- 7. WELCOME NEWSLETTER POPUP MODAL -->
-    <?php get_template_part('template-parts/modal', 'newsletter'); ?>
+    <!-- 7. WELCOME NEWSLETTER POPUP MODAL (Home Page Only) -->
+    <?php 
+    if (is_front_page() || is_home()) {
+        get_template_part('template-parts/modal', 'newsletter');
+    }
+    ?>
 
     <!-- 8. UNIVERSAL FLOATING WHATSAPP CHAT WIDGET -->
     <?php get_template_part('template-parts/widget', 'whatsapp'); ?>

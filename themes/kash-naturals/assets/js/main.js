@@ -1868,18 +1868,30 @@ jQuery(document).ready(function ($) {
     });
 
     /* ==========================================================================
-       WELCOME NEWSLETTER POPUP CONTROLLER (Shows every time site is refreshed)
+       WELCOME NEWSLETTER POPUP CONTROLLER
+       Only appears when visiting the home page and on home page refresh (not on page change)
        ========================================================================== */
     const $newsletterModal = $('#kash-newsletter-modal');
     if ($newsletterModal.length > 0) {
-        // Clear previous dismissal / subscription suppression flags so popup displays reliably on every refresh
+        // Detect if this page load is a reload / refresh
+        let isReload = false;
         try {
-            localStorage.removeItem('kash_newsletter_dismissed');
-            localStorage.removeItem('kash_newsletter_subscribed');
-            sessionStorage.removeItem('kash_newsletter_dismissed');
-            sessionStorage.removeItem('kash_newsletter_subscribed');
-        } catch (err) {
-            // Safe fallback if storage is disabled in private browsing
+            const navEntries = (window.performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation') : [];
+            if (navEntries.length > 0 && navEntries[0].type === 'reload') {
+                isReload = true;
+            } else if (window.performance && window.performance.navigation && window.performance.navigation.type === 1) {
+                isReload = true;
+            }
+        } catch (e) {
+            isReload = false;
+        }
+
+        // Check if user navigated here from an internal link on this website (page change)
+        const isInternalPageChange = !!(document.referrer && document.referrer.indexOf(window.location.origin) !== -1);
+
+        // If this is an internal page change (e.g. clicking Home from shop or product page) and NOT a refresh, do not show
+        if (isInternalPageChange && !isReload) {
+            return;
         }
 
         const delaySec = Math.max(0.5, parseFloat($newsletterModal.data('delay')) || 2.0);
@@ -1893,7 +1905,7 @@ jQuery(document).ready(function ($) {
             $form[0].reset();
         }
 
-        // Display popup on every refresh after the specified delay
+        // Display popup after the specified delay
         setTimeout(function () {
             $newsletterModal.fadeIn(350).addClass('active');
             $('body').addClass('modal-open');
@@ -1906,7 +1918,6 @@ jQuery(document).ready(function ($) {
                 $('body').removeClass('modal-open');
                 $('html').removeClass('modal-open');
             });
-            // Intentionally do NOT store dismissal flag so it will show again on next refresh
         }
 
         $(document).on('click', '#kash-newsletter-close, #btn-newsletter-dismiss', function (e) {
