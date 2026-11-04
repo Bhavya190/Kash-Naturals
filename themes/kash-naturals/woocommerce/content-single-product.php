@@ -1595,13 +1595,24 @@ const kashVariationsData = <?php echo !empty($variations_json_data) ? wp_json_en
 let activeVariationId = <?php echo intval($default_variation_id); ?>;
 
 function kashSelectVariation(vid) {
-    if (!kashVariationsData || !kashVariationsData[vid]) return;
-    const v = kashVariationsData[vid];
+    if (!kashVariationsData) return;
+
+    // Resilient lookup by ID (handles int, string, or array values)
+    let v = kashVariationsData[vid] || kashVariationsData[String(vid)] || kashVariationsData[parseInt(vid, 10)];
+    if (!v && typeof kashVariationsData === 'object') {
+        const all = Object.values(kashVariationsData);
+        v = all.find(item => item && (item.id == vid || item.id == String(vid)));
+    }
+    if (!v) {
+        console.warn('Variation not found for id:', vid, kashVariationsData);
+        return;
+    }
     activeVariationId = vid;
 
     // 1. Highlight pill
     document.querySelectorAll('.size-pill-btn').forEach(btn => {
-        if (parseInt(btn.getAttribute('data-variation-id')) === vid) {
+        const btnVid = btn.getAttribute('data-variation-id');
+        if (btnVid && (btnVid == vid || parseInt(btnVid, 10) === parseInt(vid, 10))) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
@@ -1664,6 +1675,10 @@ function kashSelectVariation(vid) {
     if (addBtn) {
         addBtn.setAttribute('data-variation-id', vid);
         addBtn.setAttribute('data-product-price', v.price);
+        const titleMainEl = document.getElementById('productTitleMain');
+        if (titleMainEl) {
+            addBtn.setAttribute('data-product-name', titleMainEl.textContent.replace(/\s+/g, ' ').trim());
+        }
         if (v.in_stock) {
             addBtn.disabled = false;
             addBtn.classList.remove('btn-out-of-stock');
@@ -1721,15 +1736,8 @@ function kashSelectVariation(vid) {
         titleVarEl.textContent = ' | ' + vClean;
         titleVarEl.style.display = 'inline';
     }
-
-    // 8. Keep Add To Cart Button product name in sync with selected variant
-    if (addBtn) {
-        const titleMainEl = document.getElementById('productTitleMain');
-        if (titleMainEl) {
-            addBtn.setAttribute('data-product-name', titleMainEl.textContent.replace(/\s+/g, ' ').trim());
-        }
-    }
 }
+window.kashSelectVariation = kashSelectVariation;
 
 function selectPackSize(btn, sizeName, price) {
     document.querySelectorAll('.size-pill-btn').forEach(b => b.classList.remove('active'));
@@ -1749,12 +1757,25 @@ function selectPackSize(btn, sizeName, price) {
         titleVarEl.textContent = ' | ' + sClean;
         titleVarEl.style.display = 'inline';
     }
-}
+
     const addBtn = document.getElementById('singleProductAddToCartBtn');
     if (addBtn && price) {
         addBtn.setAttribute('data-product-price', price);
     }
 }
+window.selectPackSize = selectPackSize;
+
+// Delegate click on pack size buttons for bulletproof interaction
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+        const pill = e.target.closest('.size-pill-btn');
+        if (!pill) return;
+        const vid = pill.getAttribute('data-variation-id');
+        if (vid) {
+            kashSelectVariation(vid);
+        }
+    });
+});
 
 function updateQty(delta) {
     const input = document.getElementById('productQtyInput');
