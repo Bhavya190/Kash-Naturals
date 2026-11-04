@@ -87,9 +87,16 @@ function kash_naturals_scripts() {
                         $prod_reg = floatval($variations_list[0]['regular_price']);
                     }
 
+                    $t_parts = function_exists('kash_get_product_title_parts') 
+                        ? kash_get_product_title_parts($prod) 
+                        : array('base_title' => $prod->get_name(), 'subtitles' => '', 'variant' => '', 'full_title' => $prod->get_name());
+
                     $dynamic_products_js[] = array(
                         'id'            => $prod->get_id(),
-                        'name'          => $prod->get_name(),
+                        'name'          => $t_parts['full_title'],
+                        'base_title'    => $t_parts['base_title'],
+                        'post_titles'   => $t_parts['subtitles'],
+                        'variant_label' => $t_parts['variant'],
                         'category'      => $c_slug,
                         'category_name' => $c_name,
                         'price'         => $prod_price,

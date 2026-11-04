@@ -284,6 +284,17 @@ if ($product && is_a($product, 'WC_Product')) {
         }
     }
 
+    // Resolve Composite Product Title: [Product Title] | [Post Title/s] | [Variant]
+    $default_v_label = !empty($default_variation_data['label']) ? $default_variation_data['label'] : '';
+    $title_parts     = function_exists('kash_get_product_title_parts') 
+        ? kash_get_product_title_parts($product, $default_v_label) 
+        : array(
+            'base_title' => $product_name,
+            'subtitles'  => '',
+            'variant'    => $default_v_label,
+            'full_title' => $product_name,
+        );
+
     // Real WooCommerce Customer Reviews & Dynamic Rating
     $approved_reviews = array();
     if (function_exists('get_comments')) {
@@ -684,7 +695,13 @@ if ($product && is_a($product, 'WC_Product')) {
 } else {
     // Standalone Dev Preview Mode
     $product_id = 1;
-    $product_name = 'Kash Natural Raj Ratan – Sweet & Salty Mukhwas | Traditional Indian Mouth Freshener, 200g';
+    $product_name = 'Kash Natural Raj Ratan – Sweet & Salty Mukhwas';
+    $title_parts  = array(
+        'base_title' => 'Kash Natural Raj Ratan – Sweet & Salty Mukhwas',
+        'subtitles'  => 'Traditional Indian Mouth Freshener',
+        'variant'    => '200g',
+        'full_title' => 'Kash Natural Raj Ratan – Sweet & Salty Mukhwas | Traditional Indian Mouth Freshener | 200g',
+    );
     $main_img = get_template_directory_uri() . '/assets/images/jar-royal-mukhwas.jpg';
     $gallery_images = array(
         get_template_directory_uri() . '/assets/images/jar-royal-mukhwas.jpg',
@@ -806,7 +823,7 @@ if ($product && is_a($product, 'WC_Product')) {
             <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
             <a href="<?php echo esc_url($c_link); ?>"><?php echo esc_html($c_name); ?></a>
             <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
-            <span class="breadcrumb-current"><?php echo esc_html($product_name); ?></span>
+            <span class="breadcrumb-current"><?php echo esc_html($title_parts['base_title']); ?></span>
         </nav>
 
         <!-- Product Main Showcase Grid -->
@@ -962,7 +979,9 @@ if ($product && is_a($product, 'WC_Product')) {
                     <span class="product-sku-code">SKU: <span id="productSkuDisplay"><?php echo esc_html($sku_str); ?></span></span>
                 </div>
 
-                <h1 class="product-title-main"><?php echo esc_html($product_name); ?></h1>
+                <h1 class="product-title-main" id="productTitleMain">
+                    <span class="kash-base-title"><?php echo esc_html($title_parts['base_title']); ?></span><?php if (!empty($title_parts['subtitles'])) : ?><span class="kash-post-titles"> | <?php echo esc_html($title_parts['subtitles']); ?></span><?php endif; ?><span class="kash-variant-title" id="productTitleVariant"><?php echo !empty($title_parts['variant']) ? ' | ' . esc_html($title_parts['variant']) : ''; ?></span>
+                </h1>
 
                 <!-- Rating & Stock Status -->
                 <div class="product-rating-stock-row">
@@ -1081,7 +1100,9 @@ if ($product && is_a($product, 'WC_Product')) {
                             data-product-id="<?php echo esc_attr($product_id); ?>" 
                             data-variation-id="<?php echo esc_attr($default_variation_id); ?>" 
                             data-product_id="<?php echo esc_attr($product_id); ?>" 
-                            data-product-name="<?php echo esc_attr($product_name); ?>" 
+                            data-product-name="<?php echo esc_attr($title_parts['full_title']); ?>" 
+                            data-base-title="<?php echo esc_attr($title_parts['base_title']); ?>" 
+                            data-post-titles="<?php echo esc_attr($title_parts['subtitles']); ?>" 
                             data-product-price="<?php echo esc_attr($price_raw); ?>" 
                             data-product-img="<?php echo esc_url($main_img); ?>" 
                             <?php echo !$is_in_stock ? 'disabled' : ''; ?>
@@ -1692,6 +1713,22 @@ function kashSelectVariation(vid) {
             }, 120);
         }
     }
+
+    // 7. Update Product Title Variant on Storefront Dynamically
+    const titleVarEl = document.getElementById('productTitleVariant');
+    if (titleVarEl && v.label) {
+        let vClean = v.label.split('(')[0].trim();
+        titleVarEl.textContent = ' | ' + vClean;
+        titleVarEl.style.display = 'inline';
+    }
+
+    // 8. Keep Add To Cart Button product name in sync with selected variant
+    if (addBtn) {
+        const titleMainEl = document.getElementById('productTitleMain');
+        if (titleMainEl) {
+            addBtn.setAttribute('data-product-name', titleMainEl.textContent.replace(/\s+/g, ' ').trim());
+        }
+    }
 }
 
 function selectPackSize(btn, sizeName, price) {
@@ -1704,6 +1741,15 @@ function selectPackSize(btn, sizeName, price) {
     if (mainPriceEl && price) {
         mainPriceEl.textContent = currency + parseFloat(price).toFixed(2);
     }
+
+    // Update Product Title Variant
+    const titleVarEl = document.getElementById('productTitleVariant');
+    if (titleVarEl && sizeName) {
+        let sClean = sizeName.split('(')[0].trim();
+        titleVarEl.textContent = ' | ' + sClean;
+        titleVarEl.style.display = 'inline';
+    }
+}
     const addBtn = document.getElementById('singleProductAddToCartBtn');
     if (addBtn && price) {
         addBtn.setAttribute('data-product-price', price);

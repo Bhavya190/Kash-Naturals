@@ -334,9 +334,16 @@ if (class_exists('WooCommerce')) {
                     $desc = wp_strip_all_tags(get_the_excerpt());
                 }
 
+                $t_parts = function_exists('kash_get_product_title_parts') 
+                    ? kash_get_product_title_parts($wc_prod) 
+                    : array('base_title' => $wc_prod->get_name(), 'subtitles' => '', 'variant' => '', 'full_title' => $wc_prod->get_name());
+
                 $dynamic_products[] = array(
                     'id'            => $wc_prod->get_id(),
-                    'name'          => $wc_prod->get_name(),
+                    'name'          => $t_parts['full_title'],
+                    'base_title'    => $t_parts['base_title'],
+                    'post_titles'   => $t_parts['subtitles'],
+                    'variant_label' => $t_parts['variant'],
                     'is_variable'   => $has_variations,
                     'variations'    => $variations_data,
                     'category'      => $current_category,

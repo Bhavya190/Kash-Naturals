@@ -637,7 +637,37 @@ jQuery(document).ready(function ($) {
 
         const qty = Math.max(1, parseInt(initialQty, 10) || 1);
         $('#variant-modal-qty-input').val(qty);
-        $('#variant-modal-title').text(product.name);
+
+        // Helper to update modal title with composite format: product title | post title/s | verient
+        function updateModalCompositeTitle(v) {
+            let base = product.base_title;
+            let subs = product.post_titles;
+            let vName = v && v.label ? v.label.split('(')[0].trim() : '';
+
+            // If base_title not explicitly provided, smart-parse from product.name
+            if (!base && product.name) {
+                if (product.name.indexOf('|') !== -1) {
+                    const segs = product.name.split('|').map(s => s.trim());
+                    base = segs[0];
+                    subs = segs.slice(1).join(' | ');
+                    if (subs) {
+                        subs = subs.replace(/\s*[-–,|]\s*\d+\s*(?:g|gm|gms|kg|ml)\b.*$/i, '').trim();
+                    }
+                } else {
+                    base = product.name.replace(/\s*[-–,]\s*\d+\s*(?:g|gm|gms|kg|ml)\b.*$/i, '').trim();
+                }
+            }
+
+            if (!base) base = product.name || 'Artisanal Specialty';
+
+            const parts = [base];
+            if (subs) parts.push(subs);
+            if (vName) parts.push(vName);
+
+            $('#variant-modal-title').text(parts.join(' | '));
+        }
+
+        updateModalCompositeTitle(selectedModalVariation);
         const initialImg = (selectedModalVariation && selectedModalVariation.image) ? selectedModalVariation.image : (product.image || '');
         $('#variant-modal-img').attr('src', initialImg).attr('alt', product.name);
 
@@ -665,6 +695,9 @@ jQuery(document).ready(function ($) {
                 selectedModalVariation = v;
                 $('.v-pill').removeClass('active');
                 $(this).addClass('active');
+
+                // Dynamically update variant in modal title
+                updateModalCompositeTitle(v);
 
                 // If on single product page, sync page pack size selection too
                 if (typeof kashSelectVariation === 'function' && typeof kashVariationsData !== 'undefined' && kashVariationsData[v.id]) {
@@ -958,6 +991,9 @@ jQuery(document).ready(function ($) {
             openVariantModal({
                 id: prodId || (match ? match.id : 0),
                 name: prodName || (match ? match.name : 'Artisanal Specialty'),
+                base_title: $btn.data('base-title') || (match ? match.base_title : ''),
+                post_titles: $btn.data('post-titles') || (match ? match.post_titles : ''),
+                variant_label: $btn.data('variant-label') || (match ? match.variant_label : ''),
                 image: $btn.data('product-img') || (match ? match.image : ''),
                 price: parseFloat($btn.data('product-price')) || (match ? match.price : 0),
                 is_variable: true,

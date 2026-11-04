@@ -61,6 +61,16 @@ if (empty($desc)) {
     $desc = wp_strip_all_tags(get_the_excerpt());
 }
 $desc_short = wp_trim_words($desc, 12, '...');
+
+// Composite Title Parts: [Product Title] | [Post Title/s] | [Variant]
+$title_parts = function_exists('kash_get_product_title_parts') 
+    ? kash_get_product_title_parts($product) 
+    : array(
+        'base_title' => $product->get_name(),
+        'subtitles'  => '',
+        'variant'    => '',
+        'full_title' => $product->get_name(),
+    );
 ?>
 
 <div <?php wc_product_class('shop-product-card-exact' . (!$is_in_stock ? ' card-out-of-stock' : ''), $product); ?>>
@@ -71,13 +81,13 @@ $desc_short = wp_trim_words($desc, 12, '...');
     <?php endif; ?>
 
     <a href="<?php the_permalink(); ?>" class="product-img-box-exact">
-        <img src="<?php echo esc_url($img_url); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy">
+        <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($title_parts['full_title']); ?>" loading="lazy">
     </a>
     <div class="product-card-info">
         <div class="product-cat-label"><?php echo esc_html(!empty($cat_names) ? $cat_names : __('Specialty', 'kash-naturals')); ?></div>
         <h3 class="product-title-exact">
             <a href="<?php the_permalink(); ?>" style="color: inherit; text-decoration: none;">
-                <?php the_title(); ?>
+                <?php echo esc_html($title_parts['full_title']); ?>
             </a>
         </h3>
         <p class="product-desc-short"><?php echo esc_html($desc_short); ?></p>
@@ -94,7 +104,10 @@ $desc_short = wp_trim_words($desc, 12, '...');
                         class="btn-add-cart-exact add-to-cart-btn" 
                         data-product-id="<?php echo esc_attr($prod_id); ?>" 
                         data-product_id="<?php echo esc_attr($prod_id); ?>" 
-                        data-product-name="<?php the_title_attribute(); ?>" 
+                        data-product-name="<?php echo esc_attr($title_parts['full_title']); ?>" 
+                        data-base-title="<?php echo esc_attr($title_parts['base_title']); ?>" 
+                        data-post-titles="<?php echo esc_attr($title_parts['subtitles']); ?>" 
+                        data-variant-label="<?php echo esc_attr($title_parts['variant']); ?>" 
                         data-product-price="<?php echo esc_attr($sale_price); ?>" 
                         data-product-img="<?php echo esc_url($img_url); ?>"
                         data-is-variable="<?php echo $has_variations ? '1' : '0'; ?>"

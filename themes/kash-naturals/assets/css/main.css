@@ -11254,6 +11254,27 @@ img.amz-ref-logo {
     word-break: break-word;
 }
 
+.product-title-main .kash-base-title {
+    color: #1C2B1F;
+    font-weight: 700;
+}
+
+.product-title-main .kash-post-titles {
+    color: #2D3E30;
+    font-weight: 600;
+}
+
+.product-title-main .kash-variant-title {
+    color: #0a331a;
+    font-weight: 700;
+    transition: color 0.2s ease;
+}
+
+#variant-modal-title .m-var-label {
+    color: #c47c05;
+    font-weight: 700;
+}
+
 .product-rating-stock-row {
     display: flex;
     align-items: center;

@@ -851,14 +851,18 @@ function kash_naturals_ajax_get_variations() {
 
     $variations = kash_get_product_variations_data($product);
     $img_url = wp_get_attachment_image_url($product->get_image_id(), 'kash-product-card');
+    $title_parts = kash_get_product_title_parts($product);
 
     wp_send_json_success(array(
-        'id'          => $product->get_id(),
-        'name'        => $product->get_name(),
-        'image'       => $img_url ?: '',
-        'price'       => floatval($product->get_price()) ?: 0,
-        'is_variable' => !empty($variations),
-        'variations'  => $variations,
+        'id'            => $product->get_id(),
+        'name'          => $title_parts['full_title'],
+        'base_title'    => $title_parts['base_title'],
+        'post_titles'   => $title_parts['subtitles'],
+        'variant_label' => $title_parts['variant'],
+        'image'         => $img_url ?: '',
+        'price'         => floatval($product->get_price()) ?: 0,
+        'is_variable'   => !empty($variations),
+        'variations'    => $variations,
     ));
 }
 add_action('wp_ajax_kash_get_variations', 'kash_naturals_ajax_get_variations');
@@ -1288,5 +1292,466 @@ function kash_naturals_ajax_check_pincode() {
         'state' => $circle_prefix_map[$pfx]
     ));
 }
+
+/**
+ * ============================================================================
+ * PRODUCT COMPOSITE TITLE & SUBTITLES ARCHITECTURE
+ * Format on Frontend: "product title | post title/s | verient"
+ * Allows entering a short product title in the standard Title field,
+ * selecting or writing post titles/taglines, and dynamically updating
+ * the variant weight on the storefront in real time.
+ * ============================================================================
+ */
+
+/**
+ * Popular / Amazon-Style Post Titles & Category Taglines Presets
+ */
+function kash_get_popular_post_titles_presets() {
+    return array(
+        __('Traditional Gujarati Digestive Mouth Freshener', 'kash-naturals'),
+        __('Traditional Indian Mouth Freshener', 'kash-naturals'),
+        __('After Meal Digestive Snack', 'kash-naturals'),
+        __('Sweet & Tangy After-Meal Digestive', 'kash-naturals'),
+        __('Sugar-Coated Fennel & Seeds', 'kash-naturals'),
+        __('Colorful Sweet Mukhwas', 'kash-naturals'),
+        __('Sweet & Spicy Mukhwas', 'kash-naturals'),
+        __('Roasted Salty Mukhwas', 'kash-naturals'),
+        __('100% Natural Ayurvedic Digestive', 'kash-naturals'),
+        __('Premium Indian Mouth Freshener', 'kash-naturals'),
+        __('Authentic Royal Paan Mukhwas', 'kash-naturals'),
+        __('Sweet Blend of Traditional Seeds & Dates', 'kash-naturals'),
+        __('Pure & Artisanal Homemade Digestive', 'kash-naturals'),
+        __('Refreshing Mint & Menthol Infusion', 'kash-naturals'),
+        __('Crisp & Crunchy Digestives', 'kash-naturals'),
+        __('Luxury Dry Fruit & Seed Mukhwas', 'kash-naturals'),
+    );
+}
+
+/**
+ * Extract or Compose Product Title Parts:
+ * [Product Title] | [Post Title/s] | [Variant]
+ *
+ * @param WC_Product|int $product_or_id
+ * @param string $override_variant_label Optional variant label
+ * @return array('base_title', 'subtitles', 'variant', 'full_title')
+ */
+function kash_get_product_title_parts($product_or_id, $override_variant_label = '') {
+    $product = is_numeric($product_or_id) ? wc_get_product($product_or_id) : $product_or_id;
+    if (!$product || !is_a($product, 'WC_Product')) {
+        return array(
+            'base_title' => '',
+            'subtitles'  => '',
+            'variant'    => '',
+            'full_title' => '',
+        );
+    }
+
+    $prod_id = $product->get_id();
+    $raw_title = trim($product->get_title());
+
+    // 1. Check custom post meta for explicit post titles
+    $meta_subtitles     = get_post_meta($prod_id, '_kash_product_subtitles', true);
+    $meta_short_title   = get_post_meta($prod_id, '_kash_product_short_title', true);
+    $meta_variant_label = get_post_meta($prod_id, '_kash_product_variant_label', true);
+
+    $base_title     = '';
+    $subtitles      = '';
+    $parsed_variant = '';
+
+    // If explicit meta subtitles exist
+    if (!empty($meta_subtitles) || !empty($meta_short_title)) {
+        $base_title = !empty($meta_short_title) ? trim($meta_short_title) : $raw_title;
+        if (strpos($base_title, '|') !== false) {
+            $t_parts = array_map('trim', explode('|', $base_title));
+            $base_title = $t_parts[0];
+        }
+        $subtitles = trim($meta_subtitles);
+    } else {
+        // Smart parse existing title with pipes (e.g. from prior catalog imports)
+        if (strpos($raw_title, '|') !== false) {
+            $segments = array_map('trim', explode('|', $raw_title));
+            $base_title = $segments[0];
+            $sub_segments = array_slice($segments, 1);
+
+            // Check if last segment has trailing weight/variant (e.g. " - 200g", ", 200g", "200g")
+            if (!empty($sub_segments)) {
+                $last_idx = count($sub_segments) - 1;
+                $last_seg = $sub_segments[$last_idx];
+                if (preg_match('/^(.*?)(?:\s*[-–,|,(]\s*(\d+(?:\.\d+)?\s*(?:g|gm|gms|kg|ml|oz|lbs?))\b[)]?\s*)$/i', $last_seg, $m)) {
+                    $cleaned_tail = trim($m[1]);
+                    $parsed_variant = trim($m[2]);
+                    if (!empty($cleaned_tail)) {
+                        $sub_segments[$last_idx] = $cleaned_tail;
+                    } else {
+                        unset($sub_segments[$last_idx]);
+                    }
+                } elseif (preg_match('/^(\d+(?:\.\d+)?\s*(?:g|gm|gms|kg|ml|oz|lbs?))$/i', $last_seg, $m)) {
+                    $parsed_variant = trim($m[1]);
+                    unset($sub_segments[$last_idx]);
+                }
+            }
+            $subtitles = implode(' | ', array_filter($sub_segments));
+        } else {
+            // Check if single title ends with a hyphen or comma weight
+            if (preg_match('/^(.*?)(?:\s*[-–,]\s*(\d+(?:\.\d+)?\s*(?:g|gm|gms|kg|ml|oz|lbs?))\b\s*)$/i', $raw_title, $m)) {
+                $base_title = trim($m[1]);
+                $parsed_variant = trim($m[2]);
+            } else {
+                $base_title = $raw_title;
+            }
+            $subtitles = '';
+        }
+    }
+
+    // 2. Resolve Variant Label
+    $variant_label = '';
+    if (!empty($override_variant_label)) {
+        $variant_label = trim($override_variant_label);
+    } elseif (!empty($meta_variant_label)) {
+        $variant_label = trim($meta_variant_label);
+    } elseif ($product->is_type('variable')) {
+        // Find default variation label (prefer 200 GM or first in-stock)
+        $var_list = function_exists('kash_get_product_variations_data') ? kash_get_product_variations_data($product) : array();
+        if (!empty($var_list)) {
+            $found_var = null;
+            foreach ($var_list as $vd) {
+                if (!empty($vd['label']) && stripos($vd['label'], '200') !== false) {
+                    $found_var = $vd;
+                    break;
+                }
+            }
+            if (!$found_var) {
+                $found_var = $var_list[0];
+            }
+            if (!empty($found_var['label'])) {
+                $variant_label = $found_var['label'];
+            }
+        }
+    }
+
+    if (empty($variant_label) && !empty($parsed_variant)) {
+        $variant_label = $parsed_variant;
+    }
+
+    if (empty($variant_label)) {
+        $w = $product->get_weight();
+        if ($w && floatval($w) > 0) {
+            $variant_label = floatval($w) . 'g';
+        }
+    }
+
+    // Clean up variant label for title (strip "(Value Pack)" or other marketing brackets)
+    if (!empty($variant_label)) {
+        $v_clean_parts = explode('(', $variant_label);
+        $variant_label = trim($v_clean_parts[0]);
+    }
+
+    // 3. Assemble composite full title: "product title | post title/s | verient"
+    $parts = array();
+    if (!empty($base_title)) {
+        $parts[] = $base_title;
+    }
+    if (!empty($subtitles)) {
+        $parts[] = $subtitles;
+    }
+    if (!empty($variant_label)) {
+        $parts[] = $variant_label;
+    }
+
+    $full_title = implode(' | ', $parts);
+
+    return array(
+        'base_title'   => $base_title,
+        'subtitles'    => $subtitles,
+        'variant'      => $variant_label,
+        'full_title'   => $full_title,
+    );
+}
+
+/**
+ * Composite Product Title Helper
+ */
+function kash_get_composite_product_title($product_or_id, $variant_label = '') {
+    $parts = kash_get_product_title_parts($product_or_id, $variant_label);
+    return !empty($parts['full_title']) ? $parts['full_title'] : '';
+}
+
+/**
+ * Register Product Edit Screen Meta Box: Subtitles & Taglines
+ */
+function kash_register_product_subtitles_metabox() {
+    add_meta_box(
+        'kash_product_subtitles_box',
+        __('🏷️ Product Subtitles & Tagline Titles (SEO / Amazon Style)', 'kash-naturals'),
+        'kash_render_product_subtitles_metabox',
+        'product',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes_product', 'kash_register_product_subtitles_metabox');
+
+/**
+ * Render Product Subtitles Meta Box in WP Admin
+ */
+function kash_render_product_subtitles_metabox($post) {
+    wp_nonce_field('kash_save_product_subtitles', 'kash_product_subtitles_nonce');
+
+    $meta_subtitles = get_post_meta($post->ID, '_kash_product_subtitles', true);
+    $meta_variant   = get_post_meta($post->ID, '_kash_product_variant_label', true);
+
+    // If meta is empty, extract from existing title parts
+    $parts = kash_get_product_title_parts($post->ID);
+    if ($meta_subtitles === '' || $meta_subtitles === false) {
+        $meta_subtitles = $parts['subtitles'];
+    }
+    if ($meta_variant === '' || $meta_variant === false) {
+        $meta_variant = $parts['variant'];
+    }
+
+    $presets = kash_get_popular_post_titles_presets();
+    $current_subtitles_array = array_map('trim', explode('|', $meta_subtitles));
+    ?>
+    <style>
+        .kash-subtitles-box-wrap { padding: 8px 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .kash-subtitles-desc { color: #475569; font-size: 13.5px; line-height: 1.5; margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 16px; }
+        .kash-subtitles-desc strong { color: #0a331a; }
+        .kash-subtitles-desc code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 700; color: #0f172a; }
+        .kash-presets-label { font-weight: 700; font-size: 13px; color: #1e293b; margin-bottom: 8px; display: block; }
+        .kash-preset-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .kash-preset-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: #334155;
+            padding: 6px 13px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            user-select: none;
+        }
+        .kash-preset-pill:hover { border-color: #0a331a; background: #f0fdf4; color: #0a331a; }
+        .kash-preset-pill.active {
+            background: #0a331a;
+            border-color: #0a331a;
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(10, 51, 26, 0.25);
+        }
+        .kash-preset-pill .pill-icon { font-size: 14px; line-height: 1; }
+        .kash-field-label { display: block; font-weight: 700; font-size: 13px; color: #1e293b; margin-bottom: 5px; }
+        .kash-subtitles-textarea { width: 100%; border-radius: 6px; border: 1px solid #cbd5e1; padding: 10px 12px; font-size: 13.5px; line-height: 1.5; color: #0f172a; }
+        .kash-subtitles-textarea:focus { border-color: #0a331a; box-shadow: 0 0 0 1px #0a331a; outline: none; }
+        .kash-preview-box {
+            background: #f0fdf4;
+            border: 1.5px solid #86efac;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-top: 18px;
+        }
+        .kash-preview-label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #166534; margin-bottom: 4px; display: block; }
+        .kash-preview-text { font-size: 15px; font-weight: 600; color: #0a331a; line-height: 1.4; word-break: break-word; }
+        .kash-preview-text .pv-base { color: #0a331a; }
+        .kash-preview-text .pv-subs { color: #2d6a4f; }
+        .kash-preview-text .pv-var { color: #c47c05; font-weight: 700; }
+    </style>
+
+    <div class="kash-subtitles-box-wrap">
+        <div class="kash-subtitles-desc">
+            <strong><?php esc_html_e('How this works:', 'kash-naturals'); ?></strong>
+            <?php esc_html_e('Enter only the core/brand product name in the standard Product Title box above (e.g.', 'kash-naturals'); ?>
+            <em>"Kash Natural Heritage - Roasted Salty Mukhwas"</em>).
+            <?php esc_html_e('Then choose or write your Amazon-style post titles/subtitles below. The storefront will automatically assemble:', 'kash-naturals'); ?>
+            <code>product title | post title/s | verient</code>.
+            <?php esc_html_e('When a customer selects a variant (e.g. 200g or 500g), the variant part will update dynamically on the storefront!', 'kash-naturals'); ?>
+        </div>
+
+        <!-- 1. Quick Select Presets (Click to Add / Remove) -->
+        <span class="kash-presets-label">
+            <?php esc_html_e('Click to select / unselect common post titles:', 'kash-naturals'); ?>
+        </span>
+        <div class="kash-preset-pills" id="kashPresetPillsWrap">
+            <?php foreach ($presets as $preset) : 
+                $is_in_sub = in_array(trim($preset), $current_subtitles_array, true);
+            ?>
+                <button type="button" 
+                        class="kash-preset-pill <?php echo $is_in_sub ? 'active' : ''; ?>" 
+                        data-tagline="<?php echo esc_attr($preset); ?>">
+                    <span class="pill-icon"><?php echo $is_in_sub ? '✓' : '+'; ?></span>
+                    <span class="pill-title"><?php echo esc_html($preset); ?></span>
+                </button>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- 2. Write / Edit Post Titles Field -->
+        <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <label for="kash_product_subtitles" class="kash-field-label" style="margin-bottom: 0;">
+                    <?php esc_html_e('Selected / Written Post Titles (separated by " | "):', 'kash-naturals'); ?>
+                </label>
+                <button type="button" id="kashClearSubtitlesBtn" class="button button-small" style="color: #b91c1c;">
+                    <?php esc_html_e('Clear Post Titles', 'kash-naturals'); ?>
+                </button>
+            </div>
+            <textarea id="kash_product_subtitles" 
+                      name="kash_product_subtitles" 
+                      rows="2" 
+                      class="kash-subtitles-textarea" 
+                      placeholder="<?php esc_attr_e('e.g. Traditional Gujarati Digestive Mouth Freshener | Traditional Indian Mouth Freshener', 'kash-naturals'); ?>"><?php echo esc_textarea($meta_subtitles); ?></textarea>
+            <p class="description" style="color: #64748b; margin-top: 4px;">
+                <?php esc_html_e('You can freely type custom post titles here or click the pills above. Use " | " (pipe) to separate multiple phrases.', 'kash-naturals'); ?>
+            </p>
+        </div>
+
+        <!-- 3. Optional Simple Product Variant Override -->
+        <div style="margin-bottom: 16px; max-width: 380px;">
+            <label for="kash_product_variant_label" class="kash-field-label">
+                <?php esc_html_e('Default Variant / Weight Label (for Simple Products):', 'kash-naturals'); ?>
+            </label>
+            <input type="text" 
+                   id="kash_product_variant_label" 
+                   name="kash_product_variant_label" 
+                   value="<?php echo esc_attr($meta_variant); ?>" 
+                   placeholder="<?php esc_attr_e('e.g. 200g', 'kash-naturals'); ?>" 
+                   style="width: 100%; border-radius: 6px; padding: 6px 10px; border: 1px solid #cbd5e1;" />
+            <p class="description" style="color: #64748b; margin-top: 4px;">
+                <?php esc_html_e('For Variable Products, this is automatically changed whenever the customer clicks 200 GM, 500 GM, etc. on the storefront.', 'kash-naturals'); ?>
+            </p>
+        </div>
+
+        <!-- 4. Live Title Preview on Storefront -->
+        <div class="kash-preview-box">
+            <span class="kash-preview-label"><?php esc_html_e('Live Storefront Title Preview:', 'kash-naturals'); ?></span>
+            <div class="kash-preview-text" id="kashTitleLivePreview">
+                <span class="pv-base" id="pvBaseTitle"><?php echo esc_html($parts['base_title']); ?></span>
+                <span class="pv-subs" id="pvSubtitles"><?php echo !empty($parts['subtitles']) ? ' | ' . esc_html($parts['subtitles']) : ''; ?></span>
+                <span class="pv-var" id="pvVariant"><?php echo !empty($parts['variant']) ? ' | ' . esc_html($parts['variant']) : ' | 200g'; ?></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function($) {
+        $(document).ready(function() {
+            const $textarea = $('#kash_product_subtitles');
+            const $variantInput = $('#kash_product_variant_label');
+            const $titleInput = $('#title'); // Standard WP product title input
+            const $pills = $('.kash-preset-pill');
+
+            function getSubtitlesList() {
+                const val = $textarea.val() || '';
+                return val.split('|').map(s => $.trim(s)).filter(s => s.length > 0);
+            }
+
+            function setSubtitlesList(list) {
+                // Deduplicate while preserving order
+                const unique = [];
+                list.forEach(item => {
+                    if (item && !unique.includes(item)) unique.push(item);
+                });
+                $textarea.val(unique.join(' | '));
+                updatePillStates();
+                updateLivePreview();
+            }
+
+            function updatePillStates() {
+                const current = getSubtitlesList();
+                $pills.each(function() {
+                    const tag = $(this).data('tagline');
+                    if (current.includes(tag)) {
+                        $(this).addClass('active').find('.pill-icon').text('✓');
+                    } else {
+                        $(this).removeClass('active').find('.pill-icon').text('+');
+                    }
+                });
+            }
+
+            function updateLivePreview() {
+                let base = ($titleInput.val() || '').trim();
+                if (base.indexOf('|') !== -1) {
+                    base = base.split('|')[0].trim();
+                }
+                if (!base) base = '<?php echo esc_js($parts['base_title'] ?: 'Kash Natural Mukhwas'); ?>';
+
+                const subs = getSubtitlesList().join(' | ');
+                let v = ($variantInput.val() || '').trim();
+                if (!v) v = '200g';
+
+                $('#pvBaseTitle').text(base);
+                $('#pvSubtitles').text(subs ? (' | ' + subs) : '');
+                $('#pvVariant').text(' | ' + v);
+            }
+
+            // Pill Click Handler
+            $pills.on('click', function(e) {
+                e.preventDefault();
+                const tag = $(this).data('tagline');
+                const list = getSubtitlesList();
+                const idx = list.indexOf(tag);
+                if (idx !== -1) {
+                    list.splice(idx, 1);
+                } else {
+                    list.push(tag);
+                }
+                setSubtitlesList(list);
+            });
+
+            // Textarea manual edits
+            $textarea.on('input propertychange', function() {
+                updatePillStates();
+                updateLivePreview();
+            });
+
+            // Variant label change
+            $variantInput.on('input propertychange', updateLivePreview);
+
+            // Title input change
+            if ($titleInput.length) {
+                $titleInput.on('input propertychange', updateLivePreview);
+            }
+
+            // Clear Button
+            $('#kashClearSubtitlesBtn').on('click', function(e) {
+                e.preventDefault();
+                setSubtitlesList([]);
+            });
+
+            updatePillStates();
+            updateLivePreview();
+        });
+    })(jQuery);
+    </script>
+    <?php
+}
+
+/**
+ * Save Product Subtitles Meta Box
+ */
+function kash_save_product_subtitles_metabox($post_id) {
+    if (!isset($_POST['kash_product_subtitles_nonce']) || !wp_verify_nonce($_POST['kash_product_subtitles_nonce'], 'kash_save_product_subtitles')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    if (!current_user_can('edit_product', $post_id)) {
+        return;
+    }
+
+    if (isset($_POST['kash_product_subtitles'])) {
+        $subtitles = sanitize_text_field($_POST['kash_product_subtitles']);
+        update_post_meta($post_id, '_kash_product_subtitles', $subtitles);
+    }
+    if (isset($_POST['kash_product_variant_label'])) {
+        $v_label = sanitize_text_field($_POST['kash_product_variant_label']);
+        update_post_meta($post_id, '_kash_product_variant_label', $v_label);
+    }
+}
+add_action('save_post_product', 'kash_save_product_subtitles_metabox');
+
 
 
