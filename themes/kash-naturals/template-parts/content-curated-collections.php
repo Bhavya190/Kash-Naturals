@@ -164,25 +164,31 @@ if (class_exists('WooCommerce')) {
                     $img_url = $theme_uri . '/assets/images/product-royal-mukhwas.jpg';
                 }
 
-                $is_variable = $wc_prod->is_type('variable');
-                if ($is_variable) {
-                    $sale_price    = $wc_prod->get_variation_price('min', true);
-                    $reg_price     = $wc_prod->get_variation_regular_price('max', true);
-                    $price_display = $wc_prod->get_price_html();
-                    $is_sale       = $wc_prod->is_on_sale();
+                $variations_data = function_exists('kash_get_product_variations_data') ? kash_get_product_variations_data($wc_prod) : array();
+                $has_variations  = !empty($variations_data) && count($variations_data) > 1;
+                $is_variable     = $wc_prod->is_type('variable') || $has_variations;
+
+                if ($has_variations && !empty($variations_data[0]['price'])) {
+                    $sale_price = floatval($variations_data[0]['price']);
+                    $reg_price  = !empty($variations_data[0]['regular_price']) ? floatval($variations_data[0]['regular_price']) : floatval($wc_prod->get_regular_price());
+                } elseif ($wc_prod->is_type('variable')) {
+                    $sale_price = floatval($wc_prod->get_variation_price('min', true));
+                    $reg_price  = floatval($wc_prod->get_variation_regular_price('max', true));
                 } else {
-                    $sale_price    = $wc_prod->get_price();
-                    $reg_price     = $wc_prod->get_regular_price();
-                    $price_display = !empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0');
-                    $is_sale       = $wc_prod->is_on_sale() && !empty($reg_price) && floatval($reg_price) > floatval($sale_price);
+                    $sale_price = floatval($wc_prod->get_price());
+                    $reg_price  = floatval($wc_prod->get_regular_price());
                 }
+
+                $is_sale = ($reg_price > $sale_price && $reg_price > 0 && $sale_price > 0);
+                $price_display     = !empty($sale_price) ? ($currency_symbol . number_format_i18n($sale_price)) : ($currency_symbol . '0');
+                $old_price_display = $is_sale ? ($currency_symbol . number_format_i18n($reg_price)) : '';
 
                 $discount_pct = 0;
                 $savings_display = '';
-                if ($is_sale && floatval($reg_price) > 0 && floatval($sale_price) > 0) {
-                    $savings_val  = floatval($reg_price) - floatval($sale_price);
-                    $discount_pct = round(($savings_val / floatval($reg_price)) * 100);
-                    $savings_display = sprintf(__('Save %s%s', 'kash-naturals'), $currency_symbol, number_format_i18n($savings_val));
+                if ($is_sale && $reg_price > 0 && $sale_price > 0) {
+                    $savings_val  = $reg_price - $sale_price;
+                    $discount_pct = round(($savings_val / $reg_price) * 100);
+                    $savings_display = sprintf(__('Save %d%%', 'kash-naturals'), $discount_pct);
                 }
 
                 $avg_rating = $wc_prod->get_average_rating();
@@ -202,22 +208,31 @@ if (class_exists('WooCommerce')) {
                 // Short Description
                 $p_desc = $wc_prod->get_short_description();
                 if (empty($p_desc)) {
-                    $p_desc = wp_strip_all_tags(get_the_excerpt());
+                    $p_desc = get_the_excerpt();
                 }
-                $p_desc_short = wp_trim_words($p_desc, 12, '...');
+                $p_desc_clean = wp_strip_all_tags($p_desc);
+                $p_desc_short = wp_trim_words($p_desc_clean, 12, '...');
+
+                $t_parts = function_exists('kash_get_product_title_parts') 
+                    ? kash_get_product_title_parts($wc_prod) 
+                    : array('base_title' => $wc_prod->get_name(), 'subtitles' => '', 'variant' => '', 'full_title' => $wc_prod->get_name());
 
                 $products_list[] = array(
                     'id'                => $pid,
-                    'title'             => $wc_prod->get_name(),
-                    'is_variable'       => $is_variable,
+                    'title'             => $t_parts['full_title'],
+                    'base_title'        => $t_parts['base_title'],
+                    'post_titles'       => $t_parts['subtitles'],
+                    'variant_label'     => $t_parts['variant'],
+                    'is_variable'       => $has_variations,
+                    'variations'        => $variations_data,
                     'link'              => get_permalink($pid),
                     'image'             => $img_url,
                     'category'          => $cat_badge,
                     'desc'              => $p_desc_short,
                     'rating'            => $rating_str,
-                    'price_display'     => !empty($price_display) ? $price_display : (!empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0')),
+                    'price_display'     => $price_display,
                     'raw_price'         => $sale_price,
-                    'old_price_display' => (!$is_variable && $is_sale) ? ($currency_symbol . $reg_price) : '',
+                    'old_price_display' => $old_price_display,
                     'discount_pct'      => $discount_pct,
                     'savings_display'   => $savings_display,
                     'in_stock'          => $wc_prod->is_in_stock(),
@@ -385,8 +400,13 @@ if (empty($products_list)) {
                                     data-product-id="<?php echo esc_attr($item['id']); ?>" 
                                     data-product_id="<?php echo esc_attr($item['id']); ?>" 
                                     data-product-name="<?php echo esc_attr($item['title']); ?>" 
+                                    data-base-title="<?php echo esc_attr(!empty($item['base_title']) ? $item['base_title'] : $item['title']); ?>" 
+                                    data-post-titles="<?php echo esc_attr(!empty($item['post_titles']) ? $item['post_titles'] : ''); ?>" 
+                                    data-variant-label="<?php echo esc_attr(!empty($item['variant_label']) ? $item['variant_label'] : ''); ?>" 
                                     data-product-price="<?php echo esc_attr($item['raw_price']); ?>" 
                                     data-product-img="<?php echo esc_url($item['image']); ?>" 
+                                    data-is-variable="<?php echo !empty($item['is_variable']) ? '1' : '0'; ?>" 
+                                    data-variations="<?php echo !empty($item['variations']) ? esc_attr(wp_json_encode($item['variations'])) : ''; ?>" 
                                     aria-label="<?php echo esc_attr(sprintf(__('Add %s to cart', 'kash-naturals'), $item['title'])); ?>"
                                     title="<?php echo !empty($item['is_variable']) ? esc_attr__('Select Pack Size', 'kash-naturals') : esc_attr__('Add to Cart', 'kash-naturals'); ?>">
                                     <i class="fa-solid fa-cart-plus"></i>

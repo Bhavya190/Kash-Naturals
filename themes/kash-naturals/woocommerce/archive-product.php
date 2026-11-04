@@ -285,20 +285,20 @@ if (class_exists('WooCommerce')) {
                 $is_variable     = $wc_prod->is_type('variable') || $has_variations;
                 
                 if ($has_variations && !empty($variations_data[0]['price'])) {
-                    $sale_price = $variations_data[0]['price'];
-                    $raw_price  = floatval($sale_price);
-                    $reg_price  = !empty($variations_data[0]['regular_price']) ? $variations_data[0]['regular_price'] : $wc_prod->get_regular_price();
-                    $price_html = $currency_symbol . number_format($sale_price);
+                    $sale_price = floatval($variations_data[0]['price']);
+                    $raw_price  = $sale_price;
+                    $reg_price  = !empty($variations_data[0]['regular_price']) ? floatval($variations_data[0]['regular_price']) : floatval($wc_prod->get_regular_price());
+                    $price_html = !empty($sale_price) ? ($currency_symbol . number_format_i18n($sale_price)) : ($currency_symbol . '0');
                 } elseif ($wc_prod->is_type('variable')) {
-                    $sale_price = $wc_prod->get_variation_price('min', true);
-                    $raw_price  = floatval($sale_price);
-                    $reg_price  = $wc_prod->get_variation_regular_price('max', true);
-                    $price_html = $wc_prod->get_price_html();
+                    $sale_price = floatval($wc_prod->get_variation_price('min', true));
+                    $raw_price  = $sale_price;
+                    $reg_price  = floatval($wc_prod->get_variation_regular_price('max', true));
+                    $price_html = !empty($sale_price) ? ($currency_symbol . number_format_i18n($sale_price)) : ($currency_symbol . '0');
                 } else {
-                    $sale_price = $wc_prod->get_price();
-                    $raw_price  = floatval($sale_price);
-                    $reg_price  = $wc_prod->get_regular_price();
-                    $price_html = !empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0');
+                    $sale_price = floatval($wc_prod->get_price());
+                    $raw_price  = $sale_price;
+                    $reg_price  = floatval($wc_prod->get_regular_price());
+                    $price_html = !empty($sale_price) ? ($currency_symbol . number_format_i18n($sale_price)) : ($currency_symbol . '0');
                 }
 
                 // Precise price filter validation
@@ -348,9 +348,9 @@ if (class_exists('WooCommerce')) {
                     'variations'    => $variations_data,
                     'category'      => $current_category,
                     'category_name' => !empty($cat_names) ? $cat_names : __('Specialty', 'kash-naturals'),
-                    'price'         => !empty($price_html) ? $price_html : (!empty($sale_price) ? ($currency_symbol . $sale_price) : ($currency_symbol . '0')),
+                    'price'         => $price_html,
                     'raw_price'     => !empty($sale_price) ? $sale_price : 0,
-                    'regular_price' => (!$is_variable && !empty($reg_price) && $reg_price > $sale_price) ? ($currency_symbol . $reg_price) : '',
+                    'regular_price' => (!empty($reg_price) && floatval($reg_price) > floatval($sale_price)) ? ($currency_symbol . number_format_i18n($reg_price)) : '',
                     'image'         => $img_url,
                     'badge'         => $badge,
                     'rating'        => $rating_str,
@@ -626,6 +626,9 @@ if (function_exists('is_product_category') && is_product_category()) {
                                                     data-product-id="<?php echo esc_attr($prod['id']); ?>" 
                                                     data-product_id="<?php echo esc_attr($prod['id']); ?>" 
                                                     data-product-name="<?php echo esc_attr($prod['name']); ?>" 
+                                                    data-base-title="<?php echo esc_attr(!empty($prod['base_title']) ? $prod['base_title'] : $prod['name']); ?>" 
+                                                    data-post-titles="<?php echo esc_attr(!empty($prod['post_titles']) ? $prod['post_titles'] : ''); ?>" 
+                                                    data-variant-label="<?php echo esc_attr(!empty($prod['variant_label']) ? $prod['variant_label'] : ''); ?>" 
                                                     data-product-price="<?php echo esc_attr($prod['raw_price']); ?>" 
                                                     data-product-img="<?php echo esc_url($prod['image']); ?>" 
                                                     data-is-variable="<?php echo !empty($prod['is_variable']) ? '1' : '0'; ?>"
