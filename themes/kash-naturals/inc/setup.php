@@ -142,3 +142,92 @@ function kash_naturals_add_menu_chevron($title, $item, $args, $depth) {
 }
 add_filter('nav_menu_item_title', 'kash_naturals_add_menu_chevron', 10, 4);
 
+/**
+ * Synchronize Nav Menu Active Classes for Product Categories and Home Screen
+ * - By default on the home screen, removes active/current underline from all items (unless an explicit Home link exists)
+ * - When visiting any category (archive or filter), adds active/current underline to that category's nav menu item if present
+ * - If that category is not in the nav menu, no menu item is underlined
+ */
+function kash_filter_nav_menu_css_class($classes, $item, $args, $depth = 0) {
+    if (!isset($args->theme_location) || $args->theme_location !== 'primary') {
+        return $classes;
+    }
+
+    $classes = (array) $classes;
+    $item_url = trim((string) $item->url);
+    $item_title = strtolower(trim((string) $item->title));
+
+    // 1. If on front page (home screen)
+    if (is_front_page() || is_home()) {
+        $home_url = trim(home_url('/'));
+        $home_url_bare = trim(home_url());
+
+        // Check if this menu item is genuinely linking to the home screen
+        $is_real_home = ($item_url === $home_url || $item_url === $home_url_bare || $item_url === '/') && ($item_title === 'home');
+        if (!$is_real_home) {
+            $classes = array_diff($classes, array('current-menu-item', 'current_page_item', 'active', 'current-menu-ancestor', 'current-menu-parent', 'current_page_parent', 'current_page_ancestor'));
+        }
+        return array_values($classes);
+    }
+
+    // 2. Identify active product category (from taxonomy archive or ?category= / ?product_cat= query param)
+    $active_cat_slug = '';
+    if (function_exists('is_product_category') && is_product_category()) {
+        $queried = get_queried_object();
+        if ($queried && isset($queried->slug)) {
+            $active_cat_slug = strtolower($queried->slug);
+        }
+    } elseif (isset($_GET['category']) && !empty($_GET['category']) && $_GET['category'] !== 'all') {
+        $active_cat_slug = sanitize_title($_GET['category']);
+    } elseif (isset($_GET['product_cat']) && !empty($_GET['product_cat']) && $_GET['product_cat'] !== 'all') {
+        $active_cat_slug = sanitize_title($_GET['product_cat']);
+    }
+
+    if (!empty($active_cat_slug)) {
+        $is_match = false;
+
+        // Check if item object is product_cat and matches
+        if (isset($item->object) && $item->object === 'product_cat' && isset($item->object_id)) {
+            $term = get_term($item->object_id, 'product_cat');
+            if ($term && !is_wp_error($term) && strtolower($term->slug) === $active_cat_slug) {
+                $is_match = true;
+            }
+        }
+
+        // Check if item URL matches category slug
+        if (!$is_match && !empty($item_url)) {
+            $parsed_path = strtolower(trim((string) parse_url($item_url, PHP_URL_PATH), '/'));
+            $path_segments = explode('/', $parsed_path);
+            if (in_array($active_cat_slug, $path_segments, true)) {
+                $is_match = true;
+            } else {
+                parse_str((string) parse_url($item_url, PHP_URL_QUERY), $query_params);
+                if ((isset($query_params['category']) && strtolower($query_params['category']) === $active_cat_slug) ||
+                    (isset($query_params['product_cat']) && strtolower($query_params['product_cat']) === $active_cat_slug)) {
+                    $is_match = true;
+                }
+            }
+        }
+
+        // Check if menu item title matches category name or slug (e.g. "Dry Fruits" === "dry-fruits")
+        if (!$is_match) {
+            $item_title_clean = strtolower(trim((string) preg_replace('/[^a-zA-Z0-9]+/', ' ', $item->title)));
+            $cat_slug_clean = strtolower(trim((string) str_replace(array('-', '_'), ' ', $active_cat_slug)));
+            if (!empty($item_title_clean) && $item_title_clean === $cat_slug_clean) {
+                $is_match = true;
+            }
+        }
+
+        if ($is_match) {
+            $classes[] = 'current-menu-item';
+            $classes[] = 'active';
+        } else {
+            // Strip active classes if this item is not the active category
+            $classes = array_diff($classes, array('current-menu-item', 'current_page_item', 'active', 'current-menu-ancestor', 'current-menu-parent'));
+        }
+    }
+
+    return array_unique(array_values($classes));
+}
+add_filter('nav_menu_css_class', 'kash_filter_nav_menu_css_class', 10, 4);
+

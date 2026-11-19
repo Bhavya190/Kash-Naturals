@@ -1977,55 +1977,155 @@ jQuery(document).ready(function ($) {
        HEADER NAVIGATION ACTIVE STATE CONTROLLER
        ========================================================================== */
     function syncActiveNav() {
-        const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
-        const search = window.location.search.toLowerCase();
+        const rawPath = window.location.pathname.toLowerCase().replace(/\/+$/, '');
         const $topNavItems = $('.main-navigation .nav-menu-list > li');
+        if ($topNavItems.length === 0) return;
 
-        $topNavItems.removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
+        // 1. Detect if on Home Page
+        const isHomePage = (
+            rawPath === '' || 
+            rawPath === '/' || 
+            rawPath === '/index' || 
+            rawPath === '/index.php' || 
+            rawPath === window.location.origin.toLowerCase() ||
+            $('body').hasClass('home')
+        );
 
-        function setActiveByDirectLink(matcher) {
+        if (isHomePage) {
+            // By default on home screen: do NOT show underline on any category!
+            $topNavItems.removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
+
+            // Only underline if there is an explicit "Home" link in the nav menu
             $topNavItems.filter(function () {
-                const href = $(this).children('a').attr('href') || '';
-                return matcher(href.toLowerCase());
+                const href = ($(this).children('a').attr('href') || '').toLowerCase().replace(/\/+$/, '');
+                const text = $(this).children('a').text().trim().toLowerCase();
+                const origin = window.location.origin.toLowerCase();
+                const isExactHomeUrl = (href === '' || href === '/' || href === origin || href === origin + '/');
+                return (isExactHomeUrl && text === 'home');
             }).first().addClass('current-menu-item active');
+
+            return;
         }
 
-        if (path.indexOf('combos') !== -1 || path.indexOf('combo') !== -1) {
-            setActiveByDirectLink(function (href) { return href.indexOf('combo') !== -1; });
-        } else if (path.indexOf('about') !== -1) {
-            setActiveByDirectLink(function (href) { return href.indexOf('about') !== -1; });
-        } else if (path.indexOf('contact') !== -1) {
-            setActiveByDirectLink(function (href) { return href.indexOf('contact') !== -1; });
-        } else if (path.indexOf('shop') !== -1 || path.indexOf('product') !== -1 || search.indexOf('product=') !== -1) {
-            setActiveByDirectLink(function (href) { return href.indexOf('shop') !== -1; });
-        } else if (!path || path === '' || path === '/index' || path === '/index.php' || path === window.location.origin.toLowerCase()) {
-            $topNavItems.first().addClass('current-menu-item active');
+        // 2. Extract Active Product Category (from URL path, query params, or page data)
+        let activeCatSlug = '';
+
+        // Check query param e.g. ?category=chocolates or ?product_cat=chocolates
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const catParam = urlParams.get('category') || urlParams.get('product_cat') || '';
+            if (catParam && catParam !== 'all') {
+                activeCatSlug = catParam.toLowerCase().trim();
+            }
+        } catch (e) {}
+
+        // Check path e.g. /product-category/chocolates/ or /category/chocolates/
+        if (!activeCatSlug) {
+            const catPathMatch = rawPath.match(/(?:product-category|product_cat|category)\/([^\/?#]+)/i);
+            if (catPathMatch && catPathMatch[1]) {
+                activeCatSlug = decodeURIComponent(catPathMatch[1]).toLowerCase().trim();
+            }
+        }
+
+        // Check data-current-category on .shop-main-section
+        if (!activeCatSlug) {
+            const domCat = $('.shop-main-section').attr('data-current-category') || '';
+            if (domCat && domCat !== 'all') {
+                activeCatSlug = domCat.toLowerCase().trim();
+            }
+        }
+
+        // Check hidden input or active filter in shop sidebar
+        if (!activeCatSlug) {
+            const $hiddenCat = $('input[type="hidden"][name="category"]');
+            if ($hiddenCat.length > 0 && $hiddenCat.val() && $hiddenCat.val() !== 'all') {
+                activeCatSlug = $hiddenCat.val().toLowerCase().trim();
+            }
+        }
+
+        // Helper: normalize string for fuzzy comparison (strip punctuation/hyphens)
+        function normalizeStr(str) {
+            return (str || '').toLowerCase().replace(/[-_]+/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+        }
+
+        // 3. If an active category is present: Find matching menu item
+        if (activeCatSlug && activeCatSlug !== 'all') {
+            $topNavItems.removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
+
+            const normCatSlug = normalizeStr(activeCatSlug); // e.g. "dry fruits" from "dry-fruits"
+            let matched = false;
+
+            $topNavItems.each(function () {
+                if (matched) return;
+                const $a = $(this).children('a');
+                const href = ($a.attr('href') || '').toLowerCase();
+                const linkText = normalizeStr($a.text());
+
+                // Check 1: Href contains the category slug (e.g. /product-category/chocolates/)
+                const hrefPath = href.replace(/https?:\/\/[^\/]+/, '').replace(/\/+$/, '');
+                const hrefSegments = hrefPath.split('/').filter(Boolean);
+                const hasSlugInHref = hrefSegments.indexOf(activeCatSlug) !== -1 || href.indexOf('category=' + activeCatSlug) !== -1 || href.indexOf('product_cat=' + activeCatSlug) !== -1;
+
+                // Check 2: Menu text equals category slug/name (e.g. "CHOCOLATES" === "chocolates", "DRY FRUITS" === "dry fruits")
+                const textMatches = (linkText === normCatSlug);
+
+                if (hasSlugInHref || textMatches) {
+                    $(this).addClass('current-menu-item active');
+                    matched = true;
+                }
+            });
+
+            // If the category is NOT in the nav menu, no item is highlighted (per user requirement)
+            return;
+        }
+
+        // 4. Other Standard Pages (Combos, Bulk Order, Our Story, Contact, etc.)
+        $topNavItems.removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
+
+        function setActiveByDirectMatcher(matcher) {
+            let found = false;
+            $topNavItems.each(function () {
+                if (found) return;
+                const $a = $(this).children('a');
+                const href = ($a.attr('href') || '').toLowerCase();
+                const text = normalizeStr($a.text());
+                if (matcher(href, text)) {
+                    $(this).addClass('current-menu-item active');
+                    found = true;
+                }
+            });
+            return found;
+        }
+
+        if (rawPath.indexOf('combo') !== -1) {
+            setActiveByDirectMatcher(function (href, text) { return href.indexOf('combo') !== -1 || text.indexOf('combo') !== -1; });
+        } else if (rawPath.indexOf('bulk') !== -1) {
+            setActiveByDirectMatcher(function (href, text) { return href.indexOf('bulk') !== -1 || text.indexOf('bulk') !== -1; });
+        } else if (rawPath.indexOf('story') !== -1 || rawPath.indexOf('about') !== -1) {
+            setActiveByDirectMatcher(function (href, text) { return href.indexOf('story') !== -1 || href.indexOf('about') !== -1 || text.indexOf('story') !== -1 || text.indexOf('about') !== -1; });
+        } else if (rawPath.indexOf('contact') !== -1) {
+            setActiveByDirectMatcher(function (href, text) { return href.indexOf('contact') !== -1 || text.indexOf('contact') !== -1; });
+        } else if (rawPath.indexOf('/shop') !== -1) {
+            // General /shop without category filter: only highlight if "Shop" exists in menu
+            setActiveByDirectMatcher(function (href, text) {
+                const normHref = href.replace(/https?:\/\/[^\/]+/, '').replace(/\/+$/, '');
+                return normHref === '/shop' || text === 'shop' || text === 'all products';
+            });
         }
     }
 
     syncActiveNav();
 
-    // Update active underline immediately on click
+    // Update active underline immediately on click for instantaneous visual response
     $('.main-navigation .nav-menu-list > li > a').on('click', function () {
         const $li = $(this).parent('li');
         $('.main-navigation .nav-menu-list > li').removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
         $li.addClass('current-menu-item active');
     });
 
-    // Submenu links click (e.g. Gift Combos inside dropdown)
-    $('.main-navigation .header-dropdown-menu a').on('click', function () {
-        const href = ($(this).attr('href') || '').toLowerCase();
-        const $topNavItems = $('.main-navigation .nav-menu-list > li');
-        $topNavItems.removeClass('current-menu-item active current_page_item current-menu-ancestor current-menu-parent');
-        if (href.indexOf('combo') !== -1) {
-            $topNavItems.filter(function () {
-                return ($(this).children('a').attr('href') || '').toLowerCase().indexOf('combo') !== -1;
-            }).first().addClass('current-menu-item active');
-        } else {
-            $topNavItems.filter(function () {
-                return ($(this).children('a').attr('href') || '').toLowerCase().indexOf('shop') !== -1;
-            }).first().addClass('current-menu-item active');
-        }
+    // Also sync active nav if a category filter is clicked in the shop sidebar
+    $(document).on('click', '.kash-filter-radio-item, .kash-active-tag', function () {
+        setTimeout(syncActiveNav, 60);
     });
 
     /* ==========================================================================

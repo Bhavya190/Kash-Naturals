@@ -405,7 +405,7 @@ if (function_exists('is_product_category') && is_product_category()) {
 </div>
 
 <!-- Main Shop Container with 2-Column Sidebar Layout -->
-<section class="shop-main-section">
+<section class="shop-main-section" data-current-category="<?php echo esc_attr($current_category); ?>">
     <div class="container">
         
         <!-- 2-Column Shop Content Layout: Left Filter Sidebar + Right Products Grid -->
