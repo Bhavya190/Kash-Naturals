@@ -23,8 +23,13 @@ if (!$img_url && function_exists('wc_placeholder_img_src')) {
     $img_url = wc_placeholder_img_src();
 }
 
-$cats = wc_get_product_category_list($prod_id);
-$cat_names = wp_strip_all_tags($cats);
+$cat_names = function_exists('kash_get_clean_product_card_category') 
+    ? kash_get_clean_product_card_category($product) 
+    : '';
+if (empty($cat_names)) {
+    $cats = wc_get_product_category_list($prod_id);
+    $cat_names = wp_strip_all_tags($cats);
+}
 
 $variations_data = function_exists('kash_get_product_variations_data') ? kash_get_product_variations_data($product) : array();
 $has_variations  = !empty($variations_data) && count($variations_data) > 1;

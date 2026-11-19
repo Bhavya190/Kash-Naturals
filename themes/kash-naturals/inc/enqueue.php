@@ -72,7 +72,9 @@ function kash_naturals_scripts() {
                     }
                     $cats = get_the_terms($prod->get_id(), 'product_cat');
                     $c_slug = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->slug : 'all';
-                    $c_name = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->name : 'Specialty';
+                    $c_name = function_exists('kash_get_clean_product_card_category') 
+                        ? kash_get_clean_product_card_category($prod) 
+                        : ((!empty($cats) && !is_wp_error($cats)) ? $cats[0]->name : 'Specialty');
 
                     $variations_list = function_exists('kash_get_product_variations_data') ? kash_get_product_variations_data($prod) : array();
                     $has_variations  = !empty($variations_list) && count($variations_list) > 1;

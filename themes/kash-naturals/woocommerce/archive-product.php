@@ -314,8 +314,13 @@ if (class_exists('WooCommerce')) {
                     $img_url = wc_placeholder_img_src();
                 }
 
-                $cats = wc_get_product_category_list($wc_prod->get_id());
-                $cat_names = wp_strip_all_tags($cats);
+                $cat_names = function_exists('kash_get_clean_product_card_category') 
+                    ? kash_get_clean_product_card_category($wc_prod) 
+                    : '';
+                if (empty($cat_names)) {
+                    $cats = wc_get_product_category_list($wc_prod->get_id());
+                    $cat_names = wp_strip_all_tags($cats);
+                }
 
                 $badge = 'Fresh Batch';
                 if (!$wc_prod->is_in_stock()) {

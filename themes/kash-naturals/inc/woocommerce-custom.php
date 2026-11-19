@@ -1753,5 +1753,95 @@ function kash_save_product_subtitles_metabox($post_id) {
 }
 add_action('save_post_product', 'kash_save_product_subtitles_metabox');
 
+/**
+ * Get Clean, Single User-Facing Product Category/Tag Badge for Catalog Cards
+ * Filters out internal homepage/system terms (e.g. 'home', 'customer-favorite', 'uncategorized')
+ *
+ * @param WC_Product|int $product_or_id
+ * @return string Clean category or tag badge name
+ */
+function kash_get_clean_product_card_category($product_or_id) {
+    $product = is_numeric($product_or_id) ? wc_get_product($product_or_id) : $product_or_id;
+    if (!$product || !is_a($product, 'WC_Product')) {
+        return __('Specialty', 'kash-naturals');
+    }
+    $product_id = $product->get_id();
+
+    $internal_slugs = array(
+        'home',
+        'homepage',
+        'home-page',
+        'uncategorized',
+        'customer-favorite',
+        'customer-favorites',
+        'customer_favorite',
+        'customer_favorites',
+        'featured',
+    );
+    $internal_names = array(
+        'home',
+        'homepage',
+        'home page',
+        'uncategorized',
+        'customer favorite',
+        'customer favorites',
+        'customer-favorite',
+        'customer-favorites',
+        'featured',
+    );
+
+    // 1. If viewing a specific category archive, prioritize the queried category
+    if (function_exists('is_product_category') && is_product_category()) {
+        $queried = get_queried_object();
+        if ($queried && isset($queried->term_id) && isset($queried->name)) {
+            $cat_ids = wp_get_post_terms($product_id, 'product_cat', array('fields' => 'ids'));
+            if (!empty($cat_ids) && in_array($queried->term_id, $cat_ids)) {
+                return $queried->name;
+            }
+        }
+    }
+
+    // 2. Fetch all product categories
+    $cat_terms = wp_get_post_terms($product_id, 'product_cat');
+    $clean_cats = array();
+    if (!empty($cat_terms) && !is_wp_error($cat_terms)) {
+        foreach ($cat_terms as $ct) {
+            $s = strtolower(trim($ct->slug));
+            $n = strtolower(trim($ct->name));
+            if (!in_array($s, $internal_slugs, true) && !in_array($n, $internal_names, true)) {
+                $clean_cats[] = $ct->name;
+            }
+        }
+    }
+
+    if (!empty($clean_cats)) {
+        return reset($clean_cats);
+    }
+
+    // 3. Fallback to product tags (product_tag) if available
+    $tag_terms = wp_get_post_terms($product_id, 'product_tag');
+    if (!empty($tag_terms) && !is_wp_error($tag_terms)) {
+        foreach ($tag_terms as $tt) {
+            $s = strtolower(trim($tt->slug));
+            $n = strtolower(trim($tt->name));
+            if (!in_array($s, $internal_slugs, true) && !in_array($n, $internal_names, true)) {
+                return $tt->name;
+            }
+        }
+    }
+
+    // 4. Fallback to first non-uncategorized category if all were filtered
+    if (!empty($cat_terms) && !is_wp_error($cat_terms)) {
+        foreach ($cat_terms as $ct) {
+            if (strtolower(trim($ct->slug)) !== 'uncategorized') {
+                return $ct->name;
+            }
+        }
+        return $cat_terms[0]->name;
+    }
+
+    return __('Specialty', 'kash-naturals');
+}
+
 
 

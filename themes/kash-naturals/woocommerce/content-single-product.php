@@ -670,8 +670,13 @@ if ($product && is_a($product, 'WC_Product')) {
                     if (!$r_img && function_exists('wc_placeholder_img_src')) {
                         $r_img = wc_placeholder_img_src('medium');
                     }
-                    $r_cats = get_the_terms($rid, 'product_cat');
-                    $r_cat_name = (!empty($r_cats) && !is_wp_error($r_cats)) ? $r_cats[0]->name : __('Specialty', 'kash-naturals');
+                    $r_cat_name = function_exists('kash_get_clean_product_card_category') 
+                        ? kash_get_clean_product_card_category($r_prod) 
+                        : '';
+                    if (empty($r_cat_name)) {
+                        $r_cats = get_the_terms($rid, 'product_cat');
+                        $r_cat_name = (!empty($r_cats) && !is_wp_error($r_cats)) ? $r_cats[0]->name : __('Specialty', 'kash-naturals');
+                    }
                     $r_price = floatval($r_prod->get_price()) ?: 0;
                     $r_reg = floatval($r_prod->get_regular_price()) ?: $r_price;
                     $related_products[] = array(
