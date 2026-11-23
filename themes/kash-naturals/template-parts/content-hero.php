@@ -12,17 +12,51 @@ if (!defined('ABSPATH')) {
 
 $theme_uri = get_template_directory_uri();
 
-// Helper to resolve media IDs or direct URLs with fallback
+// Helper to resolve media IDs, customizer array objects, or direct URLs with bulletproof fallback
 $get_kash_media_url = function($setting_val, $default_fallback) {
     if (empty($setting_val)) {
         return $default_fallback;
     }
-    if (is_numeric($setting_val)) {
-        $attachment_url = wp_get_attachment_url($setting_val);
-        return !empty($attachment_url) ? $attachment_url : $default_fallback;
+    // Handle array objects from media controls
+    if (is_array($setting_val)) {
+        if (!empty($setting_val['url'])) {
+            return esc_url($setting_val['url']);
+        }
+        if (!empty($setting_val['id'])) {
+            $url = function_exists('wp_get_attachment_image_url') ? wp_get_attachment_image_url(intval($setting_val['id']), 'full') : false;
+            if ($url) return $url;
+        }
+        return $default_fallback;
     }
-    return $setting_val;
+    // Handle numeric attachment ID
+    if (is_numeric($setting_val)) {
+        $attachment_id = intval($setting_val);
+        if ($attachment_id > 0) {
+            $attachment_url = function_exists('wp_get_attachment_image_url') ? wp_get_attachment_image_url($attachment_id, 'full') : false;
+            if (!$attachment_url && function_exists('wp_get_attachment_url')) {
+                $attachment_url = wp_get_attachment_url($attachment_id);
+            }
+            if (!empty($attachment_url)) {
+                return $attachment_url;
+            }
+        }
+        return $default_fallback;
+    }
+    // Handle string URL / path
+    if (is_string($setting_val)) {
+        $trimmed = trim($setting_val);
+        if ($trimmed === '' || $trimmed === '0') {
+            return $default_fallback;
+        }
+        return $trimmed;
+    }
+    return $default_fallback;
 };
+
+// Video settings for slide 2 (optional dynamic video)
+$slide2_video_val = get_theme_mod('kash_hero_slide2_video', 'https://assets.mixkit.co/videos/preview/mixkit-liquid-chocolate-being-poured-over-hazelnuts-41554-large.mp4');
+$slide2_video_url = (!empty($slide2_video_val) && trim($slide2_video_val) !== '') ? $get_kash_media_url($slide2_video_val, '') : '';
+$slide2_type = (!empty($slide2_video_url)) ? 'video' : 'image';
 
 // Hero Carousel Slides (Customizable via Appearance > Customize > Homepage Hero Carousel Options)
 $default_slides = array(
@@ -43,13 +77,13 @@ $default_slides = array(
     ),
     array(
         'id'          => 'slide-2',
-        'type'        => 'video',
+        'type'        => $slide2_type,
         'badge'       => get_theme_mod('kash_hero_slide2_badge', __('LUXURY BELGIAN CACAO &amp; KUNAFA', 'kash-naturals')),
         'title_top'   => get_theme_mod('kash_hero_slide2_title_top', __('Belgian Chocolate', 'kash-naturals')),
         'title_bottom'=> get_theme_mod('kash_hero_slide2_title_bottom', __('Roasted Dragees', 'kash-naturals')),
         'subtitle'    => get_theme_mod('kash_hero_slide2_subtitle', __('Whole slow-roasted Californian almonds &amp; hazelnuts enrobed in smooth velvety dark and milk chocolate.', 'kash-naturals')),
         'image'       => $get_kash_media_url(get_theme_mod('kash_hero_slide2_image'), $theme_uri . '/assets/images/chocolate-dragees.jpg'),
-        'video_url'   => $get_kash_media_url(get_theme_mod('kash_hero_slide2_video'), 'https://assets.mixkit.co/videos/preview/mixkit-liquid-chocolate-being-poured-over-hazelnuts-41554-large.mp4'),
+        'video_url'   => $slide2_video_url,
         'btn_primary_text'   => __('DISCOVER CHOCOLATES', 'kash-naturals'),
         'btn_primary_link'   => get_theme_mod('kash_hero_slide2_btn1_link') ? get_theme_mod('kash_hero_slide2_btn1_link') : home_url('/product-category/chocolates/'),
         'btn_secondary_text' => __('OUR STORY', 'kash-naturals'),
@@ -110,6 +144,9 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
 
                 <!-- Background Media Layer (Image / Video) -->
                 <div class="hero-slide-media-layer">
+                    <!-- Base Background Image (Always present as primary or instant fallback) -->
+                    <div class="hero-slide-bg-img" style="background-image: url('<?php echo esc_url($slide['image']); ?>');"></div>
+
                     <?php if ($has_video) : ?>
                         <video class="hero-slide-video" 
                                autoplay 
@@ -130,7 +167,6 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
                         </div>
                     <?php endif; ?>
 
-                    <div class="hero-slide-bg-img" style="background-image: url('<?php echo esc_url($slide['image']); ?>');"></div>
                     <div class="hero-slide-overlay"></div>
                 </div>
 

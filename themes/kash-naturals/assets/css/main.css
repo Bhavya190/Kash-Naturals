@@ -733,6 +733,7 @@ img {
     background-repeat: no-repeat;
     transform: scale(1);
     transition: transform 6s ease-out;
+    z-index: 1;
 }
 
 .hero-slide.active .hero-slide-bg-img {
@@ -750,7 +751,7 @@ img {
     height: auto;
     transform: translate(-50%, -50%);
     object-fit: cover;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Clean, Natural 0.1 Visibility Overlay for Image Slides */
@@ -764,7 +765,7 @@ img {
         rgba(255, 255, 255, 0.05) 45%, 
         transparent 75%
     );
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
 }
 
@@ -779,7 +780,7 @@ img {
         rgba(8, 18, 10, 0.10) 50%, 
         transparent 100%
     );
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
 }
 
@@ -1121,26 +1122,43 @@ img {
 
 @media (max-width: 768px) {
     .hero-carousel-section {
-        height: auto;
-        min-height: 580px;
-        max-height: none;
+        position: relative;
+        width: 100%;
+        height: clamp(560px, 86vh, 660px);
+        min-height: 540px;
+        max-height: 680px;
+        overflow: hidden;
+        background-color: #0b1f11;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .hero-carousel-track {
+        position: relative;
+        width: 100%;
+        height: 100%;
     }
 
     .hero-slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         padding: 0;
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         align-items: stretch;
+        box-sizing: border-box;
     }
 
-    /* Top Half: Dedicated Unobstructed Product Image / Video Window */
+    /* Full-Cover Background Media Layer */
     .hero-slide-media-layer {
         position: absolute;
-        top: 0;
-        left: 0;
+        inset: 0;
         width: 100%;
-        height: 52%;
+        height: 100%;
         overflow: hidden;
         z-index: 1;
     }
@@ -1151,36 +1169,47 @@ img {
         width: 100%;
         height: 100%;
         background-size: cover;
-        background-position: center center !important;
+        background-position: center top 10px !important;
+        background-repeat: no-repeat;
         transform: none !important;
+        z-index: 1;
     }
 
-    .hero-slide-video {
+    /* On mobile, use high-resolution background image to save data and prevent black video blocks */
+    .hero-slide-video,
+    .hero-video-controls {
+        display: none !important;
+    }
+
+    /* Smooth luxury vertical gradient overlay */
+    .hero-slide.has-image-media .hero-slide-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
+        inset: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover;
-        transform: none !important;
-    }
-
-    .hero-slide.has-image-media .hero-slide-overlay {
         background: linear-gradient(180deg, 
-            rgba(0, 0, 0, 0.04) 0%, 
-            rgba(0, 0, 0, 0) 50%, 
-            rgba(253, 251, 247, 0.8) 88%,
-            #FDFBF7 100%
+            rgba(0, 0, 0, 0.02) 0%, 
+            rgba(0, 0, 0, 0.12) 32%, 
+            rgba(11, 31, 17, 0.65) 66%,
+            rgba(11, 31, 17, 0.94) 100%
         );
+        z-index: 2;
+        pointer-events: none;
     }
 
     .hero-slide.has-video-media .hero-slide-overlay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         background: linear-gradient(180deg, 
-            rgba(0, 0, 0, 0.1) 0%, 
-            rgba(0, 0, 0, 0) 50%, 
-            rgba(15, 35, 22, 0.8) 88%,
-            #0f2316 100%
+            rgba(0, 0, 0, 0.05) 0%, 
+            rgba(0, 0, 0, 0.16) 32%, 
+            rgba(11, 31, 17, 0.70) 66%,
+            rgba(11, 31, 17, 0.95) 100%
         );
+        z-index: 2;
+        pointer-events: none;
     }
 
     /* Bottom Half: Clean, Elegant Content Card */
@@ -1195,19 +1224,19 @@ img {
 
     .hero-slide .hero-left-content {
         max-width: 100%;
-        background: #FFFDF9;
-        border: 1px solid rgba(198, 139, 39, 0.28);
+        background: rgba(255, 253, 249, 0.96);
+        border: 1px solid rgba(198, 139, 39, 0.32);
         border-radius: 18px;
-        padding: 18px 18px 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
+        padding: 16px 16px 14px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
 
     .hero-slide.has-video-media .hero-left-content {
-        background: #0f2316;
-        border-color: rgba(255, 255, 255, 0.16);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        background: rgba(15, 35, 22, 0.94);
+        border-color: rgba(212, 139, 16, 0.38);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
 
     .hero-badge-pill {
@@ -1314,11 +1343,12 @@ img {
 
 @media (max-width: 480px) {
     .hero-carousel-section {
-        min-height: 550px;
+        height: clamp(520px, 84vh, 600px);
+        min-height: 520px;
     }
 
     .hero-slide-media-layer {
-        height: 48%;
+        height: 100%;
     }
 
     .hero-slide .hero-banner-container {
@@ -1364,11 +1394,12 @@ img {
 
 @media (max-width: 360px) {
     .hero-carousel-section {
-        min-height: 520px;
+        height: clamp(490px, 82vh, 550px);
+        min-height: 490px;
     }
 
     .hero-slide-media-layer {
-        height: 45%;
+        height: 100%;
     }
 
     .hero-slide .hero-left-content {
