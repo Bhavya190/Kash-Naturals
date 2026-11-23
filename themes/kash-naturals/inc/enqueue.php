@@ -161,3 +161,14 @@ function kash_naturals_scripts() {
     }
 }
 add_action('wp_enqueue_scripts', 'kash_naturals_scripts');
+
+/**
+ * Dequeue Hostinger AI Assistant / Chatbot on frontend to prevent 401 Unauthorized ticket errors
+ */
+add_action('wp_enqueue_scripts', 'kash_dequeue_hostinger_chatbot', 999);
+function kash_dequeue_hostinger_chatbot() {
+    wp_dequeue_script('hostinger-chatbot');
+    wp_deregister_script('hostinger-chatbot');
+    wp_dequeue_script('hostinger-ai-assistant');
+    wp_deregister_script('hostinger-ai-assistant');
+}
