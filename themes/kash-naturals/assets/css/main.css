@@ -1122,72 +1122,277 @@ img {
 @media (max-width: 768px) {
     .hero-carousel-section {
         height: auto;
-        min-height: 530px;
-        max-height: unset;
+        min-height: 580px;
+        max-height: none;
     }
 
     .hero-slide {
-        padding: 35px 0 65px;
-        align-items: center;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: stretch;
+    }
+
+    /* Top Half: Dedicated Unobstructed Product Image / Video Window */
+    .hero-slide-media-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 52%;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .hero-slide-bg-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center center !important;
+        transform: none !important;
+    }
+
+    .hero-slide-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: none !important;
     }
 
     .hero-slide.has-image-media .hero-slide-overlay {
         background: linear-gradient(180deg, 
-            rgba(255, 255, 255, 0.10) 0%, 
-            rgba(255, 255, 255, 0.05) 60%, 
-            transparent 100%
+            rgba(0, 0, 0, 0.04) 0%, 
+            rgba(0, 0, 0, 0) 50%, 
+            rgba(253, 251, 247, 0.8) 88%,
+            #FDFBF7 100%
         );
     }
 
     .hero-slide.has-video-media .hero-slide-overlay {
         background: linear-gradient(180deg, 
-            rgba(10, 18, 12, 0.35) 0%, 
-            rgba(10, 18, 12, 0.15) 60%, 
-            transparent 100%
+            rgba(0, 0, 0, 0.1) 0%, 
+            rgba(0, 0, 0, 0) 50%, 
+            rgba(15, 35, 22, 0.8) 88%,
+            #0f2316 100%
         );
+    }
+
+    /* Bottom Half: Clean, Elegant Content Card */
+    .hero-slide .hero-banner-container {
+        position: relative;
+        z-index: 4;
+        width: 100%;
+        padding: 0 16px 18px;
+        margin-top: auto;
+        box-sizing: border-box;
     }
 
     .hero-slide .hero-left-content {
         max-width: 100%;
-        background: rgba(255, 255, 255, 0.55);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        padding: 20px;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        background: #FFFDF9;
+        border: 1px solid rgba(198, 139, 39, 0.28);
+        border-radius: 18px;
+        padding: 18px 18px 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
     }
 
     .hero-slide.has-video-media .hero-left-content {
-        background: rgba(10, 25, 15, 0.65);
-        border-color: rgba(255, 255, 255, 0.15);
+        background: #0f2316;
+        border-color: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .hero-badge-pill {
+        font-size: 0.68rem;
+        padding: 4px 10px;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    .hero-slide .hero-main-title {
+        margin: 0 0 8px 0;
+    }
+
+    .hero-slide.has-image-media .hero-main-title .title-top,
+    .hero-slide .hero-main-title .title-top {
+        font-size: clamp(1.35rem, 5.2vw, 1.75rem);
+        line-height: 1.15;
+        text-shadow: none !important;
+        color: #122812 !important;
+    }
+
+    .hero-slide.has-image-media .hero-main-title .title-bottom,
+    .hero-slide .hero-main-title .title-bottom {
+        font-size: clamp(1.2rem, 4.6vw, 1.55rem);
+        line-height: 1.15;
+        text-shadow: none !important;
+        color: #1a231b !important;
+    }
+
+    .hero-slide.has-video-media .hero-main-title .title-top {
+        color: #ffffff !important;
+    }
+
+    .hero-slide.has-video-media .hero-main-title .title-bottom {
+        color: #f7e7ce !important;
+    }
+
+    .hero-slide .hero-main-subtitle {
+        font-size: 0.84rem;
+        line-height: 1.35;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-shadow: none !important;
+    }
+
+    .hero-slide.has-image-media .hero-main-subtitle {
+        color: #3b503e !important;
+    }
+
+    .hero-slide .hero-actions-row {
+        gap: 8px;
+        margin-top: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-slide .hero-action-buttons {
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .hero-slide .btn-shop-now {
+        padding: 9px 16px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+    }
+
+    .hero-slide .btn-explore-combos {
+        padding: 8px 14px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+    }
+
+    .hero-slide .amazon-pill-badge {
+        padding: 0 10px;
+        height: 34px;
+        gap: 6px;
+        border-radius: 8px;
+    }
+
+    .hero-slide .amazon-pill-badge .badge-subtext {
+        font-size: 0.74rem;
+    }
+
+    .hero-slide .amazon-pill-badge .amazon-logo-img {
+        height: 18px;
+        width: auto;
     }
 
     .hero-arrow-btn {
         display: none; /* Mobile swipe gestures */
     }
 
-    .hero-carousel-nav-bar {
-        bottom: 12px;
-    }
-
-    .hero-carousel-nav-capsule {
-        padding: 5px 12px;
-        gap: 10px;
-    }
-
-    .dot-progress-track {
-        width: 22px;
-    }
-
-    .hero-dot.active .dot-progress-track {
-        width: 36px;
-    }
-
     .hero-video-controls {
-        bottom: 55px;
+        bottom: 12px;
         right: 12px;
         padding: 4px 10px;
+        z-index: 10;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-carousel-section {
+        min-height: 550px;
+    }
+
+    .hero-slide-media-layer {
+        height: 48%;
+    }
+
+    .hero-slide .hero-banner-container {
+        padding: 0 12px 14px;
+    }
+
+    .hero-slide .hero-left-content {
+        padding: 14px 14px 14px;
+        border-radius: 16px;
+    }
+
+    .hero-slide.has-image-media .hero-main-title .title-top,
+    .hero-slide .hero-main-title .title-top {
+        font-size: 1.35rem;
+    }
+
+    .hero-slide.has-image-media .hero-main-title .title-bottom,
+    .hero-slide .hero-main-title .title-bottom {
+        font-size: 1.2rem;
+    }
+
+    .hero-slide .hero-main-subtitle {
+        font-size: 0.8rem;
+        line-height: 1.3;
+        margin-bottom: 10px;
+    }
+
+    .hero-slide .btn-shop-now {
+        padding: 8px 13px;
+        font-size: 0.75rem;
+    }
+
+    .hero-slide .btn-explore-combos {
+        padding: 7px 11px;
+        font-size: 0.75rem;
+    }
+
+    .hero-slide .amazon-pill-badge {
+        height: 32px;
+        padding: 0 8px;
+    }
+}
+
+@media (max-width: 360px) {
+    .hero-carousel-section {
+        min-height: 520px;
+    }
+
+    .hero-slide-media-layer {
+        height: 45%;
+    }
+
+    .hero-slide .hero-left-content {
+        padding: 12px 10px 12px;
+    }
+
+    .hero-slide.has-image-media .hero-main-title .title-top,
+    .hero-slide .hero-main-title .title-top {
+        font-size: 1.2rem;
+    }
+
+    .hero-slide.has-image-media .hero-main-title .title-bottom,
+    .hero-slide .hero-main-title .title-bottom {
+        font-size: 1.08rem;
+    }
+
+    .hero-slide .btn-shop-now {
+        padding: 7px 10px;
+        font-size: 0.72rem;
+    }
+
+    .hero-slide .btn-explore-combos {
+        padding: 6px 9px;
+        font-size: 0.72rem;
     }
 }
 
@@ -5570,18 +5775,157 @@ img {
     max-width: 270px;
 }
 
-/* Responsive Media Queries */
+.kash-usp-text {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Responsive Media Queries - 2 Column Grid with Icon & Text Side by Side on Mobile */
 @media (max-width: 992px) {
+    .kash-usp-bar-section {
+        padding: 44px 0 50px;
+    }
+
     .kash-usp-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 35px 30px;
+        gap: 30px 24px;
+    }
+
+    .kash-usp-item {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 0;
+    }
+
+    .kash-usp-icon {
+        font-size: 1.85rem;
+        width: 44px;
+        height: 44px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .kash-usp-title {
+        font-size: 1.08rem;
+        margin-bottom: 6px;
+    }
+
+    .kash-usp-desc {
+        font-size: 0.86rem;
+        line-height: 1.48;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .kash-usp-bar-section {
+        padding: 36px 0 40px;
+    }
+
+    .kash-usp-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px 16px;
+    }
+
+    .kash-usp-item {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 0;
+    }
+
+    .kash-usp-icon {
+        font-size: 1.65rem;
+        width: 38px;
+        height: 38px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .kash-usp-title {
+        font-size: 1.02rem;
+        margin-bottom: 5px;
+        line-height: 1.25;
+    }
+
+    .kash-usp-desc {
+        font-size: 0.82rem;
+        line-height: 1.45;
+        max-width: 100%;
     }
 }
 
 @media (max-width: 576px) {
+    .kash-usp-bar-section {
+        padding: 28px 0 32px;
+    }
+
     .kash-usp-grid {
-        grid-template-columns: 1fr;
-        gap: 30px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px 12px;
+    }
+
+    .kash-usp-item {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 0;
+    }
+
+    .kash-usp-icon {
+        font-size: 1.45rem;
+        width: 32px;
+        height: 32px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .kash-usp-title {
+        font-size: clamp(0.88rem, 3.2vw, 0.98rem);
+        margin-bottom: 4px;
+        line-height: 1.25;
+    }
+
+    .kash-usp-desc {
+        font-size: clamp(0.72rem, 2.5vw, 0.78rem);
+        line-height: 1.4;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 380px) {
+    .kash-usp-bar-section {
+        padding: 22px 0 26px;
+    }
+
+    .kash-usp-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px 8px;
+    }
+
+    .kash-usp-item {
+        gap: 8px;
+    }
+
+    .kash-usp-icon {
+        font-size: 1.25rem;
+        width: 26px;
+        height: 26px;
+        margin-top: 1px;
+    }
+
+    .kash-usp-title {
+        font-size: 0.84rem;
+        margin-bottom: 3px;
+    }
+
+    .kash-usp-desc {
+        font-size: 0.7rem;
+        line-height: 1.35;
     }
 }
 

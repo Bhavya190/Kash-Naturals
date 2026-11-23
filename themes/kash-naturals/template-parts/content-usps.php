@@ -42,8 +42,10 @@ $usps = array(
                     <div class="kash-usp-icon">
                         <i class="<?php echo esc_attr($item['icon']); ?>"></i>
                     </div>
-                    <h4 class="kash-usp-title"><?php echo esc_html($item['title']); ?></h4>
-                    <p class="kash-usp-desc"><?php echo esc_html($item['desc']); ?></p>
+                    <div class="kash-usp-text">
+                        <h4 class="kash-usp-title"><?php echo esc_html($item['title']); ?></h4>
+                        <p class="kash-usp-desc"><?php echo esc_html($item['desc']); ?></p>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
