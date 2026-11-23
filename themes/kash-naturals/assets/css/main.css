@@ -11206,35 +11206,53 @@ img.amz-ref-logo {
 .product-trust-features-bar {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 12px 16px;
     background: #E8F3E9;
     padding: 16px 20px;
-    border-radius: 20px;
+    border-radius: 18px;
     border: 1px solid rgba(44, 95, 62, 0.15);
     box-sizing: border-box;
     width: 100%;
+    align-items: center;
+    margin-top: 18px;
+    margin-bottom: 24px;
 }
 
 .trust-pill-item {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 10px;
     font-size: 0.85rem;
     font-weight: 600;
     color: #1C2B1F;
     min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 .trust-pill-item span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.25;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
 }
 
 .trust-icon {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: #2C5F3E;
     flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 /* Right Column: Product Summary Info */
@@ -12496,14 +12514,21 @@ img.amz-ref-logo {
     }
 
     .product-trust-features-bar {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px 14px;
         padding: 14px 16px;
         border-radius: 16px;
-        gap: 10px;
+        margin-top: 14px;
+        margin-bottom: 20px;
     }
 
     .trust-pill-item {
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         gap: 8px;
+    }
+
+    .trust-icon {
+        font-size: 1.05rem;
     }
 
     .story-grid-icons {
@@ -12623,9 +12648,12 @@ img.amz-ref-logo {
     }
 
     .product-trust-features-bar {
+        grid-template-columns: repeat(2, 1fr);
         padding: 12px 14px;
         border-radius: 14px;
-        gap: 8px 10px;
+        gap: 10px 12px;
+        margin-top: 12px;
+        margin-bottom: 18px;
     }
 
     .trust-pill-item {
@@ -12634,7 +12662,7 @@ img.amz-ref-logo {
     }
 
     .trust-icon {
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     .product-meta-header {
@@ -13001,8 +13029,21 @@ img.amz-ref-logo {
     }
 
     .product-trust-features-bar {
-        grid-template-columns: 1fr;
-        gap: 8px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px 10px;
+        padding: 11px 13px;
+        border-radius: 14px;
+    }
+
+    .product-trust-features-bar .trust-pill-item {
+        font-size: clamp(0.72rem, 2.7vw, 0.78rem);
+        gap: 7px;
+        justify-content: flex-start;
+    }
+
+    .product-trust-features-bar .trust-icon {
+        font-size: 0.95rem;
+        margin: 0;
     }
 
     .pincode-input-row {
@@ -13036,9 +13077,20 @@ img.amz-ref-logo {
     }
 
     .product-trust-features-bar {
-        grid-template-columns: 1fr;
-        gap: 8px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 7px 8px;
         padding: 10px 12px;
+    }
+
+    .product-trust-features-bar .trust-pill-item {
+        font-size: clamp(0.68rem, 2.6vw, 0.74rem);
+        gap: 6px;
+        justify-content: flex-start;
+    }
+
+    .product-trust-features-bar .trust-icon {
+        font-size: 0.9rem;
+        margin: 0;
     }
 
     .product-title-main {
@@ -13323,9 +13375,6 @@ img.amz-ref-logo {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
-}
-    background: #FAF7F2;
-    position: relative;
 }
 
 .newsletter-eyebrow-pill {
@@ -14011,25 +14060,26 @@ img.amz-ref-logo {
 .variant-modal-action-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    margin-top: 10px;
 }
 
 .variant-modal-qty {
     display: inline-flex;
     align-items: center;
     border: 1.5px solid #dcd7ce;
-    border-radius: 10px;
+    border-radius: 12px;
     background: #ffffff;
     overflow: hidden;
-    height: 42px;
+    height: 44px;
 }
 
 .variant-modal-qty .vqty-btn {
-    width: 34px;
-    height: 42px;
+    width: 38px;
+    height: 44px;
     background: transparent;
     border: none;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     color: #2C5F3E;
     cursor: pointer;
@@ -14044,11 +14094,11 @@ img.amz-ref-logo {
 }
 
 .variant-modal-qty input {
-    width: 36px;
-    height: 42px;
+    width: 40px;
+    height: 44px;
     border: none;
     text-align: center;
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #1C2B1F;
     background: transparent;
@@ -14057,21 +14107,23 @@ img.amz-ref-logo {
 
 .btn-confirm-add-variant {
     flex: 1;
-    height: 42px;
+    min-height: 46px;
+    padding: 12px 20px;
     background: #c68b27;
     color: #ffffff;
     border: none;
-    border-radius: 10px;
-    font-size: 0.88rem;
+    border-radius: 12px;
+    font-size: 0.92rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     box-shadow: 0 4px 14px rgba(198, 139, 39, 0.3);
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
 }
 
 .btn-confirm-add-variant:hover {
@@ -14080,25 +14132,120 @@ img.amz-ref-logo {
     box-shadow: 0 6px 18px rgba(198, 139, 39, 0.4);
 }
 
+.btn-confirm-add-variant:active {
+    transform: scale(0.98);
+}
+
+.btn-confirm-add-variant i {
+    font-size: 1rem;
+}
+
+.btn-confirm-add-variant.disabled,
+.btn-confirm-add-variant:disabled {
+    background: #a5a5a5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    opacity: 0.7;
+}
+
 @media (max-width: 520px) {
+    .variant-modal-container {
+        padding: 24px 20px 24px;
+        border-radius: 20px;
+        max-height: calc(100vh - 36px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
+    }
+
     .variant-modal-body {
         flex-direction: column;
         align-items: center;
         text-align: center;
+        gap: 14px;
     }
+
+    .variant-modal-thumb {
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
+        margin: 0 auto 2px;
+    }
+
     .variant-modal-pills {
         justify-content: center;
+        gap: 8px;
+        margin-bottom: 16px;
     }
+
     .variant-modal-action-row {
         width: 100%;
         flex-direction: column;
+        gap: 12px;
+        margin-top: 12px;
+        margin-bottom: 4px;
     }
+
     .variant-modal-qty {
         width: 100%;
+        height: 44px;
         justify-content: center;
+        border-radius: 12px;
     }
+
+    .variant-modal-qty .vqty-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    .variant-modal-qty input {
+        width: 50px;
+        height: 44px;
+        font-size: 1rem;
+    }
+
     .btn-confirm-add-variant {
         width: 100%;
+        height: 48px;
+        min-height: 48px;
+        padding: 13px 20px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        border-radius: 12px;
+        gap: 10px;
+        margin: 2px 0 0 0;
+        box-shadow: 0 4px 16px rgba(198, 139, 39, 0.35);
+    }
+
+    .btn-confirm-add-variant i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .variant-modal-container {
+        padding: 20px 14px 20px;
+        border-radius: 16px;
+    }
+
+    .variant-modal-thumb {
+        width: 85px;
+        height: 85px;
+    }
+
+    .variant-modal-title {
+        font-size: 0.98rem;
+    }
+
+    .btn-confirm-add-variant {
+        height: 46px;
+        min-height: 46px;
+        font-size: 0.9rem;
+        padding: 12px 16px;
+        border-radius: 10px;
     }
 }
 

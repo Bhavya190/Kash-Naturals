@@ -292,7 +292,7 @@ table.shop_table .cart-item-title {
     box-sizing: border-box !important;
 }
 
-.trust-icon {
+.trust-badge-item .trust-icon {
     font-size: 1.25rem !important;
     color: #0f3820 !important;
     background: #eef6f1 !important;
@@ -312,9 +312,9 @@ table.shop_table .cart-item-title {
     box-sizing: border-box !important;
 }
 
-.trust-icon i,
-.trust-icon.fa-solid,
-.trust-icon.fa-solid::before {
+.trust-badge-item .trust-icon i,
+.trust-badge-item .trust-icon.fa-solid,
+.trust-badge-item .trust-icon.fa-solid::before {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1623,7 +1623,7 @@ table.woocommerce-checkout-review-order-table .order-total td {
         min-width: 0 !important;
     }
 
-    .trust-icon {
+    .trust-badge-item .trust-icon {
         width: 38px !important;
         height: 38px !important;
         min-width: 38px !important;
@@ -1631,9 +1631,9 @@ table.woocommerce-checkout-review-order-table .order-total td {
         border-radius: 10px !important;
     }
 
-    .trust-icon i,
-    .trust-icon.fa-solid,
-    .trust-icon.fa-solid::before {
+    .trust-badge-item .trust-icon i,
+    .trust-badge-item .trust-icon.fa-solid,
+    .trust-badge-item .trust-icon.fa-solid::before {
         font-size: 1.05rem !important;
     }
 
@@ -3991,6 +3991,191 @@ form.login.woocommerce-form-login {
         font-size: 1.05rem;
         line-height: 1.35;
         min-height: 2.7em;
+    }
+}
+
+/* ==========================================================================
+   Product Trust Features Bar (Single Product Page - Fully Responsive)
+   ========================================================================== */
+.product-trust-features-bar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px 16px !important;
+    background: #E8F3E9 !important;
+    padding: 16px 20px !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(44, 95, 62, 0.15) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    align-items: center !important;
+    margin-top: 18px !important;
+    margin-bottom: 24px !important;
+}
+
+.product-trust-features-bar .trust-pill-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #1C2B1F !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+.product-trust-features-bar .trust-pill-item span {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.25 !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    text-align: left !important;
+    color: #1C2B1F !important;
+}
+
+.product-trust-features-bar .trust-icon,
+.product-trust-features-bar i.trust-icon,
+.product-trust-features-bar .trust-icon.fa-solid {
+    font-size: 1.15rem !important;
+    color: #2C5F3E !important;
+    background: transparent !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 18px !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.product-trust-features-bar .trust-icon::before,
+.product-trust-features-bar .trust-icon.fa-solid::before {
+    margin: 0 !important;
+    font-size: inherit !important;
+    color: inherit !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+@media (max-width: 768px) {
+    .product-trust-features-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px 14px !important;
+        padding: 14px 16px !important;
+        border-radius: 16px !important;
+        margin-top: 14px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .product-trust-features-bar .trust-pill-item {
+        font-size: 0.82rem !important;
+        gap: 8px !important;
+    }
+
+    .product-trust-features-bar .trust-icon,
+    .product-trust-features-bar i.trust-icon,
+    .product-trust-features-bar .trust-icon.fa-solid {
+        font-size: 1.05rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-trust-features-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px 12px !important;
+        padding: 12px 14px !important;
+        border-radius: 14px !important;
+        margin-top: 12px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .product-trust-features-bar .trust-pill-item {
+        font-size: 0.78rem !important;
+        gap: 7px !important;
+    }
+
+    .product-trust-features-bar .trust-icon,
+    .product-trust-features-bar i.trust-icon,
+    .product-trust-features-bar .trust-icon.fa-solid {
+        font-size: 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-trust-features-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px 10px !important;
+        padding: 11px 13px !important;
+        border-radius: 14px !important;
+    }
+
+    .product-trust-features-bar .trust-pill-item {
+        font-size: clamp(0.72rem, 2.7vw, 0.78rem) !important;
+        gap: 7px !important;
+        justify-content: flex-start !important;
+    }
+
+    .product-trust-features-bar .trust-icon,
+    .product-trust-features-bar i.trust-icon,
+    .product-trust-features-bar .trust-icon.fa-solid {
+        font-size: 0.95rem !important;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .product-trust-features-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 7px 8px !important;
+        padding: 10px 12px !important;
+    }
+
+    .product-trust-features-bar .trust-pill-item {
+        font-size: clamp(0.68rem, 2.6vw, 0.74rem) !important;
+        gap: 6px !important;
+        justify-content: flex-start !important;
+    }
+
+    .product-trust-features-bar .trust-icon,
+    .product-trust-features-bar i.trust-icon,
+    .product-trust-features-bar .trust-icon.fa-solid {
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 330px) {
+    .product-trust-features-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+        padding: 8px 10px !important;
+    }
+
+    .product-trust-features-bar .trust-pill-item {
+        font-size: 0.68rem !important;
+        gap: 5px !important;
+    }
+
+    .product-trust-features-bar .trust-icon,
+    .product-trust-features-bar i.trust-icon,
+    .product-trust-features-bar .trust-icon.fa-solid {
+        font-size: 0.85rem !important;
+        margin: 0 !important;
     }
 }
 
