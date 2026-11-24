@@ -483,3 +483,15 @@ function kash_naturals_document_title_separator($sep) {
 }
 add_filter('document_title_separator', 'kash_naturals_document_title_separator', 20);
 
+/**
+ * Filter Amazon Store Link Theme Mod to ensure the official storefront URL is always returned.
+ */
+function kash_filter_amazon_shop_link($link) {
+    $official_amazon_store = 'https://www.amazon.in/s?me=A30KTY4XP7ZA4W&marketplaceID=A21TJRUUN4KGV';
+    if (empty($link) || $link === 'https://amazon.in' || $link === 'https://amazon.in/' || $link === 'https://www.amazon.in' || $link === 'https://www.amazon.in/') {
+        return $official_amazon_store;
+    }
+    return $link;
+}
+add_filter('theme_mod_kash_amazon_shop_link', 'kash_filter_amazon_shop_link');
+

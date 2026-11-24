@@ -1747,7 +1747,7 @@ img {
 }
 
 .mock-price {
-    font-family: var(--font-heading);
+    font-family: 'Outfit', sans-serif;
     font-size: 2.2rem;
     font-weight: 700;
     color: var(--color-accent-gold);
@@ -1930,7 +1930,7 @@ img {
 }
 
 .price-amount {
-    font-family: var(--font-heading);
+    font-family: 'Outfit', sans-serif;
     font-size: 1.3rem;
     font-weight: 700;
     color: var(--color-accent-gold);
@@ -3861,7 +3861,7 @@ img {
 }
 
 .combo-sale-price {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Outfit', sans-serif;
     font-size: 1.8rem;
     font-weight: 700;
     color: #0f3820;
@@ -4677,7 +4677,7 @@ img {
 }
 
 .current-price {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Outfit', sans-serif;
     font-size: 1.45rem;
     font-weight: 700;
     color: #0f3820;
@@ -5201,23 +5201,18 @@ img {
     font-size: 0.84rem;
     color: #c5d6c8;
     margin: 0;
+    line-height: 1.6;
 }
 
-.footer-powered-by {
-    font-size: 0.68rem;
-    color: rgba(197, 214, 200, 0.65);
-    margin: 5px 0 0;
-    letter-spacing: 0.3px;
-}
-
-.footer-powered-by a {
-    color: rgba(197, 214, 200, 0.85);
+.copyright-text-exact a {
+    color: #4ea8de;
     text-decoration: none;
-    transition: color 0.2s ease, opacity 0.2s ease;
+    font-weight: 500;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
 }
 
-.footer-powered-by a:hover {
-    color: #ffffff;
+.copyright-text-exact a:hover {
+    color: #72c0ee;
     text-decoration: underline;
 }
 
@@ -14666,3 +14661,45 @@ img.amz-ref-logo {
     padding: 10px;
     background: rgba(196, 124, 5, 0.04);
 }
+
+/* ==========================================================================
+   Universal Price & Amount Font Family (Matches Product Detail Page: Outfit)
+   Strictly applies only to amounts/currency/prices without affecting headings
+   ========================================================================== */
+.current-price,
+.old-price,
+.mock-price,
+.price-amount,
+.combo-sale-price,
+.combo-old-price,
+.combo-regular-price,
+.deal-price-current,
+.deal-price-original,
+.kash-curated-current-price,
+.kash-curated-old-price,
+.current-price-val,
+.regular-price-val,
+.variant-modal-price .v-current-price,
+.variant-modal-price .v-old-price,
+.price-current,
+.price-original,
+.item-subtotal,
+.total-val,
+.price,
+.price ins,
+.price del,
+.amount,
+.woocommerce-Price-amount,
+.woocommerce-Price-currencySymbol,
+.wc-block-components-product-price,
+.wc-block-components-totals-item__value,
+.wc-block-formatted-money-amount,
+.product-price,
+.product-subtotal,
+.order-total td,
+.cart-subtotal td,
+.product-price-row-exact .price-wrap span,
+.single-product-meta-wrap .price-wrap span {
+    font-family: 'Outfit', sans-serif !important;
+}
+

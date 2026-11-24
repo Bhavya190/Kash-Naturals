@@ -504,7 +504,7 @@ function kash_naturals_customize_register($wp_customize) {
     ));
 
     $wp_customize->add_setting('kash_amazon_shop_link', array(
-        'default'           => 'https://amazon.in',
+        'default'           => 'https://www.amazon.in/s?me=A30KTY4XP7ZA4W&marketplaceID=A21TJRUUN4KGV',
         'sanitize_callback' => 'esc_url_raw',
     ));
     $wp_customize->add_control('kash_amazon_shop_link', array(

@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 $theme_uri   = get_template_directory_uri();
-$amazon_link = get_theme_mod('kash_amazon_shop_link', 'https://amazon.in');
+$amazon_link = get_theme_mod('kash_amazon_shop_link', 'https://www.amazon.in/s?me=A30KTY4XP7ZA4W&marketplaceID=A21TJRUUN4KGV');
 
 $amazon_logo = $theme_uri . '/assets/images/amazon-a-logo.png';
 $jar_img1    = $theme_uri . '/assets/images/jar-royal-mukhwas.jpg';

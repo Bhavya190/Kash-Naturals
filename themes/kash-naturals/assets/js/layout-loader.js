@@ -137,7 +137,7 @@
                     <li><i class="fa-solid fa-location-dot"></i> Pan India Delivery</li>
                 </ul>
                 <div class="footer-amazon-badge">
-                    <a href="https://amazon.in" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">
+                    <a href="https://www.amazon.in/s?me=A30KTY4XP7ZA4W&marketplaceID=A21TJRUUN4KGV" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">
                         <span class="badge-subtext-white">Available on</span>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="amazon-footer-logo">
                     </a>

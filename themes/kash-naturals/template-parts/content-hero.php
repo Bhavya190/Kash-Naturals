@@ -206,7 +206,7 @@ $autoplay_speed = get_theme_mod('kash_hero_autoplay_speed', 5500);
 
                             <?php if (!empty($slide['show_amazon'])) : ?>
                                 <div class="hero-amazon-badge-wrapper">
-                                    <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-pill-badge" title="<?php esc_attr_e('Buy Kash Naturals on Amazon', 'kash-naturals'); ?>">
+                                    <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://www.amazon.in/s?me=A30KTY4XP7ZA4W&marketplaceID=A21TJRUUN4KGV')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-pill-badge" title="<?php esc_attr_e('Buy Kash Naturals on Amazon', 'kash-naturals'); ?>">
                                         <span class="badge-subtext"><?php esc_html_e('Available on', 'kash-naturals'); ?></span>
                                         <img src="<?php echo esc_url($theme_uri . '/assets/images/amazon-logo-clean.png'); ?>" alt="Amazon" class="amazon-logo-img" width="76" height="24">
                                     </a>

@@ -266,7 +266,7 @@ $shop_url  = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('s
                                             <span style="display: block; font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: #0f3820;"><?php esc_html_e('Total', 'kash-naturals'); ?></span>
                                             <span style="font-size: 0.75rem; color: #777;"><?php esc_html_e('Inclusive of all applicable taxes', 'kash-naturals'); ?></span>
                                         </div>
-                                        <span class="wc-block-components-totals-item__value" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 800; color: #c68b27;"><?php echo wp_kses_post($cart_total_display); ?></span>
+                                        <span class="wc-block-components-totals-item__value" style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: #c68b27;"><?php echo wp_kses_post($cart_total_display); ?></span>
                                     </div>
                                 </div>
 

@@ -89,7 +89,7 @@ if (!defined('ABSPATH')) {
                     <li><i class="fa-solid fa-location-dot"></i> <?php echo esc_html(get_theme_mod('kash_contact_hq_sub', __('Pan India Delivery', 'kash-naturals'))); ?></li>
                 </ul>
                 <div class="footer-amazon-badge">
-                    <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://amazon.in')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">
+                    <a href="<?php echo esc_url(get_theme_mod('kash_amazon_shop_link', 'https://www.amazon.in/s?me=A30KTY4XP7ZA4W&marketplaceID=A21TJRUUN4KGV')); ?>" target="_blank" rel="noopener noreferrer" class="amazon-footer-btn">
                         <span class="badge-subtext-white">Available on</span>
                         <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/amazon-logo-png.png'); ?>" alt="Amazon" class="amazon-footer-logo" width="90" height="24" style="max-height: 24px !important; max-width: 90px !important; height: auto !important; width: auto !important; object-fit: contain !important; display: inline-block !important;">
                     </a>
@@ -102,10 +102,7 @@ if (!defined('ABSPATH')) {
         <div class="footer-bottom-exact">
             <div class="container text-center">
                 <p class="copyright-text-exact">
-                    &copy; <?php echo esc_html(date('Y')); ?> Kash Natural. All Rights Reserved.
-                </p>
-                <p class="footer-powered-by">
-                    Powered by: <a href="https://techforbs.com/" target="_blank" rel="noopener">Techforbs</a>
+                    &copy; <?php echo esc_html(date('Y')); ?> Kash Natural. All Rights Reserved. | Developed by <a href="https://techforbs.com/" target="_blank" rel="noopener">TechForbs</a>
                 </p>
             </div>
         </div>
