@@ -104,6 +104,9 @@ if (!defined('ABSPATH')) {
                 <p class="copyright-text-exact">
                     &copy; <?php echo esc_html(date('Y')); ?> Kash Natural. All Rights Reserved.
                 </p>
+                <p class="footer-powered-by">
+                    Powered by: <a href="https://techforbs.com/" target="_blank" rel="noopener">Techforbs</a>
+                </p>
             </div>
         </div>
     </footer>

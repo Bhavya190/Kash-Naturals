@@ -18,6 +18,9 @@ if (!defined('ABSPATH')) {
         <link rel="icon" type="image/png" href="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.png'); ?>">
         <link rel="apple-touch-icon" href="<?php echo esc_url(get_template_directory_uri() . '/assets/images/logo.png'); ?>">
     <?php endif; ?>
+    <?php if (!current_theme_supports('title-tag')) : ?>
+        <title><?php echo esc_html(function_exists('kash_naturals_document_title') ? kash_naturals_document_title('') : 'Kash Naturals | Authentic Indian Mouth Fresheners & Chocolates'); ?></title>
+    <?php endif; ?>
     <?php wp_head(); ?>
 </head>
 

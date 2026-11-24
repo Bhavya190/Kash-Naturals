@@ -231,3 +231,255 @@ function kash_filter_nav_menu_css_class($classes, $item, $args, $depth = 0) {
 }
 add_filter('nav_menu_css_class', 'kash_filter_nav_menu_css_class', 10, 4);
 
+/**
+ * =========================================================================
+ * SITE IDENTITY & BRANDING AUTO-CORRECTION
+ * =========================================================================
+ * Automatically ensures the site title and description in WordPress database
+ * reflect "Kash Naturals" instead of temporary staging domains (e.g. magenta-ant-151641.hostinger...).
+ */
+function kash_ensure_site_identity() {
+    $current_name = get_option('blogname');
+    if (empty($current_name) || 
+        stripos($current_name, 'hostinger') !== false || 
+        stripos($current_name, 'magenta') !== false || 
+        stripos($current_name, 'temp') !== false || 
+        stripos($current_name, 'localhost') !== false ||
+        stripos($current_name, '.site') !== false) {
+        update_option('blogname', 'Kash Naturals');
+    }
+
+    $current_desc = get_option('blogdescription');
+    if (empty($current_desc) || 
+        stripos($current_desc, 'just another') !== false || 
+        stripos($current_desc, 'hostinger') !== false) {
+        update_option('blogdescription', 'Authentic Indian Mouth Fresheners & Chocolates');
+    }
+}
+add_action('init', 'kash_ensure_site_identity', 1);
+add_action('after_setup_theme', 'kash_ensure_site_identity', 1);
+
+/**
+ * Filter blogname option so any call to get_bloginfo('name') or get_option('blogname')
+ * always returns the official brand name without any Hostinger temporary subdomain string.
+ */
+function kash_filter_blogname($value) {
+    if (empty($value) || 
+        stripos($value, 'hostinger') !== false || 
+        stripos($value, 'magenta') !== false || 
+        stripos($value, 'temp') !== false || 
+        stripos($value, 'localhost') !== false) {
+        return get_theme_mod('kash_site_name_title', 'Kash Naturals');
+    }
+    return $value;
+}
+add_filter('pre_option_blogname', 'kash_filter_blogname');
+add_filter('option_blogname', 'kash_filter_blogname');
+
+/**
+ * Filter blogdescription option so get_bloginfo('description') returns the authentic brand tagline.
+ */
+function kash_filter_blogdescription($value) {
+    if (empty($value) || 
+        stripos($value, 'just another') !== false || 
+        stripos($value, 'hostinger') !== false) {
+        return 'Authentic Indian Mouth Fresheners & Chocolates';
+    }
+    return $value;
+}
+add_filter('pre_option_blogdescription', 'kash_filter_blogdescription');
+add_filter('option_blogdescription', 'kash_filter_blogdescription');
+
+/**
+ * =========================================================================
+ * SEO PAGE TITLES & DOCUMENT TITLE MANAGEMENT
+ * =========================================================================
+ * Generates clean, luxury, brand-consistent browser tab titles for every page:
+ * - Home Page: "Kash Naturals | Authentic Indian Mouth Fresheners & Chocolates"
+ * - Shop Archive: "Shop Authentic Products | Kash Naturals"
+ * - Category Pages: "Royal Mukhwas & Mouth Fresheners | Kash Naturals"
+ * - Products: "{Product Title} | Kash Naturals"
+ * - Cart / Bag: "Shopping Bag | Kash Naturals"
+ * - Checkout: "Secure Checkout | Kash Naturals"
+ * - Content Pages: "{Page Title} | Kash Naturals"
+ */
+function kash_naturals_document_title($title) {
+    // Respect active dedicated SEO plugins if installed
+    if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') || defined('SEOPRESS_VERSION')) {
+        return $title;
+    }
+
+    $site_name = get_theme_mod('kash_site_name_title', 'Kash Naturals');
+    $sep = get_theme_mod('kash_title_separator', '|');
+
+    // 1. Home / Front Page
+    if (is_front_page() || is_home()) {
+        $custom_home_title = get_theme_mod('kash_home_page_title', '');
+        if (!empty($custom_home_title)) {
+            return $custom_home_title;
+        }
+        return "{$site_name} {$sep} Authentic Indian Mouth Fresheners & Chocolates";
+    }
+
+    // 2. WooCommerce Single Product
+    if (function_exists('is_product') && is_product()) {
+        $product_title = get_the_title();
+        return "{$product_title} {$sep} {$site_name}";
+    }
+
+    // 3. WooCommerce Product Category Archive
+    if (function_exists('is_product_category') && is_product_category()) {
+        $current_term = get_queried_object();
+        if ($current_term && isset($current_term->name)) {
+            $cat_name = $current_term->name;
+            $cat_slug = strtolower($current_term->slug);
+            if ($cat_slug === 'mukhwas') {
+                return "Royal Mukhwas & Mouth Fresheners {$sep} {$site_name}";
+            } elseif ($cat_slug === 'chocolates') {
+                return "Artisan Belgian Chocolates & Roasted Dragees {$sep} {$site_name}";
+            } elseif ($cat_slug === 'dry-fruits') {
+                return "Premium Dry Fruits & Masala Kharek {$sep} {$site_name}";
+            } elseif ($cat_slug === 'gift-hampers' || $cat_slug === 'combos') {
+                return "Curated Gift Hampers & Celebration Packs {$sep} {$site_name}";
+            }
+            return "{$cat_name} {$sep} {$site_name}";
+        }
+    }
+
+    // 4. WooCommerce Shop / Catalog Archive
+    if (function_exists('is_shop') && is_shop()) {
+        $shop_title = get_theme_mod('kash_shop_page_title', 'Shop Authentic Products');
+        return "{$shop_title} {$sep} {$site_name}";
+    }
+
+    // 5. Shopping Bag / Cart Page
+    if (function_exists('is_cart') && is_cart()) {
+        return "Shopping Bag {$sep} {$site_name}";
+    }
+
+    // 6. Secure Checkout Page
+    if (function_exists('is_checkout') && is_checkout()) {
+        return "Secure Checkout {$sep} {$site_name}";
+    }
+
+    // 7. Pages by slug & template
+    if (is_page()) {
+        global $post;
+        $slug = isset($post->post_name) ? strtolower($post->post_name) : '';
+        $page_title = get_the_title();
+
+        switch ($slug) {
+            case 'our-story':
+            case 'about':
+            case 'about-us':
+                return "Our Story & Craftsmanship {$sep} {$site_name}";
+            case 'bulk-order':
+            case 'bulk-orders':
+            case 'corporate-orders':
+                return "Bulk & Corporate Orders {$sep} {$site_name}";
+            case 'combos':
+            case 'combo':
+            case 'gift-combos':
+                return "Curated Combos & Gift Hampers {$sep} {$site_name}";
+            case 'contact':
+            case 'contact-us':
+                return "Contact Us {$sep} {$site_name}";
+            case 'faqs':
+            case 'faq':
+                return "Frequently Asked Questions (FAQs) {$sep} {$site_name}";
+            case 'shipping-policy':
+            case 'shipping':
+                return "Shipping & Delivery Policy {$sep} {$site_name}";
+            case 'return-policy':
+            case 'refund-policy':
+            case 'returns':
+                return "Return & Refund Policy {$sep} {$site_name}";
+            case 'terms':
+            case 'terms-and-conditions':
+            case 'terms-conditions':
+                return "Terms & Conditions {$sep} {$site_name}";
+            case 'privacy-policy':
+            case 'privacy':
+                return "Privacy Policy {$sep} {$site_name}";
+            case 'cart':
+                return "Shopping Bag {$sep} {$site_name}";
+            case 'checkout':
+                return "Secure Checkout {$sep} {$site_name}";
+            case 'shop':
+                return "Shop Authentic Products {$sep} {$site_name}";
+            default:
+                if (!empty($page_title)) {
+                    return "{$page_title} {$sep} {$site_name}";
+                }
+                break;
+        }
+    }
+
+    // 8. Search Results
+    if (is_search()) {
+        $search_query = get_search_query();
+        return "Search Results for \"{$search_query}\" {$sep} {$site_name}";
+    }
+
+    // 9. 404 Page Not Found
+    if (is_404()) {
+        return "Page Not Found {$sep} {$site_name}";
+    }
+
+    // 10. Single Blog Post
+    if (is_singular('post')) {
+        $post_title = get_the_title();
+        return "{$post_title} {$sep} {$site_name}";
+    }
+
+    // 11. General Archives
+    if (is_archive()) {
+        $archive_title = get_the_archive_title();
+        $clean_archive_title = preg_replace('/^[^:]+:\s*/', '', $archive_title);
+        return "{$clean_archive_title} {$sep} {$site_name}";
+    }
+
+    // 12. Fallback
+    $fallback_title = get_the_title();
+    if (!empty($fallback_title)) {
+        return "{$fallback_title} {$sep} {$site_name}";
+    }
+
+    return "{$site_name} {$sep} Authentic Indian Mouth Fresheners & Chocolates";
+}
+add_filter('pre_get_document_title', 'kash_naturals_document_title', 20);
+
+/**
+ * Filter Document Title Parts as secondary fallback
+ */
+function kash_naturals_document_title_parts($parts) {
+    $site_name = get_theme_mod('kash_site_name_title', 'Kash Naturals');
+
+    // Ensure site title is always Kash Naturals and never Hostinger temporary string
+    if (isset($parts['site']) && (empty($parts['site']) || stripos($parts['site'], 'hostinger') !== false || stripos($parts['site'], 'magenta') !== false)) {
+        $parts['site'] = $site_name;
+    }
+    if (isset($parts['title']) && (stripos($parts['title'], 'hostinger') !== false || stripos($parts['title'], 'magenta') !== false)) {
+        $parts['title'] = $site_name;
+    }
+    if (isset($parts['tagline']) && (stripos($parts['tagline'], 'just another') !== false || stripos($parts['tagline'], 'hostinger') !== false)) {
+        $parts['tagline'] = 'Authentic Indian Mouth Fresheners & Chocolates';
+    }
+
+    if (is_front_page() || is_home()) {
+        $parts['title'] = $site_name;
+        $parts['tagline'] = 'Authentic Indian Mouth Fresheners & Chocolates';
+    }
+
+    return $parts;
+}
+add_filter('document_title_parts', 'kash_naturals_document_title_parts', 20);
+
+/**
+ * Set Title Separator
+ */
+function kash_naturals_document_title_separator($sep) {
+    return get_theme_mod('kash_title_separator', '|');
+}
+add_filter('document_title_separator', 'kash_naturals_document_title_separator', 20);
+

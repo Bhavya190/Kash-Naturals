@@ -98,6 +98,58 @@ function kash_naturals_customize_register($wp_customize) {
         ));
     }
 
+    // =========================================================================
+    // Page Titles & SEO Options
+    // =========================================================================
+    $wp_customize->add_section('kash_seo_titles_options', array(
+        'title'       => __('Page Titles & SEO Options', 'kash-naturals'),
+        'description' => __('Configure browser tab titles and brand naming across the Kash Naturals store.', 'kash-naturals'),
+        'priority'    => 25,
+    ));
+
+    $wp_customize->add_setting('kash_home_page_title', array(
+        'default'           => 'Kash Naturals | Authentic Indian Mouth Fresheners & Chocolates',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_home_page_title', array(
+        'label'       => __('Homepage Browser Tab Title', 'kash-naturals'),
+        'description' => __('Default: Kash Naturals | Authentic Indian Mouth Fresheners & Chocolates', 'kash-naturals'),
+        'section'     => 'kash_seo_titles_options',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_site_name_title', array(
+        'default'           => 'Kash Naturals',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_site_name_title', array(
+        'label'       => __('Brand Name Suffix (Inner Pages)', 'kash-naturals'),
+        'description' => __('Suffix shown on all product and inner pages (e.g., "Shop Authentic Products | Kash Naturals")', 'kash-naturals'),
+        'section'     => 'kash_seo_titles_options',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_title_separator', array(
+        'default'           => '|',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_title_separator', array(
+        'label'       => __('Title Separator Symbol', 'kash-naturals'),
+        'description' => __('Separator symbol between page name and brand name (e.g. | or –)', 'kash-naturals'),
+        'section'     => 'kash_seo_titles_options',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('kash_shop_page_title', array(
+        'default'           => 'Shop Authentic Products',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('kash_shop_page_title', array(
+        'label'       => __('Shop / Catalog Title Prefix', 'kash-naturals'),
+        'section'     => 'kash_seo_titles_options',
+        'type'        => 'text',
+    ));
+
     // Kash Brand Options Section
     $wp_customize->add_section('kash_brand_options', array(
         'title'    => __('Kash General Options', 'kash-naturals'),

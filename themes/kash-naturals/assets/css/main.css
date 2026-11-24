@@ -5203,6 +5203,24 @@ img {
     margin: 0;
 }
 
+.footer-powered-by {
+    font-size: 0.68rem;
+    color: rgba(197, 214, 200, 0.65);
+    margin: 5px 0 0;
+    letter-spacing: 0.3px;
+}
+
+.footer-powered-by a {
+    color: rgba(197, 214, 200, 0.85);
+    text-decoration: none;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.footer-powered-by a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
 /* Responsive Header, Mobile Navigation Menu & Footer Media Queries */
 @media (max-width: 992px) {
     .site-header {
