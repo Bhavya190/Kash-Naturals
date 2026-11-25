@@ -52,19 +52,19 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
         </div>
 
         <!-- 3-Step Trust Progress Stepper -->
-        <div class="checkout-stepper-strip">
-            <div class="checkout-step-badge done">
+        <div class="checkout-stepper-strip" id="checkout-stepper-strip">
+            <a href="<?php echo esc_url($cart_url); ?>" class="checkout-step-badge done" id="step-badge-1" style="text-decoration: none;">
                 <span class="step-num"><i class="fa-solid fa-check"></i></span>
                 <span class="step-label"><?php esc_html_e('Artisanal Bag', 'kash-naturals'); ?></span>
-            </div>
-            <div class="stepper-line active"></div>
-            <div class="checkout-step-badge active">
-                <span class="step-num">2</span>
+            </a>
+            <div class="stepper-line active" id="stepper-line-1"></div>
+            <div class="checkout-step-badge active" id="step-badge-2" style="cursor: pointer;">
+                <span class="step-num" id="step-num-2">2</span>
                 <span class="step-label"><?php esc_html_e('Shipping Details', 'kash-naturals'); ?></span>
             </div>
-            <div class="stepper-line"></div>
-            <div class="checkout-step-badge">
-                <span class="step-num">3</span>
+            <div class="stepper-line" id="stepper-line-2"></div>
+            <div class="checkout-step-badge" id="step-badge-3" style="cursor: pointer;">
+                <span class="step-num" id="step-num-3">3</span>
                 <span class="step-label"><?php esc_html_e('Payment & Confirm', 'kash-naturals'); ?></span>
             </div>
         </div>
@@ -412,6 +412,14 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                                 <label for="billing_postcode"><?php esc_html_e('PIN Code', 'kash-naturals'); ?> <span class="required" style="color:#d9534f;">*</span></label>
                                                 <input type="text" id="billing_postcode" name="billing_postcode" class="input-text" placeholder="<?php esc_attr_e('6-digit PIN code', 'kash-naturals'); ?>" required value="<?php echo esc_attr($checkout ? $checkout->get_value('billing_postcode') : ''); ?>" autocomplete="postal-code" maxlength="6" pattern="[0-9]{6}">
                                             </div>
+                                        </div>
+
+                                        <!-- Step 2 to Step 3 Transition Action Button -->
+                                        <div class="checkout-form-row checkout-form-row-full checkout-proceed-btn-wrap" style="margin-top: 18px;">
+                                            <button type="button" class="btn-proceed-to-payment" id="btn-proceed-to-payment" style="width: 100%; padding: 16px 24px; background: linear-gradient(135deg, #0f3820 0%, #17482b 100%); color: #ffffff; border: 2px solid #c68b27; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 8px 24px rgba(15, 56, 32, 0.25); transition: all 0.25s ease;">
+                                                <span><?php esc_html_e('Proceed to Payment Options', 'kash-naturals'); ?></span>
+                                                <i class="fa-solid fa-arrow-down" style="color: #c68b27; font-size: 1.1rem;"></i>
+                                            </button>
                                         </div>
 
                                         <!-- Shipping Synchronization & Compatibility Fields -->

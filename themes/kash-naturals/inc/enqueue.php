@@ -171,4 +171,8 @@ function kash_dequeue_hostinger_chatbot() {
     wp_deregister_script('hostinger-chatbot');
     wp_dequeue_script('hostinger-ai-assistant');
     wp_deregister_script('hostinger-ai-assistant');
+    wp_dequeue_script('hostinger-reach-embed');
+    wp_deregister_script('hostinger-reach-embed');
+    wp_dequeue_script('hostinger-reach');
+    wp_deregister_script('hostinger-reach');
 }
