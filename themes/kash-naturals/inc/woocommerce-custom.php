@@ -1171,6 +1171,47 @@ remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_f
 remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10);
 
 /**
+ * AJAX Handler: Apply Coupon Code from Custom Checkout Form
+ */
+add_action('wp_ajax_kash_apply_coupon', 'kash_ajax_apply_coupon_handler');
+add_action('wp_ajax_nopriv_kash_apply_coupon', 'kash_ajax_apply_coupon_handler');
+function kash_ajax_apply_coupon_handler() {
+    $coupon_code = isset($_POST['coupon_code']) ? sanitize_text_field(wp_unslash($_POST['coupon_code'])) : '';
+    if (empty($coupon_code)) {
+        wp_send_json_error(array('message' => __('Please enter a coupon code.', 'kash-naturals')));
+    }
+
+    if (function_exists('WC') && WC()->cart) {
+        if (WC()->cart->has_discount($coupon_code)) {
+            wp_send_json_error(array('message' => __('Coupon code is already applied.', 'kash-naturals')));
+        }
+        $applied = WC()->cart->apply_coupon($coupon_code);
+        if ($applied) {
+            wp_send_json_success(array('message' => sprintf(__('Coupon "%s" applied successfully!', 'kash-naturals'), esc_html($coupon_code))));
+        } else {
+            $notices = function_exists('wc_get_notices') ? wc_get_notices('error') : array();
+            $notice_msg = !empty($notices) ? strip_tags(end($notices)['notice']) : __('Invalid or expired coupon code.', 'kash-naturals');
+            if (function_exists('wc_clear_notices')) {
+                wc_clear_notices();
+            }
+            wp_send_json_error(array('message' => $notice_msg));
+        }
+    } else {
+        wp_send_json_error(array('message' => __('Cart is not accessible.', 'kash-naturals')));
+    }
+}
+
+/**
+ * Ensure Indian Rupee (INR) is supported and default for Indian payment gateways (Razorpay, COD, UPI)
+ */
+add_filter('woocommerce_currency', function ($currency) {
+    if (empty($currency) || $currency === 'USD') {
+        return 'INR';
+    }
+    return $currency;
+}, 20);
+
+/**
  * AJAX Handler: Check Delivery Pincode Validity & Serviceability
  * Validates against dummy postal codes, verifies Indian Postal Circles,
  * and fetches real post office/district/state details with transient caching.

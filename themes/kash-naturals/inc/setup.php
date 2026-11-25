@@ -390,7 +390,7 @@ function kash_naturals_document_title($title) {
     }
 
     // 7. Pages by slug & template
-    if (is_page()) {
+    if (function_exists('is_page') && is_page()) {
         global $post;
         $slug = isset($post->post_name) ? strtolower($post->post_name) : '';
         $page_title = get_the_title();
@@ -443,31 +443,31 @@ function kash_naturals_document_title($title) {
     }
 
     // 8. Search Results
-    if (is_search()) {
-        $search_query = get_search_query();
+    if (function_exists('is_search') && is_search()) {
+        $search_query = function_exists('get_search_query') ? get_search_query() : '';
         return "Search Results for \"{$search_query}\" {$sep} {$site_name}";
     }
 
     // 9. 404 Page Not Found
-    if (is_404()) {
+    if (function_exists('is_404') && is_404()) {
         return "Page Not Found {$sep} {$site_name}";
     }
 
     // 10. Single Blog Post
-    if (is_singular('post')) {
+    if (function_exists('is_singular') && is_singular('post')) {
         $post_title = get_the_title();
         return "{$post_title} {$sep} {$site_name}";
     }
 
     // 11. General Archives
-    if (is_archive()) {
-        $archive_title = get_the_archive_title();
+    if (function_exists('is_archive') && is_archive()) {
+        $archive_title = function_exists('get_the_archive_title') ? get_the_archive_title() : '';
         $clean_archive_title = preg_replace('/^[^:]+:\s*/', '', $archive_title);
         return "{$clean_archive_title} {$sep} {$site_name}";
     }
 
     // 12. Fallback
-    $fallback_title = get_the_title();
+    $fallback_title = function_exists('get_the_title') ? get_the_title() : '';
     if (!empty($fallback_title)) {
         return "{$fallback_title} {$sep} {$site_name}";
     }
