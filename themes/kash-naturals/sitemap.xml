@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+    <!-- 1. Home Page -->
+    <url>
+        <loc>https://kashnatural.com/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- 2. Main Store & Catalog Pages -->
+    <url>
+        <loc>https://kashnatural.com/shop/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/combos/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- 3. WooCommerce Product Categories -->
+    <url>
+        <loc>https://kashnatural.com/product-category/mukhwas/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product-category/chocolates/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product-category/dry-fruits/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product-category/gift-hampers/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- 4. Featured & Popular Products -->
+    <url>
+        <loc>https://kashnatural.com/product/raj-ratan-sweet-salty-mukhwas/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product/jamun-shots-mukhwas/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product/gotli-tal-mukhwas/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product/royal-silver-paan-mukhwas/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product/belgian-dark-chocolate-almond-dragees/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/product/belgian-milk-chocolate-hazelnut-dragees/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- 5. Brand Story & Informational Pages -->
+    <url>
+        <loc>https://kashnatural.com/about-us/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/bulk-orders/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/contact/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/faqs/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+
+    <!-- 6. Essential Trust & Compliance Policy Pages -->
+    <url>
+        <loc>https://kashnatural.com/shipping-policy/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/return-policy/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/privacy-policy/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://kashnatural.com/terms-and-conditions/</loc>
+        <lastmod>2026-11-24T18:00:00+05:30</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+</urlset>

@@ -1,0 +1,29 @@
+# Robots.txt for Kash Naturals (https://kashnatural.com)
+User-agent: *
+Allow: /
+Allow: /wp-content/uploads/
+Allow: /wp-content/themes/
+Allow: /wp-includes/js/
+Allow: /wp-includes/css/
+Allow: /wp-admin/admin-ajax.php
+
+# Disallow internal admin & checkout/cart query endpoints
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /trackback/
+Disallow: /xmlrpc.php
+Disallow: /feed/
+Disallow: /*/feed/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /my-account/
+Disallow: /*?*add-to-cart=
+Disallow: /*?*orderby=
+Disallow: /*?*filter_*
+Disallow: /*?*rating_filter=
+Disallow: /?s=
+Disallow: /search/
+
+# Reference official XML Sitemaps for Google Search Console
+Sitemap: https://kashnatural.com/sitemap.xml
+Sitemap: https://kashnatural.com/wp-sitemap.xml

@@ -239,6 +239,7 @@ add_filter('nav_menu_css_class', 'kash_filter_nav_menu_css_class', 10, 4);
  * reflect "Kash Naturals" instead of temporary staging domains (e.g. magenta-ant-151641.hostinger...).
  */
 function kash_ensure_site_identity() {
+    $site_name = get_theme_mod('kash_site_name_title', 'Kash Naturals');
     $current_name = get_option('blogname');
     if (empty($current_name) || 
         stripos($current_name, 'hostinger') !== false || 
@@ -246,7 +247,7 @@ function kash_ensure_site_identity() {
         stripos($current_name, 'temp') !== false || 
         stripos($current_name, 'localhost') !== false ||
         stripos($current_name, '.site') !== false) {
-        update_option('blogname', 'Kash Naturals');
+        update_option('blogname', $site_name);
     }
 
     $current_desc = get_option('blogdescription');
@@ -255,9 +256,33 @@ function kash_ensure_site_identity() {
         stripos($current_desc, 'hostinger') !== false) {
         update_option('blogdescription', 'Authentic Indian Mouth Fresheners & Chocolates');
     }
+
+    // Ensure siteurl and home never contain Hostinger staging URL in database
+    $site_url = get_option('siteurl');
+    if (!empty($site_url) && (stripos($site_url, 'hostingersite.com') !== false || stripos($site_url, 'magenta-ant') !== false)) {
+        update_option('siteurl', 'https://kashnatural.com');
+    }
+    $home_url = get_option('home');
+    if (!empty($home_url) && (stripos($home_url, 'hostingersite.com') !== false || stripos($home_url, 'magenta-ant') !== false)) {
+        update_option('home', 'https://kashnatural.com');
+    }
 }
 add_action('init', 'kash_ensure_site_identity', 1);
 add_action('after_setup_theme', 'kash_ensure_site_identity', 1);
+
+/**
+ * 301 Permanent Redirect for any traffic arriving on the Hostinger temporary/staging domain
+ * Instructs Googlebot and browsers that magenta-ant-151641.hostingersite.com has permanently moved to kashnatural.com.
+ */
+function kash_redirect_staging_domain() {
+    $host = isset($_SERVER['HTTP_HOST']) ? strtolower($_SERVER['HTTP_HOST']) : '';
+    if (stripos($host, 'hostingersite.com') !== false || stripos($host, 'magenta-ant') !== false) {
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+        wp_redirect('https://kashnatural.com' . $uri, 301);
+        exit;
+    }
+}
+add_action('template_redirect', 'kash_redirect_staging_domain', 1);
 
 /**
  * Filter blogname option so any call to get_bloginfo('name') or get_option('blogname')
@@ -304,9 +329,11 @@ add_filter('option_blogdescription', 'kash_filter_blogdescription');
  * - Content Pages: "{Page Title} | Kash Naturals"
  */
 function kash_naturals_document_title($title) {
-    // Respect active dedicated SEO plugins if installed
+    // Respect active dedicated SEO plugins if installed AND title is not polluted with staging domain
     if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') || defined('SEOPRESS_VERSION')) {
-        return $title;
+        if (!empty($title) && stripos($title, 'magenta') === false && stripos($title, 'hostinger') === false && stripos($title, '.site') === false) {
+            return $title;
+        }
     }
 
     $site_name = get_theme_mod('kash_site_name_title', 'Kash Naturals');
@@ -448,6 +475,37 @@ function kash_naturals_document_title($title) {
     return "{$site_name} {$sep} Authentic Indian Mouth Fresheners & Chocolates";
 }
 add_filter('pre_get_document_title', 'kash_naturals_document_title', 20);
+add_filter('pre_get_document_title', 'kash_clean_any_title_string', 9999);
+add_filter('wp_title', 'kash_clean_any_title_string', 9999);
+add_filter('wpseo_title', 'kash_clean_any_title_string', 9999);
+add_filter('wpseo_opengraph_title', 'kash_clean_any_title_string', 9999);
+add_filter('wpseo_opengraph_site_name', 'kash_clean_any_title_string', 9999);
+add_filter('rank_math/frontend/title', 'kash_clean_any_title_string', 9999);
+add_filter('rank_math/opengraph/facebook/title', 'kash_clean_any_title_string', 9999);
+add_filter('aioseo_title', 'kash_clean_any_title_string', 9999);
+add_filter('aioseo_opengraph_title', 'kash_clean_any_title_string', 9999);
+
+/**
+ * Universal Title Sanitizer: Stretches across all SEO plugins and WP core to ensure
+ * any Hostinger temporary staging subdomains are eliminated and replaced with Kash Naturals.
+ */
+function kash_clean_any_title_string($title) {
+    if (empty($title)) {
+        return $title;
+    }
+    if (stripos($title, 'magenta') !== false || stripos($title, 'hostinger') !== false || stripos($title, '.site') !== false) {
+        $site_name = get_theme_mod('kash_site_name_title', 'Kash Naturals');
+        $sep = get_theme_mod('kash_title_separator', '|');
+        $title = preg_replace('/[a-z0-9\-]+\.hostingersite\.com/i', $site_name, $title);
+        $title = preg_replace('/magenta[a-z0-9\-\.]+/i', $site_name, $title);
+        $title = preg_replace('/hostingersite\.com/i', 'kashnatural.com', $title);
+        $title = trim($title);
+        if (empty($title) || strtolower($title) === strtolower($site_name)) {
+            $title = "{$site_name} {$sep} Authentic Indian Mouth Fresheners & Chocolates";
+        }
+    }
+    return $title;
+}
 
 /**
  * Filter Document Title Parts as secondary fallback
@@ -473,7 +531,7 @@ function kash_naturals_document_title_parts($parts) {
 
     return $parts;
 }
-add_filter('document_title_parts', 'kash_naturals_document_title_parts', 20);
+add_filter('document_title_parts', 'kash_naturals_document_title_parts', 9999);
 
 /**
  * Set Title Separator
@@ -482,6 +540,88 @@ function kash_naturals_document_title_separator($sep) {
     return get_theme_mod('kash_title_separator', '|');
 }
 add_filter('document_title_separator', 'kash_naturals_document_title_separator', 20);
+
+/**
+ * Output Schema.org Structured Data (WebSite & Organization) for Google Search
+ * Specifically tells Google the canonical site name is "Kash Natural" / "Kash Naturals".
+ */
+function kash_output_seo_schema_and_meta() {
+    $site_name = get_theme_mod('kash_site_name_title', 'Kash Naturals');
+    $site_url = 'https://kashnatural.com';
+    $site_desc = 'Kash Natural was born from a passion for authentic Indian flavors & royal digestives. Handcrafted artisanal mouth fresheners, sweet saunf, and luxury Belgian chocolates.';
+    $logo_url = get_template_directory_uri() . '/assets/images/logo.png';
+
+    // Canonical URL calculation
+    $canonical_url = $site_url;
+    if (is_singular()) {
+        $canonical_url = get_permalink();
+    } elseif (is_front_page() || is_home()) {
+        $canonical_url = $site_url . '/';
+    } elseif (function_exists('is_shop') && is_shop()) {
+        $canonical_url = get_permalink(wc_get_page_id('shop'));
+    } else {
+        $req = isset($GLOBALS['wp']->request) ? $GLOBALS['wp']->request : '';
+        $canonical_url = home_url($req ? '/' . $req : '');
+    }
+    // Clean any staging domain from canonical URL
+    $canonical_url = preg_replace('/https?:\/\/[a-z0-9\-]+\.hostingersite\.com/i', $site_url, $canonical_url);
+
+    // Meta Description & Open Graph (if not already handled by dedicated SEO plugin)
+    if (!defined('WPSEO_VERSION') && !defined('RANK_MATH_VERSION') && !defined('AIOSEO_VERSION')) {
+        echo '<meta name="description" content="' . esc_attr($site_desc) . '">' . "\n";
+        echo '<link rel="canonical" href="' . esc_url($canonical_url) . '">' . "\n";
+
+        // Open Graph Meta Tags
+        echo '<meta property="og:site_name" content="' . esc_attr($site_name) . '">' . "\n";
+        echo '<meta property="og:type" content="' . (is_front_page() ? 'website' : 'article') . '">' . "\n";
+        echo '<meta property="og:title" content="' . esc_attr(function_exists('wp_get_document_title') ? wp_get_document_title() : $site_name) . '">' . "\n";
+        echo '<meta property="og:description" content="' . esc_attr($site_desc) . '">' . "\n";
+        echo '<meta property="og:url" content="' . esc_url($canonical_url) . '">' . "\n";
+        echo '<meta property="og:image" content="' . esc_url($logo_url) . '">' . "\n";
+
+        // Twitter Card Meta Tags
+        echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
+        echo '<meta name="twitter:title" content="' . esc_attr(function_exists('wp_get_document_title') ? wp_get_document_title() : $site_name) . '">' . "\n";
+        echo '<meta name="twitter:description" content="' . esc_attr($site_desc) . '">' . "\n";
+        echo '<meta name="twitter:image" content="' . esc_url($logo_url) . '">' . "\n";
+    }
+
+    // Google Search Official Site Name Schema.org (JSON-LD)
+    if (is_front_page() || is_home()) {
+        $schema = array(
+            '@context' => 'https://schema.org',
+            '@graph' => array(
+                array(
+                    '@type' => 'WebSite',
+                    '@id' => $site_url . '/#website',
+                    'url' => $site_url . '/',
+                    'name' => 'Kash Naturals',
+                    'alternateName' => array('Kash Natural', 'KashNaturals', 'kashnatural.com'),
+                    'description' => $site_desc,
+                    'publisher' => array(
+                        '@id' => $site_url . '/#organization'
+                    )
+                ),
+                array(
+                    '@type' => 'Organization',
+                    '@id' => $site_url . '/#organization',
+                    'name' => 'Kash Naturals',
+                    'url' => $site_url . '/',
+                    'logo' => array(
+                        '@type' => 'ImageObject',
+                        'url' => $logo_url
+                    ),
+                    'sameAs' => array(
+                        'https://www.amazon.in/s?me=A30KTY4XP7ZA4W&marketplaceID=A21TJRUUN4KGV',
+                        'https://techforbs.com/'
+                    )
+                )
+            )
+        );
+        echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . '</script>' . "\n";
+    }
+}
+add_action('wp_head', 'kash_output_seo_schema_and_meta', 2);
 
 /**
  * Filter Amazon Store Link Theme Mod to ensure the official storefront URL is always returned.
@@ -494,4 +634,82 @@ function kash_filter_amazon_shop_link($link) {
     return $link;
 }
 add_filter('theme_mod_kash_amazon_shop_link', 'kash_filter_amazon_shop_link');
+
+/**
+ * =========================================================================
+ * ROBOTS.TXT & SITEMAP.XML SUPPORT FOR GOOGLE SEARCH CONSOLE
+ * =========================================================================
+ */
+
+/**
+ * Customize WordPress Dynamic robots.txt
+ */
+function kash_custom_robots_txt($output, $public) {
+    if ('0' === $public) {
+        return $output;
+    }
+    $robots_path = ABSPATH . 'robots.txt';
+    if (file_exists($robots_path)) {
+        return file_get_contents($robots_path);
+    }
+    $theme_robots = get_template_directory() . '/robots.txt';
+    if (file_exists($theme_robots)) {
+        return file_get_contents($theme_robots);
+    }
+    $custom = "User-agent: *\n";
+    $custom .= "Allow: /\n";
+    $custom .= "Allow: /wp-content/uploads/\n";
+    $custom .= "Allow: /wp-content/themes/\n";
+    $custom .= "Allow: /wp-includes/js/\n";
+    $custom .= "Allow: /wp-includes/css/\n";
+    $custom .= "Allow: /wp-admin/admin-ajax.php\n\n";
+    $custom .= "Disallow: /wp-admin/\n";
+    $custom .= "Disallow: /wp-includes/\n";
+    $custom .= "Disallow: /cart/\n";
+    $custom .= "Disallow: /checkout/\n";
+    $custom .= "Disallow: /my-account/\n";
+    $custom .= "Disallow: /*?*add-to-cart=\n";
+    $custom .= "Disallow: /*?*orderby=\n";
+    $custom .= "Disallow: /*?*filter_*\n";
+    $custom .= "Disallow: /?s=\n";
+    $custom .= "Disallow: /search/\n\n";
+    $custom .= "Sitemap: https://kashnatural.com/sitemap.xml\n";
+    $custom .= "Sitemap: https://kashnatural.com/wp-sitemap.xml\n";
+    return $custom;
+}
+add_filter('robots_txt', 'kash_custom_robots_txt', 999, 2);
+
+/**
+ * Handle /sitemap.xml requests in WordPress if not handled by a third-party SEO plugin
+ */
+function kash_handle_sitemap_request() {
+    $uri = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
+    if ($uri === '/sitemap.xml' || $uri === '/sitemap' || $uri === '/sitemap_index.xml') {
+        // If an SEO plugin handles sitemaps (like Yoast or Rank Math), allow it
+        if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION')) {
+            return;
+        }
+
+        $sitemap_path = ABSPATH . 'sitemap.xml';
+        if (!file_exists($sitemap_path)) {
+            $sitemap_path = get_template_directory() . '/sitemap.xml';
+        }
+        if (!file_exists($sitemap_path)) {
+            $sitemap_path = get_template_directory() . '/../../../sitemap.xml';
+        }
+
+        if (file_exists($sitemap_path)) {
+            header('Content-Type: application/xml; charset=utf-8');
+            header('X-Robots-Tag: noindex, follow', true);
+            readfile($sitemap_path);
+            exit;
+        }
+
+        // If no static sitemap file, redirect to core WordPress sitemap
+        wp_redirect(home_url('/wp-sitemap.xml'), 301);
+        exit;
+    }
+}
+add_action('template_redirect', 'kash_handle_sitemap_request', 1);
+
 
