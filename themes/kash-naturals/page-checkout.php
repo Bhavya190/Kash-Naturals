@@ -24,6 +24,210 @@ if (!function_exists('checked')) {
         return $result;
     }
 }
+if (!function_exists('absint')) {
+    function absint($maybeint) {
+        return abs((int) $maybeint);
+    }
+}
+
+// Check for WooCommerce order-pay and order-received endpoints first!
+$is_received_page = (function_exists('is_order_received_page') && is_order_received_page())
+    || (!empty($GLOBALS['wp']) && !empty($GLOBALS['wp']->query_vars['order-received']))
+    || (isset($_GET['order-received']));
+
+$is_pay_page = (function_exists('is_checkout_pay_page') && is_checkout_pay_page())
+    || (!empty($_GET['pay_for_order']) && !empty($_GET['key']))
+    || (!empty($GLOBALS['wp']) && !empty($GLOBALS['wp']->query_vars['order-pay']));
+
+if ($is_received_page) {
+    get_header();
+    $shop_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop');
+    global $wp;
+    $order_id = (isset($wp->query_vars['order-received']) && $wp->query_vars['order-received']) ? absint($wp->query_vars['order-received']) : 0;
+    if (!$order_id && isset($_GET['order-received'])) {
+        $order_id = absint($_GET['order-received']);
+    }
+    $order = ($order_id && function_exists('wc_get_order')) ? wc_get_order($order_id) : false;
+    ?>
+    <!-- Luxury Order Confirmed Header -->
+    <div class="shop-page-header checkout-hero-banner">
+        <div class="container text-center">
+            <span class="shop-header-subtitle">
+                <i class="fa-solid fa-circle-check" style="color: #4ade80;"></i> <?php esc_html_e('100% SECURE & VERIFIED ORDER • ROYAL PATRONAGE', 'kash-naturals'); ?>
+            </span>
+            <h1 class="shop-header-title"><?php esc_html_e('Thank You For Your Order', 'kash-naturals'); ?></h1>
+            <div class="shop-breadcrumb">
+                <a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home', 'kash-naturals'); ?></a>
+                <span class="sep">/</span>
+                <a href="<?php echo esc_url($shop_url); ?>"><?php esc_html_e('Shop', 'kash-naturals'); ?></a>
+                <span class="sep">/</span>
+                <span class="current"><?php esc_html_e('Order Confirmation', 'kash-naturals'); ?></span>
+            </div>
+
+            <!-- 3-Step Trust Progress Stepper (All Completed) -->
+            <div class="checkout-stepper-strip" id="checkout-stepper-strip" style="margin-top: 24px;">
+                <div class="checkout-step-badge done">
+                    <span class="step-num"><i class="fa-solid fa-check"></i></span>
+                    <span class="step-label"><?php esc_html_e('Artisanal Bag', 'kash-naturals'); ?></span>
+                </div>
+                <div class="stepper-line active"></div>
+                <div class="checkout-step-badge done">
+                    <span class="step-num"><i class="fa-solid fa-check"></i></span>
+                    <span class="step-label"><?php esc_html_e('Shipping Details', 'kash-naturals'); ?></span>
+                </div>
+                <div class="stepper-line active"></div>
+                <div class="checkout-step-badge done active">
+                    <span class="step-num"><i class="fa-solid fa-check"></i></span>
+                    <span class="step-label"><?php esc_html_e('Order Confirmed', 'kash-naturals'); ?></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Thank You / Confirmation Section -->
+    <section class="checkout-main-section order-confirmation-section" style="padding: 50px 0 80px;">
+        <div class="container">
+            <div class="kash-order-received-card" style="max-width: 860px; margin: 0 auto; background: #ffffff; border-radius: 20px; border: 1.5px solid #ede5d8; padding: 40px 45px; box-shadow: 0 12px 35px rgba(15, 56, 32, 0.06);">
+                <div class="woocommerce-notices-wrapper">
+                    <?php
+                    if (function_exists('woocommerce_output_all_notices')) {
+                        woocommerce_output_all_notices();
+                    } elseif (function_exists('wc_print_notices')) {
+                        wc_print_notices();
+                    }
+                    ?>
+                </div>
+
+                <?php
+                if (class_exists('WC_Shortcode_Checkout')) {
+                    WC_Shortcode_Checkout::output(array());
+                } elseif ($order && function_exists('wc_get_template')) {
+                    wc_get_template('checkout/thankyou.php', array('order' => $order));
+                } elseif (function_exists('have_posts') && have_posts()) {
+                    while (have_posts()) : the_post();
+                        the_content();
+                    endwhile;
+                } else {
+                    ?>
+                    <div class="text-center" style="padding: 30px 20px;">
+                        <div style="font-size: 3.5rem; color: #27ae60; margin-bottom: 16px;">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <h2 style="font-family: 'Playfair Display', serif; color: #0f3820; font-size: 2.1rem; margin-bottom: 12px;">
+                            <?php esc_html_e('Your Order Has Been Received!', 'kash-naturals'); ?>
+                        </h2>
+                        <p style="font-family: 'Outfit', sans-serif; color: #666; font-size: 1.05rem; line-height: 1.6; max-width: 540px; margin: 0 auto 30px;">
+                            <?php esc_html_e('Thank you for choosing Kash Naturals. An email confirmation with order and delivery tracking details has been sent to your email address.', 'kash-naturals'); ?>
+                        </p>
+                        <a href="<?php echo esc_url($shop_url); ?>" class="btn-royal-gold" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #c68b27 0%, #a8721a 100%); color: #fff; font-family: 'Outfit', sans-serif; font-weight: 700; border-radius: 30px; text-decoration: none; box-shadow: 0 6px 18px rgba(198, 139, 39, 0.35);">
+                            <?php esc_html_e('Continue Shopping', 'kash-naturals'); ?>
+                        </a>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+    </section>
+    <?php
+    get_footer();
+    return;
+}
+
+if ($is_pay_page) {
+    get_header();
+    $shop_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop');
+    global $wp;
+    $order_id = (isset($wp->query_vars['order-pay']) && $wp->query_vars['order-pay']) ? absint($wp->query_vars['order-pay']) : 0;
+    if (!$order_id && isset($_GET['order-pay'])) {
+        $order_id = absint($_GET['order-pay']);
+    }
+    if (!$order_id && isset($_GET['order_id'])) {
+        $order_id = absint($_GET['order_id']);
+    }
+    $order = ($order_id && function_exists('wc_get_order')) ? wc_get_order($order_id) : false;
+    ?>
+    <!-- Luxury Checkout Pay Banner -->
+    <div class="shop-page-header checkout-hero-banner">
+        <div class="container text-center">
+            <span class="shop-header-subtitle">
+                <i class="fa-solid fa-shield-halved"></i> <?php esc_html_e('100% SECURE & ENCRYPTED PAYMENT • RAZORPAY GATEWAY', 'kash-naturals'); ?>
+            </span>
+            <h1 class="shop-header-title"><?php esc_html_e('Complete Your Payment', 'kash-naturals'); ?></h1>
+            <div class="shop-breadcrumb">
+                <a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home', 'kash-naturals'); ?></a>
+                <span class="sep">/</span>
+                <a href="<?php echo esc_url($shop_url); ?>"><?php esc_html_e('Shop', 'kash-naturals'); ?></a>
+                <span class="sep">/</span>
+                <span class="current"><?php esc_html_e('Order Payment', 'kash-naturals'); ?></span>
+            </div>
+
+            <!-- 3-Step Stepper -->
+            <div class="checkout-stepper-strip" id="checkout-stepper-strip" style="margin-top: 24px;">
+                <div class="checkout-step-badge done">
+                    <span class="step-num"><i class="fa-solid fa-check"></i></span>
+                    <span class="step-label"><?php esc_html_e('Artisanal Bag', 'kash-naturals'); ?></span>
+                </div>
+                <div class="stepper-line active"></div>
+                <div class="checkout-step-badge done">
+                    <span class="step-num"><i class="fa-solid fa-check"></i></span>
+                    <span class="step-label"><?php esc_html_e('Shipping Details', 'kash-naturals'); ?></span>
+                </div>
+                <div class="stepper-line active"></div>
+                <div class="checkout-step-badge active">
+                    <span class="step-num">3</span>
+                    <span class="step-label"><?php esc_html_e('Payment & Confirm', 'kash-naturals'); ?></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Payment Section -->
+    <section class="checkout-main-section order-pay-section" style="padding: 50px 0 80px;">
+        <div class="container">
+            <div class="kash-order-pay-card" style="max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 20px; border: 1.5px solid #ede5d8; padding: 40px 45px; box-shadow: 0 12px 35px rgba(15, 56, 32, 0.06);">
+                <div class="woocommerce-notices-wrapper">
+                    <?php
+                    if (function_exists('woocommerce_output_all_notices')) {
+                        woocommerce_output_all_notices();
+                    } elseif (function_exists('wc_print_notices')) {
+                        wc_print_notices();
+                    }
+                    ?>
+                </div>
+
+                <?php
+                if (class_exists('WC_Shortcode_Checkout')) {
+                    WC_Shortcode_Checkout::output(array());
+                } elseif ($order && function_exists('wc_get_template')) {
+                    wc_get_template('checkout/form-pay.php', array('order' => $order));
+                } elseif (function_exists('have_posts') && have_posts()) {
+                    while (have_posts()) : the_post();
+                        the_content();
+                    endwhile;
+                } else {
+                    ?>
+                    <div class="text-center" style="padding: 30px 20px;">
+                        <h2 style="font-family: 'Playfair Display', serif; color: #0f3820; font-size: 2rem; margin-bottom: 12px;">
+                            <?php esc_html_e('Payment Authorization', 'kash-naturals'); ?>
+                        </h2>
+                        <p style="font-family: 'Outfit', sans-serif; color: #666; font-size: 1.05rem; line-height: 1.6; max-width: 520px; margin: 0 auto 25px;">
+                            <?php esc_html_e('Processing secure Razorpay gateway transaction... If the payment window does not open automatically, please return to checkout.', 'kash-naturals'); ?>
+                        </p>
+                        <a href="<?php echo esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout')); ?>" class="btn-royal-gold" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #0f3820 0%, #17482b 100%); color: #fff; border: 2px solid #c68b27; font-family: 'Outfit', sans-serif; font-weight: 700; border-radius: 30px; text-decoration: none; box-shadow: 0 6px 18px rgba(15, 56, 32, 0.25);">
+                            <?php esc_html_e('Return to Checkout', 'kash-naturals'); ?>
+                        </a>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+    </section>
+    <?php
+    get_footer();
+    return;
+}
 
 get_header();
 
@@ -230,6 +434,7 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                     }
                     ?>
                 </div>
+                <div class="woocommerce-NoticeGroup woocommerce-NoticeGroup-checkout"></div>
 
                 <!-- Unified WooCommerce Checkout Form (Enveloping both columns for 100% API compliance) -->
                 <form name="checkout" method="post" class="checkout woocommerce-checkout wc-block-checkout__form" action="<?php echo esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout')); ?>" enctype="multipart/form-data">
@@ -506,10 +711,18 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                                                             <?php endif; ?>
                                                                         </label>
 
-                                                                        <?php if ($gateway->has_fields() || $gateway->get_description()) : ?>
+                                                                        <?php
+                                                                        $fields_output = '';
+                                                                        if ($gateway->has_fields() || $gateway->get_description()) {
+                                                                            ob_start();
+                                                                            $gateway->payment_fields();
+                                                                            $fields_output = ob_get_clean();
+                                                                        }
+                                                                        ?>
+                                                                        <?php if (!empty($fields_output)) : ?>
                                                                             <div class="payment_box payment_method_<?php echo esc_attr($gateway->id); ?>" style="<?php echo $is_checked ? 'display: block;' : 'display: none;'; ?> margin-top: 10px; padding: 12px 14px; background: #f4f8f5; border: 1px solid #d2e4d8; border-radius: 8px; font-size: 0.88rem; color: #444; line-height: 1.5;">
-                                                                                <?php $gateway->payment_fields(); ?>
-                                                                                <?php if ($gateway->id === 'razorpay') : ?>
+                                                                                <?php echo $fields_output; ?>
+                                                                                <?php if ($gateway->id === 'razorpay' && strpos($fields_output, 'razorpay_payment_id') === false) : ?>
                                                                                     <!-- Fallback input fields ensuring Razorpay JS SDK can bind without JS null exceptions -->
                                                                                     <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" value="">
                                                                                     <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="">
@@ -562,7 +775,7 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                             <div class="wc-block-checkout__actions" style="margin-top: 22px;">
                                                 <?php
                                                 $order_btn_text = apply_filters('woocommerce_order_button_text', sprintf(__('Place Order • %s', 'kash-naturals'), strip_tags($cart_total_display)));
-                                                $order_btn_html = '<button type="submit" class="wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr($order_btn_text) . '" data-value="' . esc_attr($order_btn_text) . '"><i class="fa-solid fa-lock" style="margin-right: 8px;"></i> ' . esc_html($order_btn_text) . '</button>';
+                                                $order_btn_html = '<button type="submit" class="button alt wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr($order_btn_text) . '" data-value="' . esc_attr($order_btn_text) . '"><i class="fa-solid fa-lock" style="margin-right: 8px;"></i> ' . esc_html($order_btn_text) . '</button>';
                                                 echo apply_filters('woocommerce_order_button_html', $order_btn_html);
                                                 ?>
                                             </div>

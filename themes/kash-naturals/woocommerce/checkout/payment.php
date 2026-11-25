@@ -44,7 +44,7 @@ if (!wp_doing_ajax()) {
         <div class="wc-block-checkout__actions" style="margin-top: 22px;">
             <?php
             $order_btn_text = apply_filters('woocommerce_order_button_text', sprintf(__('Place Order • %s', 'kash-naturals'), strip_tags(WC()->cart ? WC()->cart->get_total() : '')));
-            $order_btn_html = '<button type="submit" class="wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr($order_btn_text) . '" data-value="' . esc_attr($order_btn_text) . '"><i class="fa-solid fa-lock" style="margin-right: 8px;"></i> ' . esc_html($order_btn_text) . '</button>';
+            $order_btn_html = '<button type="submit" class="button alt wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr($order_btn_text) . '" data-value="' . esc_attr($order_btn_text) . '"><i class="fa-solid fa-lock" style="margin-right: 8px;"></i> ' . esc_html($order_btn_text) . '</button>';
             echo apply_filters('woocommerce_order_button_html', $order_btn_html);
             ?>
         </div>

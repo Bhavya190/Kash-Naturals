@@ -33,10 +33,18 @@ if ($gateway->id === 'cod') {
                     <span style="font-size: 0.72rem; padding: 2px 8px; background: #fff8e1; color: #b78103; border-radius: 4px; font-weight: 600;">INSTANT UPI, CARDS &amp; NETBANKING</span>
                 <?php endif; ?>
             </label>
-            <?php if ($gateway->has_fields() || $gateway->get_description()) : ?>
+            <?php
+            $fields_output = '';
+            if ($gateway->has_fields() || $gateway->get_description()) {
+                ob_start();
+                $gateway->payment_fields();
+                $fields_output = ob_get_clean();
+            }
+            ?>
+            <?php if (!empty($fields_output)) : ?>
                 <div class="payment_box payment_method_<?php echo esc_attr($gateway->id); ?>" style="<?php echo $is_checked ? 'display: block;' : 'display: none;'; ?> margin-top: 10px; padding: 12px 14px; background: #f4f8f5; border: 1px solid #d2e4d8; border-radius: 8px; font-size: 0.88rem; color: #444; line-height: 1.5;">
-                    <?php $gateway->payment_fields(); ?>
-                    <?php if ($gateway->id === 'razorpay') : ?>
+                    <?php echo $fields_output; ?>
+                    <?php if ($gateway->id === 'razorpay' && strpos($fields_output, 'razorpay_payment_id') === false) : ?>
                         <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" value="">
                         <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="">
                         <input type="hidden" name="razorpay_signature" id="razorpay_signature" value="">
