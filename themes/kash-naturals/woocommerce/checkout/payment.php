@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!wp_doing_ajax()) {
+if (!function_exists('wp_doing_ajax') || !wp_doing_ajax()) {
     do_action('woocommerce_review_order_before_payment');
 }
 ?>
@@ -32,7 +32,8 @@ if (!wp_doing_ajax()) {
     <div class="form-row place-order">
         <noscript>
             <?php
-            printf(esc_html__('Since your browser does not support JavaScript, please click the %1$sUpdate Totals%2$s button before placing your order.', 'kash-naturals'), '<a href="' . esc_url(wc_get_checkout_url()) . '">', '</a>');
+            $checkout_url = function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout');
+            printf(esc_html__('Since your browser does not support JavaScript, please click the %1$sUpdate Totals%2$s button before placing your order.', 'kash-naturals'), '<a href="' . esc_url($checkout_url) . '">', '</a>');
             ?>
             <br/><button type="submit" class="button alt" name="woocommerce_checkout_update_totals" value="<?php esc_attr_e('Update totals', 'kash-naturals'); ?>"><?php esc_html_e('Update totals', 'kash-naturals'); ?></button>
         </noscript>
@@ -71,6 +72,6 @@ if (!wp_doing_ajax()) {
 </div>
 
 <?php
-if (!wp_doing_ajax()) {
+if (!function_exists('wp_doing_ajax') || !wp_doing_ajax()) {
     do_action('woocommerce_review_order_after_payment');
 }

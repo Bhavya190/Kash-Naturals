@@ -623,10 +623,10 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                         </div>
 
                                         <!-- Step 2 to Step 3 Transition Action Button -->
-                                        <div class="checkout-form-row checkout-form-row-full checkout-proceed-btn-wrap" style="margin-top: 18px;">
-                                            <button type="button" class="btn-proceed-to-payment" id="btn-proceed-to-payment" style="width: 100%; padding: 16px 24px; background: linear-gradient(135deg, #0f3820 0%, #17482b 100%); color: #ffffff; border: 2px solid #c68b27; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 8px 24px rgba(15, 56, 32, 0.25); transition: all 0.25s ease;">
+                                        <div class="checkout-form-row checkout-form-row-full checkout-proceed-btn-wrap" style="margin-top: 20px;">
+                                            <button type="button" class="btn-proceed-to-payment" id="btn-proceed-to-payment" style="width: 100%; padding: 16px 24px; background: linear-gradient(135deg, #0f3820 0%, #17482b 100%); color: #ffffff; border: 2px solid #c68b27; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 24px rgba(15, 56, 32, 0.25); transition: all 0.25s ease;">
                                                 <span><?php esc_html_e('Proceed to Payment Options', 'kash-naturals'); ?></span>
-                                                <i class="fa-solid fa-arrow-down" style="color: #c68b27; font-size: 1.1rem;"></i>
+                                                <i class="fa-solid fa-arrow-right" style="color: #c68b27; font-size: 1.1rem;"></i>
                                             </button>
                                         </div>
 
@@ -660,28 +660,10 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                 </div>
                                 </div><!-- /#kash-step-2-container -->
 
-                                <!-- Step 2 Completed Address Summary Card (Visible when Step 3 is Active) -->
-                                <div id="kash-shipping-summary" class="kash-shipping-summary-card" style="display: none; margin-bottom: 24px; padding: 18px 22px; background: #ffffff; border: 1.5px solid #d4c8b8; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.04);">
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
-                                        <div>
-                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #e8f5e9; color: #27ae60; border-radius: 50%; font-size: 0.75rem;"><i class="fa-solid fa-check"></i></span>
-                                                <strong style="color: #0f3820; font-family: 'Outfit', sans-serif; font-size: 0.98rem;"><?php esc_html_e('Shipping to:', 'kash-naturals'); ?></strong>
-                                                <span id="kash-summary-name" style="font-weight: 700; color: #111;"></span>
-                                            </div>
-                                            <div id="kash-summary-address" style="color: #555; font-size: 0.9rem; line-height: 1.5; padding-left: 30px;"></div>
-                                            <div id="kash-summary-contact" style="color: #777; font-size: 0.85rem; margin-top: 4px; padding-left: 30px;"></div>
-                                        </div>
-                                        <button type="button" id="btn-edit-shipping" class="btn-edit-shipping" style="padding: 8px 16px; background: #fdfaf5; border: 1.5px solid #c68b27; color: #0f3820; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease;">
-                                            <i class="fa-solid fa-pen-to-square" style="color: #c68b27;"></i> <?php esc_html_e('Change Address', 'kash-naturals'); ?>
-                                        </button>
-                                    </div>
-                                </div>
-
                                 <?php if ($checkout) { do_action('woocommerce_checkout_after_customer_details'); } ?>
 
                                 <!-- Step 3: Payment Options & Standard Order Review Container -->
-                                <div id="order_review" class="woocommerce-checkout-review-order" style="display: none;">
+                                <div id="order_review" class="woocommerce-checkout-review-order">
                                     <?php do_action('woocommerce_checkout_before_order_review'); ?>
 
                                     <div class="wc-block-components-checkout-step wc-block-components-checkout-step--payment-method">
@@ -702,7 +684,6 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                             ?>
                                         </div>
                                     </div>
-                                    
 
                                     <?php do_action('woocommerce_checkout_after_order_review'); ?>
                                 </div>

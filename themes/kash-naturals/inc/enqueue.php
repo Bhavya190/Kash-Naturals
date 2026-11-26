@@ -131,12 +131,10 @@ function kash_naturals_scripts() {
         true
     );
 
-    $rzp_config_file = dirname(__DIR__, 4) . '/api/razorpay-config.php';
-    if (!file_exists($rzp_config_file)) {
-        $rzp_config_file = dirname(__DIR__, 3) . '/api/razorpay-config.php';
-    }
-    if (file_exists($rzp_config_file)) {
-        require_once $rzp_config_file;
+    // Load Razorpay service directly from theme
+    $rzp_service_file = __DIR__ . '/razorpay-service.php';
+    if (file_exists($rzp_service_file)) {
+        require_once $rzp_service_file;
     }
     $rzp_key_id = function_exists('kash_get_razorpay_key_id') ? kash_get_razorpay_key_id() : '';
 
@@ -158,11 +156,13 @@ function kash_naturals_scripts() {
 
     // WooCommerce Custom JS
     if (class_exists('WooCommerce')) {
+        $woo_js_file = get_template_directory() . '/assets/js/woocommerce-custom.js';
+        $woo_js_ver = file_exists($woo_js_file) ? filemtime($woo_js_file) : time();
         wp_enqueue_script(
             'kash-woocommerce-script',
             get_template_directory_uri() . '/assets/js/woocommerce-custom.js',
             array('jquery', 'kash-main-script', 'razorpay-checkout-sdk'),
-            '1.1.0',
+            $woo_js_ver,
             true
         );
 

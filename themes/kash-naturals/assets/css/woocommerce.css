@@ -3982,6 +3982,17 @@ img.amz-ref-logo {
     background: #c68b27 !important;
 }
 
+/* Step 3 Focus Glow Animation */
+@keyframes kashGlowPulse {
+    0% { box-shadow: 0 0 0 0 rgba(198, 139, 39, 0.45); border-color: #c68b27 !important; }
+    50% { box-shadow: 0 0 0 10px rgba(198, 139, 39, 0.2); border-color: #0f3820 !important; }
+    100% { box-shadow: 0 4px 20px rgba(15, 40, 25, 0.03); border-color: #eee7dd !important; }
+}
+
+.kash-step-active-glow {
+    animation: kashGlowPulse 1.8s ease-out !important;
+}
+
 .woocommerce-message {
     background: #edf7ed !important;
     border: 1.5px solid #c3e6cb !important;
