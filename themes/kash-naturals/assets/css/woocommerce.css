@@ -3874,6 +3874,114 @@ img.amz-ref-logo {
     font-weight: 600 !important;
 }
 
+/* -------------------------------------------------------------
+   MULTI-STEP CHECKOUT STEPPER & TRANSITION STYLES
+   ------------------------------------------------------------- */
+.checkout-proceed-btn-wrap {
+    margin-top: 24px !important;
+    margin-bottom: 8px !important;
+}
+
+#btn-proceed-to-payment {
+    width: 100% !important;
+    padding: 16px 28px !important;
+    background: linear-gradient(135deg, #0f3820 0%, #1a4d2e 100%) !important;
+    color: #ffffff !important;
+    border: 2px solid #c68b27 !important;
+    border-radius: 14px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    box-shadow: 0 8px 24px rgba(15, 56, 32, 0.25) !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+#btn-proceed-to-payment:hover {
+    background: linear-gradient(135deg, #17482b 0%, #0f3820 100%) !important;
+    border-color: #df9e2c !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 28px rgba(15, 56, 32, 0.32) !important;
+}
+
+#btn-proceed-to-payment:active {
+    transform: translateY(0) !important;
+}
+
+#btn-proceed-to-payment i {
+    color: #c68b27 !important;
+    font-size: 1.1rem !important;
+    transition: transform 0.25s ease !important;
+}
+
+#btn-proceed-to-payment:hover i {
+    transform: translateY(3px) !important;
+}
+
+.kash-shipping-summary-card {
+    background: #ffffff !important;
+    border: 1.5px solid #d4c8b8 !important;
+    border-radius: 16px !important;
+    padding: 20px 24px !important;
+    box-shadow: 0 4px 16px rgba(15, 40, 25, 0.04) !important;
+    transition: all 0.25s ease !important;
+}
+
+.kash-shipping-summary-card:hover {
+    border-color: #c68b27 !important;
+    box-shadow: 0 6px 20px rgba(15, 40, 25, 0.08) !important;
+}
+
+.btn-edit-shipping {
+    padding: 8px 16px !important;
+    background: #fdfaf5 !important;
+    border: 1.5px solid #c68b27 !important;
+    color: #0f3820 !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    font-family: 'Outfit', sans-serif !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-edit-shipping:hover {
+    background: #c68b27 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-edit-shipping:hover i {
+    color: #ffffff !important;
+}
+
+/* Stepper state transitions */
+.checkout-stepper-strip .checkout-step-badge.done .step-num {
+    background: #27ae60 !important;
+    color: #ffffff !important;
+    border-color: #27ae60 !important;
+}
+
+.checkout-stepper-strip .checkout-step-badge.active .step-num {
+    background: #0f3820 !important;
+    color: #ffffff !important;
+    border-color: #c68b27 !important;
+    box-shadow: 0 0 0 4px rgba(198, 139, 39, 0.2) !important;
+}
+
+.checkout-stepper-strip .stepper-line.active {
+    background: #c68b27 !important;
+}
+
 .woocommerce-message {
     background: #edf7ed !important;
     border: 1.5px solid #c3e6cb !important;

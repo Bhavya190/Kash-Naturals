@@ -2118,55 +2118,10 @@ function kash_get_clean_product_card_category($product_or_id) {
 }
 
 /* ==========================================================================
-   RAZORPAY STANDARD WEB CHECKOUT AJAX ENDPOINTS
+   RAZORPAY STANDARD WEB CHECKOUT SERVICE INCLUSION
    ========================================================================== */
-$rzp_config_file = dirname(__DIR__, 4) . '/api/razorpay-config.php';
-if (!file_exists($rzp_config_file)) {
-    $rzp_config_file = dirname(__DIR__, 3) . '/api/razorpay-config.php';
-}
-if (file_exists($rzp_config_file)) {
-    require_once $rzp_config_file;
-}
-
-add_action('wp_ajax_nopriv_kash_create_razorpay_order', 'kash_ajax_create_razorpay_order');
-add_action('wp_ajax_kash_create_razorpay_order', 'kash_ajax_create_razorpay_order');
-function kash_ajax_create_razorpay_order() {
-    $amount   = $_POST['amount'] ?? ($_GET['amount'] ?? 0);
-    $currency = $_POST['currency'] ?? 'INR';
-    $receipt  = $_POST['receipt'] ?? null;
-    $notes    = $_POST['notes'] ?? array();
-
-    $result = kash_create_razorpay_order($amount, $currency, $receipt, $notes);
-
-    if ($result['status'] === 200) {
-        wp_send_json_success($result['data'], 200);
-    } else {
-        wp_send_json_error(array('error' => $result['error']), $result['status']);
-    }
-}
-
-add_action('wp_ajax_nopriv_kash_verify_razorpay_payment', 'kash_ajax_verify_razorpay_payment');
-add_action('wp_ajax_kash_verify_razorpay_payment', 'kash_ajax_verify_razorpay_payment');
-function kash_ajax_verify_razorpay_payment() {
-    $order_id   = $_POST['razorpay_order_id'] ?? '';
-    $payment_id = $_POST['razorpay_payment_id'] ?? '';
-    $signature  = $_POST['razorpay_signature'] ?? '';
-
-    if (empty($order_id) || empty($payment_id) || empty($signature)) {
-        wp_send_json_error(array('error' => 'Missing required fields: razorpay_order_id, razorpay_payment_id, and razorpay_signature are required.'), 400);
-    }
-
-    $valid = kash_verify_razorpay_signature($order_id, $payment_id, $signature);
-
-    if ($valid) {
-        wp_send_json_success(array(
-            'message'    => 'Payment verified successfully.',
-            'order_id'   => $order_id,
-            'payment_id' => $payment_id
-        ), 200);
-    } else {
-        wp_send_json_error(array('error' => 'Payment signature verification failed. Possible tampering detected.'), 400);
-    }
+if (file_exists(__DIR__ . '/razorpay-service.php')) {
+    require_once __DIR__ . '/razorpay-service.php';
 }
 
 

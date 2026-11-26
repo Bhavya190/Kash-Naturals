@@ -52,6 +52,7 @@ kash_naturals_require_file('inc/setup.php');
 kash_naturals_require_file('inc/enqueue.php');
 kash_naturals_require_file('inc/customizer.php');
 kash_naturals_require_file('inc/newsletter.php');
+kash_naturals_require_file('inc/razorpay-service.php');
 
 if (class_exists('WooCommerce')) {
     kash_naturals_require_file('inc/woocommerce-custom.php');

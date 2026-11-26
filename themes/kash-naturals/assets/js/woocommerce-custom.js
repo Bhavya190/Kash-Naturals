@@ -60,6 +60,19 @@ jQuery(document).ready(function ($) {
         // Toggle payment boxes
         $('.wc_payment_method .payment_box').hide();
         $('.payment_method_' + gatewayId + ' .payment_box').slideDown(200);
+
+        // Update single place order button label dynamically based on selected payment gateway
+        var $btn = $('#place_order');
+        if ($btn.length && !$btn.prop('disabled')) {
+            var totalDisplay = $('.wc-block-components-totals-item__value, .order-total .amount, .wc-block-components-order-summary__total-value').first().text();
+            totalDisplay = $.trim(totalDisplay);
+
+            if (gatewayId === 'cod') {
+                $btn.html('<i class="fa-solid fa-hand-holding-dollar" style="margin-right: 8px;"></i> Place Order (Cash on Delivery)' + (totalDisplay ? ' • ' + totalDisplay : ''));
+            } else {
+                $btn.html('<i class="fa-solid fa-lock" style="margin-right: 8px; color: #c68b27;"></i> Pay with Razorpay' + (totalDisplay ? ' • ' + totalDisplay : ''));
+            }
+        }
     }
 
     $(document.body).on('change', 'input[name="payment_method"]', function () {
@@ -76,31 +89,72 @@ jQuery(document).ready(function ($) {
     syncCheckoutPaymentState();
 
     /* ==========================================================================
-       CHECKOUT STEPPER & PROCEED-TO-PAYMENT INTERACTIVITY
+       CHECKOUT STEPPER & MULTI-STEP FLOW (Step 2 -> Step 3)
        ========================================================================== */
 
     function activatePaymentStep() {
+        var first = $('#billing_first_name').val() || '';
+        var last  = $('#billing_last_name').val() || '';
+        var name  = (first + ' ' + last).trim();
+        var addr1 = $('#billing_address_1').val() || '';
+        var addr2 = $('#billing_address_2').val() || '';
+        var city  = $('#billing_city').val() || '';
+        var state = $('#billing_state option:selected').text() || $('#billing_state').val() || '';
+        var pin   = $('#billing_postcode').val() || '';
+        var phone = $('#billing_phone').val() || '';
+        var email = $('#billing_email').val() || '';
+
+        var fullAddr = addr1;
+        if (addr2) fullAddr += ', ' + addr2;
+        if (city) fullAddr += ', ' + city;
+        if (state) fullAddr += ', ' + state;
+        if (pin) fullAddr += ' - ' + pin;
+
+        $('#kash-summary-name').text(name || 'Customer');
+        $('#kash-summary-address').text(fullAddr);
+        $('#kash-summary-contact').text((phone ? phone + ' • ' : '') + email);
+
+        // Collapse Step 2 form, show summary card, and reveal Step 3 payment section
+        $('#kash-step-2-container').slideUp(250);
+        $('#kash-shipping-summary').fadeIn(300);
+        $('#order_review').slideDown(350);
+
+        // Update Stepper Top Badges
         $('#step-badge-2').removeClass('active').addClass('done');
         $('#step-num-2').html('<i class="fa-solid fa-check"></i>');
         $('#stepper-line-2').addClass('active');
         $('#step-badge-3').addClass('active');
 
-        var $paymentStep = $('.wc-block-components-checkout-step--payment-method');
-        if ($paymentStep.length) {
-            $('html, body').animate({ scrollTop: $paymentStep.offset().top - 90 }, 550);
-            $paymentStep.css('transition', 'box-shadow 0.4s ease, border-color 0.4s ease');
-            $paymentStep.css('box-shadow', '0 0 0 3px #c68b27, 0 10px 30px rgba(198, 139, 39, 0.18)');
-            setTimeout(function () {
-                $paymentStep.css('box-shadow', '');
-            }, 1800);
+        // Trigger WooCommerce order review update so shipping/taxes refresh
+        if (typeof $(document.body).trigger === 'function') {
+            $(document.body).trigger('update_checkout');
         }
+
+        // Smooth scroll to top of Step 3 Payment Options
+        setTimeout(function () {
+            var $target = $('#order_review');
+            if ($target.length && $target.is(':visible')) {
+                $('html, body').animate({ scrollTop: $target.offset().top - 90 }, 400);
+            }
+        }, 150);
     }
 
     function activateShippingStep() {
+        // Expand Step 2 fields container and hide summary
+        $('#kash-step-2-container').slideDown(300);
+        $('#kash-shipping-summary').hide();
+        $('#order_review').slideUp(250);
+
+        // Update Stepper Top Badges
         $('#step-badge-2').addClass('active').removeClass('done');
         $('#step-num-2').text('2');
         $('#stepper-line-2').removeClass('active');
         $('#step-badge-3').removeClass('active');
+
+        // Focus first billing field
+        setTimeout(function () {
+            $('#billing_first_name').focus();
+        }, 300);
     }
 
     // "Proceed to Payment Options" Button Click Handler
@@ -118,7 +172,6 @@ jQuery(document).ready(function ($) {
         ];
 
         var firstInvalid = null;
-
         requiredSelectors.forEach(function (sel) {
             var $el = $(sel);
             if ($el.length && !$.trim($el.val())) {
@@ -136,12 +189,29 @@ jQuery(document).ready(function ($) {
         });
 
         if (firstInvalid) {
-            $('html, body').animate({ scrollTop: firstInvalid.offset().top - 120 }, 400);
+            $('html, body').animate({ scrollTop: firstInvalid.offset().top - 120 }, 350);
             firstInvalid.focus();
+            showRazorpayNotice('Please complete all required shipping details before proceeding to payment.', true);
             return;
         }
 
         activatePaymentStep();
+    });
+
+    // "Change Address" or Step 2 Badge Click Handler
+    $(document).on('click', '#btn-edit-shipping, #step-badge-2', function (e) {
+        e.preventDefault();
+        activateShippingStep();
+    });
+
+    // Step 3 Header Badge Click Handler
+    $(document).on('click', '#step-badge-3', function (e) {
+        e.preventDefault();
+        if ($('#order_review').is(':visible')) {
+            $('html, body').animate({ scrollTop: $('#order_review').offset().top - 90 }, 350);
+        } else {
+            $('#btn-proceed-to-payment').trigger('click');
+        }
     });
 
     // Clear red warning highlight when user types into required fields
@@ -151,49 +221,6 @@ jQuery(document).ready(function ($) {
                 'border-color': '',
                 'background': ''
             });
-        }
-    });
-
-    // Stepper header badge click handlers
-    $(document).on('click', '#step-badge-2', function (e) {
-        e.preventDefault();
-        var $addr = $('.wc-block-components-checkout-step--billing-address');
-        if ($addr.length) {
-            $('html, body').animate({ scrollTop: $addr.offset().top - 80 }, 450);
-            activateShippingStep();
-        }
-    });
-
-    $(document).on('click', '#step-badge-3', function (e) {
-        e.preventDefault();
-        $('#btn-proceed-to-payment').trigger('click');
-    });
-
-    // Scroll-Spy Stepper Synchronization
-    var isScrollingThrottled = false;
-    $(window).on('scroll', function () {
-        if (isScrollingThrottled) return;
-        isScrollingThrottled = true;
-        setTimeout(function () {
-            isScrollingThrottled = false;
-        }, 100);
-
-        var $paymentStep = $('.wc-block-components-checkout-step--payment-method');
-        if (!$paymentStep.length) return;
-
-        var paymentTop = $paymentStep.offset().top - 160;
-        var scrollPos = $(window).scrollTop();
-
-        if (scrollPos >= paymentTop) {
-            $('#step-badge-2').removeClass('active').addClass('done');
-            $('#step-num-2').html('<i class="fa-solid fa-check"></i>');
-            $('#stepper-line-2').addClass('active');
-            $('#step-badge-3').addClass('active');
-        } else {
-            $('#step-badge-2').addClass('active').removeClass('done');
-            $('#step-num-2').text('2');
-            $('#stepper-line-2').removeClass('active');
-            $('#step-badge-3').removeClass('active');
         }
     });
 
@@ -378,47 +405,48 @@ jQuery(document).ready(function ($) {
                 : ((typeof window.kash_wc_params !== 'undefined') ? window.kash_wc_params.ajax_url : '/wp-admin/admin-ajax.php');
 
             function executeOrderCreation(callbackSuccess, callbackError) {
+                // Try WordPress AJAX endpoint first (guaranteed on all WP hosts)
                 $.ajax({
                     type: 'POST',
-                    url: '/api/create-order',
-                    contentType: 'application/json',
-                    data: JSON.stringify(orderPayload),
-                    success: function (orderData) {
-                        if (orderData && orderData.order_id) {
-                            callbackSuccess(orderData);
+                    url: ajaxUrl,
+                    data: {
+                        action: 'kash_create_razorpay_order',
+                        amount: orderPayload.amount,
+                        currency: orderPayload.currency || 'INR',
+                        receipt: orderPayload.receipt
+                    },
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res && res.success && res.data && res.data.order_id) {
+                            callbackSuccess(res.data);
                         } else {
-                            tryWpAjaxCreateOrder();
+                            var errMsg = (res && res.data && res.data.error) ? res.data.error : 'Order creation failed.';
+                            tryApiFallback(errMsg);
                         }
                     },
-                    error: function () {
-                        tryWpAjaxCreateOrder();
+                    error: function (xhr) {
+                        var errJson = {};
+                        try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
+                        var errMsg = (errJson && errJson.data && errJson.data.error) ? errJson.data.error : (errJson.error || '');
+                        tryApiFallback(errMsg);
                     }
                 });
 
-                function tryWpAjaxCreateOrder() {
+                function tryApiFallback(primaryError) {
                     $.ajax({
                         type: 'POST',
-                        url: ajaxUrl,
-                        data: {
-                            action: 'kash_create_razorpay_order',
-                            amount: orderPayload.amount,
-                            currency: orderPayload.currency || 'INR',
-                            receipt: orderPayload.receipt
-                        },
-                        dataType: 'json',
-                        success: function (res) {
-                            if (res && res.success && res.data && res.data.order_id) {
-                                callbackSuccess(res.data);
+                        url: '/api/create-order',
+                        contentType: 'application/json',
+                        data: JSON.stringify(orderPayload),
+                        success: function (orderData) {
+                            if (orderData && orderData.order_id) {
+                                callbackSuccess(orderData);
                             } else {
-                                var err = (res && res.data && res.data.error) ? res.data.error : 'Order creation failed.';
-                                callbackError(err);
+                                callbackError(primaryError || 'Failed to initialize payment order with Razorpay.');
                             }
                         },
-                        error: function (xhr) {
-                            var errJson = {};
-                            try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
-                            var errMsg = errJson.error || 'Failed to initialize payment order with Razorpay.';
-                            callbackError(errMsg);
+                        error: function () {
+                            callbackError(primaryError || 'Failed to initialize payment order with Razorpay.');
                         }
                     });
                 }
@@ -462,53 +490,52 @@ jQuery(document).ready(function ($) {
                         // Received razorpay_payment_id, razorpay_order_id, razorpay_signature
                         // STEP 3: Verify Payment Signature with Backend (with fallback)
                         function executeVerification(onVerSuccess, onVerError) {
+                            // Try WordPress AJAX verification first
                             $.ajax({
                                 type: 'POST',
-                                url: '/api/verify-payment',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
+                                url: ajaxUrl,
+                                data: {
+                                    action: 'kash_verify_razorpay_payment',
                                     razorpay_order_id: response.razorpay_order_id,
                                     razorpay_payment_id: response.razorpay_payment_id,
                                     razorpay_signature: response.razorpay_signature
-                                }),
-                                success: function (verifyRes) {
-                                    if (verifyRes && verifyRes.success) {
-                                        onVerSuccess(verifyRes);
+                                },
+                                dataType: 'json',
+                                success: function (res) {
+                                    if (res && res.success) {
+                                        onVerSuccess(res.data);
                                     } else {
-                                        tryWpAjaxVerify();
+                                        var failMsg = (res && res.data && res.data.error) ? res.data.error : 'Payment signature verification failed.';
+                                        tryApiVerify(failMsg);
                                     }
                                 },
-                                error: function () {
-                                    tryWpAjaxVerify();
+                                error: function (xhr) {
+                                    var errJson = {};
+                                    try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
+                                    var failMsg = (errJson && errJson.data && errJson.data.error) ? errJson.data.error : (errJson.error || '');
+                                    tryApiVerify(failMsg);
                                 }
                             });
 
-                            function tryWpAjaxVerify() {
+                            function tryApiVerify(primaryFailMsg) {
                                 $.ajax({
                                     type: 'POST',
-                                    url: ajaxUrl,
-                                    data: {
-                                        action: 'kash_verify_razorpay_payment',
+                                    url: '/api/verify-payment',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
                                         razorpay_order_id: response.razorpay_order_id,
                                         razorpay_payment_id: response.razorpay_payment_id,
                                         razorpay_signature: response.razorpay_signature
-                                    },
-                                    dataType: 'json',
-                                    success: function (res) {
-                                        if (res && res.success) {
-                                            onVerSuccess(res.data);
+                                    }),
+                                    success: function (verifyRes) {
+                                        if (verifyRes && verifyRes.success) {
+                                            onVerSuccess(verifyRes);
                                         } else {
-                                            var failMsg = (res && res.data && res.data.error)
-                                                ? res.data.error
-                                                : 'Payment signature verification failed.';
-                                            onVerError(failMsg);
+                                            onVerError(primaryFailMsg || 'Payment signature verification failed.');
                                         }
                                     },
-                                    error: function (xhr) {
-                                        var errJson = {};
-                                        try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
-                                        var failMsg = errJson.error || 'Payment signature verification failed. Please contact support.';
-                                        onVerError(failMsg);
+                                    error: function () {
+                                        onVerError(primaryFailMsg || 'Payment signature verification failed. Please contact support.');
                                     }
                                 });
                             }

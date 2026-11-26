@@ -536,7 +536,10 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
 
                                 <?php if ($checkout) { do_action('woocommerce_checkout_before_customer_details'); } ?>
 
-                                <!-- Step 1: Contact Information -->
+                                <!-- Step 2: Shipping Details Form Container -->
+                                <div id="kash-step-2-container" class="kash-checkout-step-container">
+
+                                    <!-- Step 1: Contact Information -->
                                 <div class="wc-block-components-checkout-step wc-block-components-checkout-step--contact-information">
                                     <h2 class="wc-block-components-checkout-step__heading"><?php esc_html_e('Contact information', 'kash-naturals'); ?></h2>
                                     <div class="wc-block-components-checkout-step__container">
@@ -655,158 +658,51 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                         ?>
                                     </div>
                                 </div>
+                                </div><!-- /#kash-step-2-container -->
+
+                                <!-- Step 2 Completed Address Summary Card (Visible when Step 3 is Active) -->
+                                <div id="kash-shipping-summary" class="kash-shipping-summary-card" style="display: none; margin-bottom: 24px; padding: 18px 22px; background: #ffffff; border: 1.5px solid #d4c8b8; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.04);">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #e8f5e9; color: #27ae60; border-radius: 50%; font-size: 0.75rem;"><i class="fa-solid fa-check"></i></span>
+                                                <strong style="color: #0f3820; font-family: 'Outfit', sans-serif; font-size: 0.98rem;"><?php esc_html_e('Shipping to:', 'kash-naturals'); ?></strong>
+                                                <span id="kash-summary-name" style="font-weight: 700; color: #111;"></span>
+                                            </div>
+                                            <div id="kash-summary-address" style="color: #555; font-size: 0.9rem; line-height: 1.5; padding-left: 30px;"></div>
+                                            <div id="kash-summary-contact" style="color: #777; font-size: 0.85rem; margin-top: 4px; padding-left: 30px;"></div>
+                                        </div>
+                                        <button type="button" id="btn-edit-shipping" class="btn-edit-shipping" style="padding: 8px 16px; background: #fdfaf5; border: 1.5px solid #c68b27; color: #0f3820; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease;">
+                                            <i class="fa-solid fa-pen-to-square" style="color: #c68b27;"></i> <?php esc_html_e('Change Address', 'kash-naturals'); ?>
+                                        </button>
+                                    </div>
+                                </div>
 
                                 <?php if ($checkout) { do_action('woocommerce_checkout_after_customer_details'); } ?>
 
                                 <!-- Step 3: Payment Options & Standard Order Review Container -->
-                                <div id="order_review" class="woocommerce-checkout-review-order">
+                                <div id="order_review" class="woocommerce-checkout-review-order" style="display: none;">
                                     <?php do_action('woocommerce_checkout_before_order_review'); ?>
 
                                     <div class="wc-block-components-checkout-step wc-block-components-checkout-step--payment-method">
-                                        <h2 class="wc-block-components-checkout-step__heading"><?php esc_html_e('Payment options', 'kash-naturals'); ?></h2>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                                            <h2 class="wc-block-components-checkout-step__heading" style="margin: 0;"><?php esc_html_e('Payment options', 'kash-naturals'); ?></h2>
+                                            <span style="font-size: 0.8rem; font-weight: 600; color: #27ae60; background: #e8f5e9; padding: 4px 10px; border-radius: 20px;"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i><?php esc_html_e('256-Bit SSL Secure', 'kash-naturals'); ?></span>
+                                        </div>
                                         <div class="wc-block-components-checkout-step__container">
                                             <?php
-                                            $available_gateways = array();
-                                            if (function_exists('WC') && WC()->payment_gateways) {
-                                                $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                                            if (function_exists('woocommerce_checkout_payment')) {
+                                                woocommerce_checkout_payment();
+                                            } else {
+                                                $theme_payment_file = defined('KASH_THEME_DIR') ? KASH_THEME_DIR . '/woocommerce/checkout/payment.php' : __DIR__ . '/woocommerce/checkout/payment.php';
+                                                if (file_exists($theme_payment_file)) {
+                                                    include $theme_payment_file;
+                                                }
                                             }
-
-                                            $chosen_gateway = '';
-                                            if (function_exists('WC') && WC()->session) {
-                                                $chosen_gateway = WC()->session->get('chosen_payment_method');
-                                            }
-                                            if (empty($chosen_gateway) && !empty($available_gateways)) {
-                                                $chosen_gateway = isset($available_gateways['razorpay']) ? 'razorpay' : (isset($available_gateways['cod']) ? 'cod' : key($available_gateways));
-                                            }
-
-                                            do_action('woocommerce_review_order_before_payment');
                                             ?>
-
-                                            <div id="payment" class="woocommerce-checkout-payment wc-block-components-radio-control payment-methods-list">
-                                                <?php if (!empty($available_gateways)) : ?>
-                                                    <ul class="wc_payment_methods payment_methods methods" style="list-style: none; margin: 0; padding: 0;">
-                                                        <?php foreach ($available_gateways as $gateway) :
-                                                            $is_checked = ($gateway->id === $chosen_gateway);
-                                                            $icon_html = '';
-                                                            if ($gateway->id === 'cod') {
-                                                                $icon_html = '<i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60; margin-right: 8px;"></i>';
-                                                            } elseif (in_array($gateway->id, array('razorpay', 'phonepe', 'phonepe_woocommerce', 'paytm', 'cashfree', 'upi'))) {
-                                                                $icon_html = '<i class="fa-solid fa-bolt" style="color: #c68b27; margin-right: 8px;"></i>';
-                                                            } elseif ($gateway->id === 'bacs') {
-                                                                $icon_html = '<i class="fa-solid fa-building-columns" style="color: #0f3820; margin-right: 8px;"></i>';
-                                                            } else {
-                                                                $icon_html = '<i class="fa-solid fa-credit-card" style="color: #c68b27; margin-right: 8px;"></i>';
-                                                            }
-                                                        ?>
-                                                            <li class="wc_payment_method payment_method_<?php echo esc_attr($gateway->id); ?>" style="margin-bottom: 12px;">
-                                                                <div class="wc-block-components-radio-control__option <?php echo $is_checked ? 'wc-block-components-radio-control__option--checked' : ''; ?>" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer; padding: 16px 20px; border: 1.5px solid <?php echo $is_checked ? '#c68b27' : '#ede5d8'; ?>; border-radius: 14px; background: <?php echo $is_checked ? '#ffffff' : '#faf8f5'; ?>; transition: all 0.25s ease;">
-                                                                    <input id="payment_method_<?php echo esc_attr($gateway->id); ?>" type="radio" class="input-radio wc-block-components-radio-control__input" name="payment_method" value="<?php echo esc_attr($gateway->id); ?>" <?php checked($is_checked, true); ?> data-order_button_text="<?php echo esc_attr($gateway->order_button_text); ?>" style="margin-top: 4px; accent-color: #0f3820;">
-                                                                    <div class="wc-block-components-radio-control__option-layout" style="flex: 1;">
-                                                                        <label for="payment_method_<?php echo esc_attr($gateway->id); ?>" class="wc-block-components-radio-control__label" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin: 0; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.96rem; color: #0f3820;">
-                                                                            <span><?php echo $icon_html; ?><?php echo esc_html($gateway->get_title()); ?></span>
-                                                                            <?php if ($gateway->id === 'cod') : ?>
-                                                                                <span style="font-size: 0.72rem; padding: 2px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; font-weight: 600;">CASH ON DELIVERY</span>
-                                                                            <?php elseif ($gateway->id === 'razorpay' || in_array($gateway->id, array('phonepe', 'paytm', 'cashfree', 'upi'))) : ?>
-                                                                                <span style="font-size: 0.72rem; padding: 2px 8px; background: #fff8e1; color: #b78103; border-radius: 4px; font-weight: 600;">INSTANT UPI, CARDS &amp; NETBANKING</span>
-                                                                            <?php endif; ?>
-                                                                        </label>
-
-                                                                        <?php
-                                                                        $fields_output = '';
-                                                                        if ($gateway->has_fields() || $gateway->get_description()) {
-                                                                            ob_start();
-                                                                            $gateway->payment_fields();
-                                                                            $fields_output = ob_get_clean();
-                                                                        }
-                                                                        ?>
-                                                                        <?php if (!empty($fields_output)) : ?>
-                                                                            <div class="payment_box payment_method_<?php echo esc_attr($gateway->id); ?>" style="<?php echo $is_checked ? 'display: block;' : 'display: none;'; ?> margin-top: 10px; padding: 12px 14px; background: #f4f8f5; border: 1px solid #d2e4d8; border-radius: 8px; font-size: 0.88rem; color: #444; line-height: 1.5;">
-                                                                                <?php echo $fields_output; ?>
-                                                                                <?php if ($gateway->id === 'razorpay' && strpos($fields_output, 'razorpay_payment_id') === false) : ?>
-                                                                                    <!-- Fallback input fields ensuring Razorpay JS SDK can bind without JS null exceptions -->
-                                                                                    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" value="">
-                                                                                    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="">
-                                                                                    <input type="hidden" name="razorpay_signature" id="razorpay_signature" value="">
-                                                                                <?php endif; ?>
-                                                                            </div>
-                                                                        <?php endif; ?>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                        <?php endforeach; ?>
-                                                    </ul>
-                                                <?php else : ?>
-                                                    <!-- Fallback payment options for standalone preview / testing -->
-                                                    <ul class="wc_payment_methods payment_methods methods" style="list-style: none; margin: 0; padding: 0;">
-                                                        <li class="wc_payment_method payment_method_razorpay" style="margin-bottom: 12px;">
-                                                            <div class="wc-block-components-radio-control__option wc-block-components-radio-control__option--checked" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer; padding: 16px 20px; border: 1.5px solid #c68b27; border-radius: 14px; background: #ffffff; transition: all 0.25s ease;">
-                                                                <input id="payment_method_razorpay" type="radio" class="input-radio wc-block-components-radio-control__input" name="payment_method" value="razorpay" checked="checked" style="margin-top: 4px; accent-color: #0f3820;">
-                                                                <div class="wc-block-components-radio-control__option-layout" style="flex: 1;">
-                                                                    <label for="payment_method_razorpay" class="wc-block-components-radio-control__label" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin: 0; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.96rem; color: #0f3820;">
-                                                                        <span><i class="fa-solid fa-bolt" style="color: #c68b27; margin-right: 8px;"></i><?php esc_html_e('UPI, Cards, NetBanking', 'kash-naturals'); ?></span>
-                                                                        <span style="font-size: 0.72rem; padding: 2px 8px; background: #fff8e1; color: #b78103; border-radius: 4px; font-weight: 600;">INSTANT UPI, CARDS &amp; NETBANKING</span>
-                                                                    </label>
-                                                                    <div class="payment_box payment_method_razorpay" style="display: block; margin-top: 10px; padding: 12px 14px; background: #f4f8f5; border: 1px solid #d2e4d8; border-radius: 8px; font-size: 0.88rem; color: #444; line-height: 1.5;">
-                                                                        <?php esc_html_e('Pay securely via UPI, Credit/Debit Card, or Internet Banking through Razorpay.', 'kash-naturals'); ?>
-                                                                        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" value="">
-                                                                        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="">
-                                                                        <input type="hidden" name="razorpay_signature" id="razorpay_signature" value="">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        <li class="wc_payment_method payment_method_cod" style="margin-bottom: 12px;">
-                                                            <div class="wc-block-components-radio-control__option" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer; padding: 16px 20px; border: 1.5px solid #ede5d8; border-radius: 14px; background: #faf8f5; transition: all 0.25s ease;">
-                                                                <input id="payment_method_cod" type="radio" class="input-radio wc-block-components-radio-control__input" name="payment_method" value="cod" style="margin-top: 4px; accent-color: #0f3820;">
-                                                                <div class="wc-block-components-radio-control__option-layout" style="flex: 1;">
-                                                                    <label for="payment_method_cod" class="wc-block-components-radio-control__label" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin: 0; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.96rem; color: #0f3820;">
-                                                                        <span><i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60; margin-right: 8px;"></i><?php esc_html_e('Cash on Delivery (COD)', 'kash-naturals'); ?></span>
-                                                                        <span style="font-size: 0.72rem; padding: 2px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; font-weight: 600;">CASH ON DELIVERY</span>
-                                                                    </label>
-                                                                    <div class="payment_box payment_method_cod" style="display: none; font-size: 0.85rem; color: #666; margin-top: 6px; line-height: 1.45;">
-                                                                        <?php esc_html_e('Pay with cash or UPI QR scan upon delivery at your doorstep.', 'kash-naturals'); ?>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                <?php endif; ?>
-                                            </div>
-
-                                            <?php do_action('woocommerce_review_order_after_payment'); ?>
-
-                                            <div class="checkout-order-notes-wrap" style="margin-top: 20px; padding: 14px 18px; background: #faf8f5; border: 1.5px solid #ede5d8; border-radius: 12px;">
-                                                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600; color: #333; cursor: pointer;">
-                                                    <input type="checkbox" id="order_notes_toggle" name="order_notes_toggle" style="accent-color: #0f3820; width: 17px; height: 17px;" onchange="var el = document.getElementById('order_comments_container'); if(el) el.style.display = this.checked ? 'block' : 'none';">
-                                                    <?php esc_html_e('Add a note to your order (gift message, landmark, or special delivery instructions)', 'kash-naturals'); ?>
-                                                </label>
-                                                <div id="order_comments_container" style="display: none; margin-top: 12px;">
-                                                    <textarea id="order_comments" name="order_comments" class="input-text" rows="3" placeholder="<?php esc_attr_e('Notes about your order, e.g. special notes for delivery or gift message.', 'kash-naturals'); ?>" style="width: 100%; border: 1.5px solid #d4c8b8; border-radius: 8px; padding: 10px 14px; font-family: inherit; font-size: 0.9rem; background: #fff; box-sizing: border-box;"></textarea>
-                                                </div>
-                                            </div>
-
-                                            <?php do_action('woocommerce_review_order_before_submit'); ?>
-
-                                            <div class="wc-block-checkout__terms" style="margin-top: 18px; font-size: 0.85rem; color: #666; line-height: 1.5;">
-                                                <?php esc_html_e('By proceeding with your purchase you agree to our', 'kash-naturals'); ?> <a href="<?php echo esc_url(home_url('/terms-and-conditions')); ?>" style="color: #0f3820; font-weight: 600; text-decoration: underline;"><?php esc_html_e('Terms and Conditions', 'kash-naturals'); ?></a> <?php esc_html_e('and', 'kash-naturals'); ?> <a href="<?php echo esc_url(home_url('/privacy-policy')); ?>" style="color: #0f3820; font-weight: 600; text-decoration: underline;"><?php esc_html_e('Privacy Policy', 'kash-naturals'); ?></a>.
-                                            </div>
-
-                                            <div class="wc-block-checkout__actions" style="margin-top: 22px;">
-                                                <?php
-                                                $order_btn_text = apply_filters('woocommerce_order_button_text', sprintf(__('Place Order • %s', 'kash-naturals'), strip_tags($cart_total_display)));
-                                                $order_btn_html = '<button type="submit" class="button alt wc-block-components-checkout-place-order-button" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr($order_btn_text) . '" data-value="' . esc_attr($order_btn_text) . '"><i class="fa-solid fa-lock" style="margin-right: 8px;"></i> ' . esc_html($order_btn_text) . '</button>';
-                                                echo apply_filters('woocommerce_order_button_html', $order_btn_html);
-                                                ?>
-                                            </div>
-
-                                            <?php do_action('woocommerce_review_order_after_submit'); ?>
-
-                                            <!-- Nonce & Referer Security Fields -->
-                                            <?php if (function_exists('wp_nonce_field')) { wp_nonce_field('woocommerce-process_checkout', 'woocommerce-process-checkout-nonce'); } ?>
-                                            <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr(function_exists('wp_unslash') ? wp_unslash($_SERVER['REQUEST_URI'] ?? '/checkout/') : stripslashes($_SERVER['REQUEST_URI'] ?? '/checkout/')); ?>" />
-
                                         </div>
                                     </div>
+                                    
 
                                     <?php do_action('woocommerce_checkout_after_order_review'); ?>
                                 </div>
