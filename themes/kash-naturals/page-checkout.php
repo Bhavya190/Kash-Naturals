@@ -736,21 +736,40 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                                         <?php endforeach; ?>
                                                     </ul>
                                                 <?php else : ?>
-                                                    <!-- Fallback default payment option for previews -->
-                                                    <div class="wc-block-components-radio-control">
-                                                        <div class="wc-block-components-radio-control__option wc-block-components-radio-control__option--checked" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer; padding: 16px 20px; border: 1.5px solid #c68b27; border-radius: 14px; background: #ffffff;">
-                                                            <input type="radio" id="payment_method_cod" name="payment_method" value="cod" checked class="wc-block-components-radio-control__input" style="margin-top: 4px; accent-color: #0f3820;">
-                                                            <div class="wc-block-components-radio-control__option-layout" style="flex: 1;">
-                                                                <label for="payment_method_cod" class="wc-block-components-radio-control__label" style="display: flex; align-items: center; justify-content: space-between; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.96rem; color: #0f3820;">
-                                                                    <span><i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60; margin-right: 8px;"></i><?php esc_html_e('Cash on Delivery (COD)', 'kash-naturals'); ?></span>
-                                                                    <span style="font-size: 0.72rem; padding: 2px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; font-weight: 600;">RECOMMENDED</span>
-                                                                </label>
-                                                                <div class="payment_box payment_method_cod" style="font-size: 0.85rem; color: #666; margin-top: 6px; line-height: 1.45;">
-                                                                    <?php esc_html_e('Pay with cash or UPI QR scan upon delivery at your doorstep.', 'kash-naturals'); ?>
+                                                    <!-- Fallback payment options for standalone preview / testing -->
+                                                    <ul class="wc_payment_methods payment_methods methods" style="list-style: none; margin: 0; padding: 0;">
+                                                        <li class="wc_payment_method payment_method_razorpay" style="margin-bottom: 12px;">
+                                                            <div class="wc-block-components-radio-control__option wc-block-components-radio-control__option--checked" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer; padding: 16px 20px; border: 1.5px solid #c68b27; border-radius: 14px; background: #ffffff; transition: all 0.25s ease;">
+                                                                <input id="payment_method_razorpay" type="radio" class="input-radio wc-block-components-radio-control__input" name="payment_method" value="razorpay" checked="checked" style="margin-top: 4px; accent-color: #0f3820;">
+                                                                <div class="wc-block-components-radio-control__option-layout" style="flex: 1;">
+                                                                    <label for="payment_method_razorpay" class="wc-block-components-radio-control__label" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin: 0; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.96rem; color: #0f3820;">
+                                                                        <span><i class="fa-solid fa-bolt" style="color: #c68b27; margin-right: 8px;"></i><?php esc_html_e('UPI, Cards, NetBanking', 'kash-naturals'); ?></span>
+                                                                        <span style="font-size: 0.72rem; padding: 2px 8px; background: #fff8e1; color: #b78103; border-radius: 4px; font-weight: 600;">INSTANT UPI, CARDS &amp; NETBANKING</span>
+                                                                    </label>
+                                                                    <div class="payment_box payment_method_razorpay" style="display: block; margin-top: 10px; padding: 12px 14px; background: #f4f8f5; border: 1px solid #d2e4d8; border-radius: 8px; font-size: 0.88rem; color: #444; line-height: 1.5;">
+                                                                        <?php esc_html_e('Pay securely via UPI, Credit/Debit Card, or Internet Banking through Razorpay.', 'kash-naturals'); ?>
+                                                                        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" value="">
+                                                                        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="">
+                                                                        <input type="hidden" name="razorpay_signature" id="razorpay_signature" value="">
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
+                                                        </li>
+                                                        <li class="wc_payment_method payment_method_cod" style="margin-bottom: 12px;">
+                                                            <div class="wc-block-components-radio-control__option" style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer; padding: 16px 20px; border: 1.5px solid #ede5d8; border-radius: 14px; background: #faf8f5; transition: all 0.25s ease;">
+                                                                <input id="payment_method_cod" type="radio" class="input-radio wc-block-components-radio-control__input" name="payment_method" value="cod" style="margin-top: 4px; accent-color: #0f3820;">
+                                                                <div class="wc-block-components-radio-control__option-layout" style="flex: 1;">
+                                                                    <label for="payment_method_cod" class="wc-block-components-radio-control__label" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin: 0; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.96rem; color: #0f3820;">
+                                                                        <span><i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60; margin-right: 8px;"></i><?php esc_html_e('Cash on Delivery (COD)', 'kash-naturals'); ?></span>
+                                                                        <span style="font-size: 0.72rem; padding: 2px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; font-weight: 600;">CASH ON DELIVERY</span>
+                                                                    </label>
+                                                                    <div class="payment_box payment_method_cod" style="display: none; font-size: 0.85rem; color: #666; margin-top: 6px; line-height: 1.45;">
+                                                                        <?php esc_html_e('Pay with cash or UPI QR scan upon delivery at your doorstep.', 'kash-naturals'); ?>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
                                                 <?php endif; ?>
                                             </div>
 

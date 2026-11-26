@@ -21,6 +21,8 @@ if (!defined('ABSPATH')) {
     <?php if (!current_theme_supports('title-tag')) : ?>
         <title><?php echo esc_html(function_exists('kash_naturals_document_title') ? kash_naturals_document_title('') : 'Kash Naturals | Authentic Indian Mouth Fresheners & Chocolates'); ?></title>
     <?php endif; ?>
+    <!-- Razorpay Standard Web Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <?php wp_head(); ?>
 </head>
 

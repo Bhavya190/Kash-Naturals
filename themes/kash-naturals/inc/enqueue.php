@@ -122,6 +122,24 @@ function kash_naturals_scripts() {
         }
     }
 
+    // Enqueue Razorpay Standard Checkout SDK
+    wp_enqueue_script(
+        'razorpay-checkout-sdk',
+        'https://checkout.razorpay.com/v1/checkout.js',
+        array('jquery'),
+        null,
+        true
+    );
+
+    $rzp_config_file = dirname(__DIR__, 4) . '/api/razorpay-config.php';
+    if (!file_exists($rzp_config_file)) {
+        $rzp_config_file = dirname(__DIR__, 3) . '/api/razorpay-config.php';
+    }
+    if (file_exists($rzp_config_file)) {
+        require_once $rzp_config_file;
+    }
+    $rzp_key_id = function_exists('kash_get_razorpay_key_id') ? kash_get_razorpay_key_id() : '';
+
     wp_localize_script('kash-main-script', 'kash_dynamic_data', array(
         'products'        => $dynamic_products_js,
         'products_count'  => count($dynamic_products_js),
@@ -135,6 +153,7 @@ function kash_naturals_scripts() {
         'newsletter_nonce' => wp_create_nonce('kash_newsletter_nonce'),
         'contact_nonce'    => wp_create_nonce('kash_contact_nonce'),
         'currency_symbol'  => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
+        'razorpay_key_id'  => $rzp_key_id,
     ));
 
     // WooCommerce Custom JS
@@ -142,17 +161,18 @@ function kash_naturals_scripts() {
         wp_enqueue_script(
             'kash-woocommerce-script',
             get_template_directory_uri() . '/assets/js/woocommerce-custom.js',
-            array('jquery', 'kash-main-script'),
-            '1.0.0',
+            array('jquery', 'kash-main-script', 'razorpay-checkout-sdk'),
+            '1.1.0',
             true
         );
 
-        // Pass AJAX URL and Cart Nonce to JS
+        // Pass AJAX URL, Cart Nonce & Razorpay Key ID to JS
         wp_localize_script('kash-woocommerce-script', 'kash_wc_params', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'cart_url' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
-            'checkout_url' => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
+            'ajax_url'        => admin_url('admin-ajax.php'),
+            'cart_url'        => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
+            'checkout_url'    => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
             'currency_symbol' => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
+            'razorpay_key_id' => $rzp_key_id,
         ));
     }
 
