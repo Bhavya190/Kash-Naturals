@@ -536,8 +536,8 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
 
                                 <?php if ($checkout) { do_action('woocommerce_checkout_before_customer_details'); } ?>
 
-                                <!-- Step 2: Shipping Details Form Container -->
-                                <div id="kash-step-2-container" class="kash-checkout-step-container">
+                                <!-- TAB PANE 2: Shipping Details (Step 2) -->
+                                <div id="kash-checkout-tab-step-2" class="kash-checkout-tab-pane active-tab">
 
                                     <!-- Step 1: Contact Information -->
                                 <div class="wc-block-components-checkout-step wc-block-components-checkout-step--contact-information">
@@ -658,35 +658,68 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                         ?>
                                     </div>
                                 </div>
-                                </div><!-- /#kash-step-2-container -->
+                                </div><!-- /#kash-checkout-tab-step-2 -->
 
                                 <?php if ($checkout) { do_action('woocommerce_checkout_after_customer_details'); } ?>
 
-                                <!-- Step 3: Payment Options & Standard Order Review Container -->
-                                <div id="order_review" class="woocommerce-checkout-review-order">
-                                    <?php do_action('woocommerce_checkout_before_order_review'); ?>
+                                <!-- TAB PANE 3: Payment & Confirm (Step 3) -->
+                                <div id="kash-checkout-tab-step-3" class="kash-checkout-tab-pane">
 
-                                    <div class="wc-block-components-checkout-step wc-block-components-checkout-step--payment-method">
-                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
-                                            <h2 class="wc-block-components-checkout-step__heading" style="margin: 0;"><?php esc_html_e('Payment options', 'kash-naturals'); ?></h2>
-                                            <span style="font-size: 0.8rem; font-weight: 600; color: #27ae60; background: #e8f5e9; padding: 4px 10px; border-radius: 20px;"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i><?php esc_html_e('256-Bit SSL Secure', 'kash-naturals'); ?></span>
+                                    <!-- Step 3 Delivery & Contact Summary Box -->
+                                    <div class="wc-block-components-checkout-step kash-step-3-shipping-card" style="margin-bottom: 24px; padding: 22px 28px; background: #ffffff; border: 1.5px solid #eee7dd; border-radius: 18px; box-shadow: 0 4px 18px rgba(15, 40, 25, 0.03);">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f3ece2; padding-bottom: 12px; margin-bottom: 14px;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #e8f5e9; color: #27ae60; border-radius: 50%; font-size: 0.8rem;"><i class="fa-solid fa-check"></i></span>
+                                                <strong style="color: #0f3820; font-family: 'Outfit', sans-serif; font-size: 1.05rem;"><?php esc_html_e('Delivery & Contact Details', 'kash-naturals'); ?></strong>
+                                            </div>
+                                            <button type="button" class="btn-return-to-shipping" id="btn-edit-shipping-step" style="padding: 6px 14px; background: #fdfaf5; border: 1.5px solid #c68b27; color: #0f3820; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                                                <i class="fa-solid fa-pen-to-square" style="color: #c68b27;"></i> <?php esc_html_e('Change', 'kash-naturals'); ?>
+                                            </button>
                                         </div>
-                                        <div class="wc-block-components-checkout-step__container">
-                                            <?php
-                                            if (function_exists('woocommerce_checkout_payment')) {
-                                                woocommerce_checkout_payment();
-                                            } else {
-                                                $theme_payment_file = defined('KASH_THEME_DIR') ? KASH_THEME_DIR . '/woocommerce/checkout/payment.php' : __DIR__ . '/woocommerce/checkout/payment.php';
-                                                if (file_exists($theme_payment_file)) {
-                                                    include $theme_payment_file;
-                                                }
-                                            }
-                                            ?>
+                                        <div style="display: grid; grid-template-columns: 80px 1fr; row-gap: 8px; font-size: 0.92rem;">
+                                            <span style="color: #777; font-weight: 500;"><?php esc_html_e('Contact:', 'kash-naturals'); ?></span>
+                                            <span id="kash-step-3-summary-contact" style="color: #222; font-weight: 600;"></span>
+                                            <span style="color: #777; font-weight: 500;"><?php esc_html_e('Ship to:', 'kash-naturals'); ?></span>
+                                            <span id="kash-step-3-summary-address" style="color: #222; line-height: 1.5;"></span>
+                                            <span style="color: #777; font-weight: 500;"><?php esc_html_e('Method:', 'kash-naturals'); ?></span>
+                                            <span style="color: #27ae60; font-weight: 600;"><?php esc_html_e('Pan-India Priority Express • FREE', 'kash-naturals'); ?></span>
                                         </div>
                                     </div>
 
-                                    <?php do_action('woocommerce_checkout_after_order_review'); ?>
-                                </div>
+                                    <!-- Step 3: Payment Options & Standard Order Review Container -->
+                                    <div id="order_review" class="woocommerce-checkout-review-order">
+                                        <?php do_action('woocommerce_checkout_before_order_review'); ?>
+
+                                        <div class="wc-block-components-checkout-step wc-block-components-checkout-step--payment-method">
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                                                <h2 class="wc-block-components-checkout-step__heading" style="margin: 0;"><?php esc_html_e('Payment options', 'kash-naturals'); ?></h2>
+                                                <span style="font-size: 0.8rem; font-weight: 600; color: #27ae60; background: #e8f5e9; padding: 4px 10px; border-radius: 20px;"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i><?php esc_html_e('256-Bit SSL Secure', 'kash-naturals'); ?></span>
+                                            </div>
+                                            <div class="wc-block-components-checkout-step__container">
+                                                <?php
+                                                if (function_exists('woocommerce_checkout_payment')) {
+                                                    woocommerce_checkout_payment();
+                                                } else {
+                                                    $theme_payment_file = defined('KASH_THEME_DIR') ? KASH_THEME_DIR . '/woocommerce/checkout/payment.php' : __DIR__ . '/woocommerce/checkout/payment.php';
+                                                    if (file_exists($theme_payment_file)) {
+                                                        include $theme_payment_file;
+                                                    }
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
+
+                                        <?php do_action('woocommerce_checkout_after_order_review'); ?>
+                                    </div>
+
+                                    <!-- Bottom Back Link to Shipping Details -->
+                                    <div style="text-align: center; margin-top: 14px;">
+                                        <button type="button" class="btn-return-to-shipping" id="btn-return-to-shipping" style="background: none; border: none; color: #0f3820; font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: underline; padding: 8px 12px;">
+                                            <i class="fa-solid fa-arrow-left"></i> <?php esc_html_e('Return to Shipping Details', 'kash-naturals'); ?>
+                                        </button>
+                                    </div>
+
+                                </div><!-- /#kash-checkout-tab-step-3 -->
 
                             </div>
                         </div>

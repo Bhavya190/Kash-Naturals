@@ -76,55 +76,59 @@ if (!getenv('RAZORPAY_KEY_ID')) {
 // --------------------------------------------------------------------------
 if (!function_exists('kash_get_razorpay_key_id')) {
     function kash_get_razorpay_key_id() {
-        // 1. Check environment variables
-        $key_id = getenv('RAZORPAY_KEY_ID') ?: ($_ENV['RAZORPAY_KEY_ID'] ?? ($_SERVER['RAZORPAY_KEY_ID'] ?? ''));
-
-        // 2. Check WooCommerce Razorpay plugin settings in wp_options
-        if (empty($key_id) && function_exists('get_option')) {
+        // 1. Priority: Check WooCommerce Razorpay official plugin settings in WordPress Admin
+        if (function_exists('get_option')) {
             $wc_rzp = get_option('woocommerce_razorpay_settings', array());
             if (!empty($wc_rzp['key_id'])) {
-                $key_id = $wc_rzp['key_id'];
+                return trim((string)$wc_rzp['key_id']);
             }
         }
 
+        // 2. Check environment variables
+        $key_id = getenv('RAZORPAY_KEY_ID') ?: ($_ENV['RAZORPAY_KEY_ID'] ?? ($_SERVER['RAZORPAY_KEY_ID'] ?? ''));
+        if (!empty($key_id)) {
+            return trim((string)$key_id);
+        }
+
         // 3. Check custom theme options or global options
-        if (empty($key_id) && function_exists('get_option')) {
-            $key_id = get_option('razorpay_key_id', '');
+        if (function_exists('get_option')) {
+            $opt = get_option('razorpay_key_id', '');
+            if (!empty($opt)) {
+                return trim((string)$opt);
+            }
         }
 
         // 4. Default test fallback credential
-        if (empty($key_id)) {
-            $key_id = 'rzp_test_U4hJ4Xslre9Mh5';
-        }
-
-        return trim((string)$key_id);
+        return 'rzp_test_U4hJ4Xslre9Mh5';
     }
 }
 
 if (!function_exists('kash_get_razorpay_key_secret')) {
     function kash_get_razorpay_key_secret() {
-        // 1. Check environment variables
-        $key_secret = getenv('RAZORPAY_KEY_SECRET') ?: ($_ENV['RAZORPAY_KEY_SECRET'] ?? ($_SERVER['RAZORPAY_KEY_SECRET'] ?? ''));
-
-        // 2. Check WooCommerce Razorpay plugin settings in wp_options
-        if (empty($key_secret) && function_exists('get_option')) {
+        // 1. Priority: Check WooCommerce Razorpay official plugin settings in WordPress Admin
+        if (function_exists('get_option')) {
             $wc_rzp = get_option('woocommerce_razorpay_settings', array());
             if (!empty($wc_rzp['key_secret'])) {
-                $key_secret = $wc_rzp['key_secret'];
+                return trim((string)$wc_rzp['key_secret']);
             }
         }
 
+        // 2. Check environment variables
+        $key_secret = getenv('RAZORPAY_KEY_SECRET') ?: ($_ENV['RAZORPAY_KEY_SECRET'] ?? ($_SERVER['RAZORPAY_KEY_SECRET'] ?? ''));
+        if (!empty($key_secret)) {
+            return trim((string)$key_secret);
+        }
+
         // 3. Check custom theme options or global options
-        if (empty($key_secret) && function_exists('get_option')) {
-            $key_secret = get_option('razorpay_key_secret', '');
+        if (function_exists('get_option')) {
+            $opt = get_option('razorpay_key_secret', '');
+            if (!empty($opt)) {
+                return trim((string)$opt);
+            }
         }
 
         // 4. Default test fallback credential
-        if (empty($key_secret)) {
-            $key_secret = 'IskrOyk9yxSR0WannfPJDq9b';
-        }
-
-        return trim((string)$key_secret);
+        return 'IskrOyk9yxSR0WannfPJDq9b';
     }
 }
 

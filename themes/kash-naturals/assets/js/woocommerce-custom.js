@@ -89,46 +89,76 @@ jQuery(document).ready(function ($) {
     syncCheckoutPaymentState();
 
     /* ==========================================================================
-       CHECKOUT STEPPER & MULTI-STEP FLOW (Step 2 -> Step 3)
+       CHECKOUT STEPPER & TAB PANES (Step 2 Shipping <-> Step 3 Payment)
        ========================================================================== */
 
-    function activatePaymentStep() {
+    function goToStep3Payment() {
+        var first = $('#billing_first_name').val() || '';
+        var last  = $('#billing_last_name').val() || '';
+        var name  = (first + ' ' + last).trim();
+        var addr1 = $('#billing_address_1').val() || '';
+        var addr2 = $('#billing_address_2').val() || '';
+        var city  = $('#billing_city').val() || '';
+        var state = $('#billing_state option:selected').text() || $('#billing_state').val() || '';
+        var pin   = $('#billing_postcode').val() || '';
+        var phone = $('#billing_phone').val() || '';
+        var email = $('#billing_email').val() || '';
+
+        var fullAddr = addr1;
+        if (addr2) fullAddr += ', ' + addr2;
+        if (city) fullAddr += ', ' + city;
+        if (state) fullAddr += ', ' + state;
+        if (pin) fullAddr += ' - ' + pin;
+
+        $('#kash-step-3-summary-contact').text((phone ? phone + ' • ' : '') + email);
+        $('#kash-step-3-summary-address').text((name ? name + ' — ' : '') + fullAddr);
+
+        // Switch Tab Panes: Hide Step 2, Show Step 3
+        $('#kash-checkout-tab-step-2').removeClass('active-tab');
+        $('#kash-checkout-tab-step-3').addClass('active-tab');
+
         // Update Stepper Top Badges
         $('#step-badge-2').removeClass('active').addClass('done');
         $('#step-num-2').html('<i class="fa-solid fa-check"></i>');
         $('#stepper-line-2').addClass('active');
         $('#step-badge-3').addClass('active');
 
-        // Smooth scroll to Step 3 Payment Options
-        var $target = $('#order_review');
-        if ($target.length) {
-            $('html, body').stop().animate({ scrollTop: $target.offset().top - 90 }, 450);
-            $target.addClass('kash-step-active-glow');
-            setTimeout(function () {
-                $target.removeClass('kash-step-active-glow');
-            }, 1800);
+        // Smooth scroll to top of checkout form
+        var $topTarget = $('.kash-checkout-content-wrap');
+        if ($topTarget.length) {
+            $('html, body').stop().animate({ scrollTop: $topTarget.offset().top - 80 }, 350);
         }
 
-        // Focus selected payment radio
-        var $checkedGateway = $('input[name="payment_method"]:checked');
-        if ($checkedGateway.length) {
-            $checkedGateway.focus();
+        // Trigger WooCommerce order review update so shipping/taxes refresh
+        if (typeof $(document.body).trigger === 'function') {
+            $(document.body).trigger('update_checkout');
         }
+
+        // Sync payment button label
+        syncCheckoutPaymentState();
     }
 
-    function activateShippingStep() {
+    function goToStep2Shipping() {
+        // Switch Tab Panes: Hide Step 3, Show Step 2
+        $('#kash-checkout-tab-step-3').removeClass('active-tab');
+        $('#kash-checkout-tab-step-2').addClass('active-tab');
+
         // Update Stepper Top Badges
         $('#step-badge-2').addClass('active').removeClass('done');
         $('#step-num-2').text('2');
         $('#stepper-line-2').removeClass('active');
         $('#step-badge-3').removeClass('active');
 
-        // Smooth scroll to Billing Details
-        var $target = $('#billing_first_name');
-        if ($target.length) {
-            $('html, body').stop().animate({ scrollTop: $target.offset().top - 140 }, 350);
-            $target.focus();
+        // Smooth scroll to top of checkout form
+        var $topTarget = $('.kash-checkout-content-wrap');
+        if ($topTarget.length) {
+            $('html, body').stop().animate({ scrollTop: $topTarget.offset().top - 80 }, 350);
         }
+
+        // Focus first field
+        setTimeout(function () {
+            $('#billing_first_name').focus();
+        }, 300);
     }
 
     // "Proceed to Payment Options" Button Click Handler
@@ -170,20 +200,27 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-        activatePaymentStep();
+        goToStep3Payment();
         return false;
     });
 
-    // Step 2 Badge Click Handler
-    $(document).on('click', '#step-badge-2', function (e) {
+    // "Return to Shipping Details" or "Change" or Step 2 Badge Click Handler
+    $(document).on('click', '#btn-return-to-shipping, #btn-edit-shipping-step, #step-badge-2', function (e) {
         e.preventDefault();
-        activateShippingStep();
+        goToStep2Shipping();
     });
 
     // Step 3 Header Badge Click Handler
     $(document).on('click', '#step-badge-3', function (e) {
         e.preventDefault();
-        $('#btn-proceed-to-payment').trigger('click');
+        if ($('#kash-checkout-tab-step-3').hasClass('active-tab')) {
+            var $topTarget = $('.kash-checkout-content-wrap');
+            if ($topTarget.length) {
+                $('html, body').stop().animate({ scrollTop: $topTarget.offset().top - 80 }, 350);
+            }
+        } else {
+            $('#btn-proceed-to-payment').trigger('click');
+        }
     });
 
     // Clear red warning highlight when user types into required fields
@@ -602,7 +639,7 @@ jQuery(document).ready(function ($) {
 
         if (firstInvalid) {
             e.preventDefault();
-            activateShippingStep();
+            goToStep2Shipping();
             $('html, body').animate({ scrollTop: firstInvalid.offset().top - 120 }, 400);
             firstInvalid.focus();
             showRazorpayNotice('Please complete all required shipping details before proceeding with payment.', true);

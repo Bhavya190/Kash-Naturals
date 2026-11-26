@@ -3875,8 +3875,31 @@ img.amz-ref-logo {
 }
 
 /* -------------------------------------------------------------
-   MULTI-STEP CHECKOUT STEPPER & TRANSITION STYLES
+   MULTI-STEP CHECKOUT TAB PANES & TRANSITION STYLES
    ------------------------------------------------------------- */
+.kash-checkout-tab-pane {
+    display: none !important;
+}
+
+.kash-checkout-tab-pane.active-tab {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    width: 100% !important;
+    animation: kashTabFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes kashTabFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .checkout-proceed-btn-wrap {
     margin-top: 24px !important;
     margin-bottom: 8px !important;
