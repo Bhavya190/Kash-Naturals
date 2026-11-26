@@ -870,10 +870,15 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        // If product has variations and no variation was explicitly chosen, prompt the user!
-        if (product.is_variable && product.variations && product.variations.length > 0 && !variationId) {
-            openVariantModal(product);
-            return;
+        // If product has variations and no variation was explicitly chosen, auto-take default if single/missing
+        if (product.is_variable && !variationId) {
+            if (product.variations && product.variations.length === 1) {
+                addVariantToCart(product, product.variations[0], qty);
+                return;
+            } else if (product.variations && product.variations.length > 1) {
+                openVariantModal(product);
+                return;
+            }
         }
 
         // If variation was passed
@@ -924,7 +929,8 @@ jQuery(document).ready(function ($) {
         saveCart(cart);
         showToast(`Added "${product.name}" to your shopping bag!`);
         // Cart drawer popup disabled per user request
-        syncAddToCartWooCommerce(product.id, qty);
+        const defaultVarId = (product.variations && product.variations.length > 0) ? (product.variations[0].id || 0) : (variationId || 0);
+        syncAddToCartWooCommerce(product.id, qty, defaultVarId);
     };
 
     // Global Click Listener for all "ADD TO CART" / "ORDER NOW" / "+" Buttons Across Site
@@ -1021,6 +1027,13 @@ jQuery(document).ready(function ($) {
                             match.variations = res.data.variations;
                         }
                         openVariantModal(res.data);
+                    } else if (res && res.success && res.data && res.data.variations && res.data.variations.length === 1) {
+                        const singleVar = res.data.variations[0];
+                        if (match) {
+                            addVariantToCart(match, singleVar, 1);
+                        } else {
+                            addToCart(targetProdId, 1, singleVar.id);
+                        }
                     } else if (match) {
                         addToCart(match.id, 1);
                     } else if (prodId) {

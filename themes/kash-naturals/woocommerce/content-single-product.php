@@ -138,6 +138,12 @@ if ($product && is_a($product, 'WC_Product')) {
     // Process WooCommerce Variations if Variable Product
     if ($is_variable) {
         $available_variations = $product->get_available_variations();
+        if (empty($available_variations) && function_exists('kash_ensure_default_variation')) {
+            $def_auto_id = kash_ensure_default_variation($product);
+            if ($def_auto_id) {
+                $available_variations = $product->get_available_variations();
+            }
+        }
         if (!empty($available_variations)) {
             $default_attributes = $product->get_default_attributes();
 
@@ -1958,26 +1964,16 @@ function handleSingleAddToCart(id) {
     const isVariable = <?php echo $is_variable ? 'true' : 'false'; ?>;
     const qtyInput = document.getElementById('productQtyInput');
     const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
-    const varId = activeVariationId || (document.getElementById('singleProductAddToCartBtn') ? parseInt(document.getElementById('singleProductAddToCartBtn').getAttribute('data-variation-id')) : 0);
+    let varId = activeVariationId || (document.getElementById('singleProductAddToCartBtn') ? parseInt(document.getElementById('singleProductAddToCartBtn').getAttribute('data-variation-id')) : 0);
 
-    // If product has variations (e.g. 200 GM and 500 GM), ask via popup if customer wants to choose 500 GM or another variant
-    if (isVariable && typeof openVariantModal === 'function') {
-        let prodMatch = null;
-        if (typeof PRODUCTS_DB !== 'undefined' && Array.isArray(PRODUCTS_DB) && PRODUCTS_DB.length) {
-            prodMatch = PRODUCTS_DB.find(p => p.id == id);
-        }
-        if (!prodMatch && typeof kashVariationsData !== 'undefined') {
-            prodMatch = {
-                id: id,
-                name: <?php echo wp_json_encode($product_name); ?>,
-                image: <?php echo wp_json_encode($main_img); ?>,
-                is_variable: true,
-                variations: Object.values(kashVariationsData)
-            };
-        }
-        if (prodMatch && prodMatch.variations && prodMatch.variations.length > 1) {
-            openVariantModal(prodMatch, varId, qty);
-            return;
+    // If product is variable and no variation is explicitly selected, take default variant
+    if (isVariable && (!varId || varId <= 0)) {
+        if (typeof kashVariationsData !== 'undefined' && kashVariationsData) {
+            const allVars = Object.values(kashVariationsData);
+            if (allVars.length > 0 && allVars[0].id) {
+                varId = parseInt(allVars[0].id, 10);
+                activeVariationId = varId;
+            }
         }
     }
 
@@ -2000,7 +1996,7 @@ function handleSingleAddToCart(id) {
         product_id: id,
         quantity: qty
     };
-    if (varId) {
+    if (varId && varId > 0) {
         postData.variation_id = varId;
         if (varData && varData.attributes) {
             postData.variation = varData.attributes;
@@ -2048,28 +2044,28 @@ function handleSingleAddToCart(id) {
 
 function handleBuyNow(id) {
     const isVariable = <?php echo $is_variable ? 'true' : 'false'; ?>;
-    if (isVariable && (!activeVariationId || activeVariationId <= 0)) {
-        if (typeof showToast === 'function') {
-            showToast('Please choose a pack size (e.g. 200 GM or 500 GM) before proceeding.', 'info');
-        } else {
-            alert('Please choose a pack size before proceeding.');
-        }
-        const selectorWrap = document.querySelector('.product-option-selector');
-        if (selectorWrap) {
-            selectorWrap.classList.add('selector-pulse-alert');
-            selectorWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => selectorWrap.classList.remove('selector-pulse-alert'), 1600);
-        }
-        return;
-    }
-
     const qtyInput = document.getElementById('productQtyInput');
     const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
-    const varId = activeVariationId || 0;
-    const targetId = varId ? varId : id;
-    
+    let varId = activeVariationId || 0;
+
+    // If variable and no variation selected, automatically take default/first variant
+    if (isVariable && (!varId || varId <= 0)) {
+        if (typeof kashVariationsData !== 'undefined' && kashVariationsData) {
+            const allVars = Object.values(kashVariationsData);
+            if (allVars.length > 0 && allVars[0].id) {
+                varId = parseInt(allVars[0].id, 10);
+                activeVariationId = varId;
+            }
+        }
+    }
+
     <?php if (function_exists('wc_get_checkout_url')) : ?>
-        window.location.href = '<?php echo esc_js(wc_get_checkout_url()); ?>?add-to-cart=' + targetId + '&quantity=' + qty;
+        let checkoutUrl = '<?php echo esc_js(wc_get_checkout_url()); ?>?add-to-cart=' + id;
+        if (varId && varId > 0) {
+            checkoutUrl += '&variation_id=' + varId;
+        }
+        checkoutUrl += '&quantity=' + qty;
+        window.location.href = checkoutUrl;
     <?php else : ?>
         handleSingleAddToCart(id);
     <?php endif; ?>

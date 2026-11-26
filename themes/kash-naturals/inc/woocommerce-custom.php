@@ -832,8 +832,211 @@ function kash_get_product_variations_data($product_or_id) {
         }
     }
 
-    // If no variations exist in backend, return empty array (simple product)
+    // 4. Fallback for Variable Products without generated variations in WP Admin:
+    // Auto-resolve or create default variant so customer is never blocked
+    if (empty($variations_list) && $product->is_type('variable')) {
+        $def_vid = function_exists('kash_ensure_default_variation') ? kash_ensure_default_variation($product) : 0;
+        if ($def_vid) {
+            $def_obj = wc_get_product($def_vid);
+            if ($def_obj) {
+                $d_price = floatval($def_obj->get_price()) ?: $parent_price;
+                $d_reg   = floatval($def_obj->get_regular_price()) ?: $parent_reg;
+                $variations_list[] = array(
+                    'id'            => intval($def_vid),
+                    'label'         => $def_obj->get_name() ?: 'Standard Pack',
+                    'price'         => $d_price,
+                    'price_html'    => $currency_symbol . number_format($d_price),
+                    'regular_price' => $d_reg,
+                    'in_stock'      => $def_obj->is_in_stock(),
+                    'stock_status'  => $def_obj->get_stock_status(),
+                    'image'         => $main_img,
+                    'attributes'    => method_exists($def_obj, 'get_variation_attributes') ? $def_obj->get_variation_attributes() : array(),
+                );
+            }
+        }
+    }
+
     return $variations_list;
+}
+
+/**
+ * Automatically ensure and return a default variation for variable products.
+ * If the user/admin has not added variations in WP Admin, this creates or resolves
+ * a default variation so the customer is NEVER blocked with "Please choose product options".
+ *
+ * @param int|WC_Product $product Product ID or WC_Product object
+ * @return int Variation ID (or 0 if product is simple)
+ */
+function kash_ensure_default_variation($product) {
+    if (is_numeric($product)) {
+        $product = function_exists('wc_get_product') ? wc_get_product($product) : false;
+    }
+    if (!$product || !is_object($product)) {
+        return 0;
+    }
+    if (!method_exists($product, 'is_type') || !$product->is_type('variable')) {
+        return 0;
+    }
+
+    $product_id = $product->get_id();
+
+    // 1. Check if product already has children variations
+    $children = method_exists($product, 'get_children') ? (array)$product->get_children() : array();
+    if (empty($children) && function_exists('get_posts')) {
+        $children = get_posts(array(
+            'post_parent'    => $product_id,
+            'post_type'      => 'product_variation',
+            'post_status'    => array('publish', 'inherit', 'private'),
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ));
+    }
+
+    if (!empty($children)) {
+        // Find default variation if specified in product attributes
+        $default_attributes = method_exists($product, 'get_default_attributes') ? $product->get_default_attributes() : array();
+        if (!empty($default_attributes)) {
+            foreach ($children as $cid) {
+                $c_obj = wc_get_product($cid);
+                if (!$c_obj) continue;
+                $c_attrs = method_exists($c_obj, 'get_variation_attributes') ? $c_obj->get_variation_attributes() : array();
+                $match = true;
+                foreach ($default_attributes as $dk => $dv) {
+                    $attr_k = 'attribute_' . $dk;
+                    if (isset($c_attrs[$attr_k]) && $c_attrs[$attr_k] !== '' && $c_attrs[$attr_k] !== $dv) {
+                        $match = false;
+                        break;
+                    }
+                }
+                if ($match && $c_obj->is_in_stock()) {
+                    return intval($cid);
+                }
+            }
+        }
+
+        // Return first in-stock variation
+        foreach ($children as $cid) {
+            $c_obj = wc_get_product($cid);
+            if ($c_obj && $c_obj->is_in_stock()) {
+                return intval($cid);
+            }
+        }
+
+        // Return first variation
+        return intval($children[0]);
+    }
+
+    // 2. If NO variations exist in the database (admin hasn't generated variations yet):
+    // Automatically create a default variation so the product can be purchased!
+    if (class_exists('WC_Product_Variation')) {
+        try {
+            $var = new WC_Product_Variation();
+            $var->set_parent_id($product_id);
+
+            // Determine label from title e.g. "150g" from "... Sweet and Cool 150g"
+            $label = 'Standard Pack';
+            if (preg_match('/(\d+\s*(?:g|gm|grams|kg|ml|pieces|pcs))\b/i', $product->get_name(), $m)) {
+                $label = strtoupper($m[1]);
+            }
+
+            $price = floatval($product->get_price()) ?: (function_exists('get_post_meta') ? floatval(get_post_meta($product_id, '_price', true)) : 0) ?: 179;
+            $regular_price = floatval($product->get_regular_price()) ?: (function_exists('get_post_meta') ? floatval(get_post_meta($product_id, '_regular_price', true)) : 0) ?: $price;
+
+            $var->set_regular_price($regular_price);
+            $var->set_price($price);
+            $var->set_manage_stock(false);
+            $var->set_stock_status('instock');
+
+            // Set default attribute
+            $var_attrs = array();
+            $parent_attrs = method_exists($product, 'get_attributes') ? $product->get_attributes() : array();
+            if (!empty($parent_attrs)) {
+                foreach ($parent_attrs as $attr_name => $attr_obj) {
+                    if (is_object($attr_obj) && method_exists($attr_obj, 'get_variation') && $attr_obj->get_variation()) {
+                        $opts = method_exists($attr_obj, 'get_slugs') ? $attr_obj->get_slugs() : (method_exists($attr_obj, 'get_options') ? $attr_obj->get_options() : array());
+                        if (!empty($opts)) {
+                            $first = is_array($opts) ? reset($opts) : $opts;
+                            $var_attrs[sanitize_title($attr_name)] = is_string($first) ? $first : (is_object($first) && isset($first->slug) ? $first->slug : $label);
+                        }
+                    }
+                }
+            }
+            if (empty($var_attrs)) {
+                $var_attrs['attribute_pa_pack_size'] = $label;
+            }
+
+            $var->set_attributes($var_attrs);
+            $new_var_id = $var->save();
+
+            if ($new_var_id) {
+                if (class_exists('WC_Product_Variable')) {
+                    WC_Product_Variable::sync($product_id);
+                }
+                return intval($new_var_id);
+            }
+        } catch (\Exception $e) {
+            error_log('Failed to auto-create default variation: ' . $e->getMessage());
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Auto-inject default variation for standard WooCommerce GET/POST requests
+ * so that URLs like /checkout/?add-to-cart=150 or direct links
+ * never trigger "Please choose product options by visiting..."
+ */
+add_action('wp_loaded', function() {
+    if (!empty($_REQUEST['add-to-cart'])) {
+        $prod_id = absint($_REQUEST['add-to-cart']);
+        $product = function_exists('wc_get_product') ? wc_get_product($prod_id) : false;
+        if ($product && method_exists($product, 'is_type') && $product->is_type('variable') && empty($_REQUEST['variation_id'])) {
+            $def_var_id = kash_ensure_default_variation($product);
+            if ($def_var_id) {
+                $_REQUEST['variation_id'] = $def_var_id;
+                $_POST['variation_id'] = $def_var_id;
+                $_GET['variation_id'] = $def_var_id;
+                $var_obj = wc_get_product($def_var_id);
+                if ($var_obj && method_exists($var_obj, 'get_variation_attributes')) {
+                    $attrs = $var_obj->get_variation_attributes();
+                    if (!empty($attrs)) {
+                        foreach ($attrs as $k => $v) {
+                            if (!isset($_REQUEST[$k])) {
+                                $_REQUEST[$k] = $v;
+                                $_POST[$k] = $v;
+                                $_GET[$k] = $v;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}, 5);
+
+/**
+ * Clear any stale "Please choose product options" notices when loading checkout
+ */
+add_action('woocommerce_before_checkout_form', 'kash_clear_variation_notices');
+add_action('template_redirect', 'kash_clear_variation_notices');
+function kash_clear_variation_notices() {
+    if (function_exists('wc_clear_notices') && function_exists('wc_get_notices')) {
+        $notices = wc_get_notices('error');
+        if (!empty($notices)) {
+            $has_options_error = false;
+            foreach ($notices as $notice) {
+                $text = is_array($notice) ? ($notice['notice'] ?? '') : (string)$notice;
+                if (stripos($text, 'choose product options') !== false) {
+                    $has_options_error = true;
+                    break;
+                }
+            }
+            if ($has_options_error) {
+                wc_clear_notices();
+            }
+        }
+    }
 }
 
 /**
@@ -890,6 +1093,23 @@ function kash_naturals_ajax_add_to_cart() {
         wp_send_json_error(array('message' => __('Product does not exist or has been removed from shop.', 'kash-naturals')));
     }
 
+    // Auto-resolve default variation if product is variable and variation_id was not provided
+    if ($target_product->is_type('variable')) {
+        if (!$variation_id) {
+            $variation_id = kash_ensure_default_variation($target_product);
+        }
+        if ($variation_id) {
+            $var_obj = wc_get_product($variation_id);
+            if ($var_obj && $var_obj->exists()) {
+                $target_id = $variation_id;
+                $target_product = $var_obj;
+                if (empty($variations)) {
+                    $variations = $var_obj->get_variation_attributes();
+                }
+            }
+        }
+    }
+
     if (!$target_product->is_in_stock() || $target_product->get_stock_status() === 'outofstock') {
         wp_send_json_error(array(
             'error_type' => 'out_of_stock',
@@ -920,9 +1140,22 @@ function kash_naturals_ajax_add_to_cart() {
         $is_wc_variation = $variation_id && $target_product->is_type('variation');
         if ($is_wc_variation) {
             $parent_id = $product_id ? $product_id : $target_product->get_parent_id();
-            WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations, $cart_item_data);
+            $cart_res = WC()->cart->add_to_cart($parent_id, $quantity, $variation_id, $variations, $cart_item_data);
         } else {
-            WC()->cart->add_to_cart($product_id, $quantity, 0, array(), $cart_item_data);
+            $cart_res = WC()->cart->add_to_cart($product_id, $quantity, 0, array(), $cart_item_data);
+        }
+
+        // If add_to_cart failed, clear any option error notices and retry with default variation
+        if (!$cart_res) {
+            if (function_exists('wc_clear_notices')) {
+                wc_clear_notices();
+            }
+            $def_vid = kash_ensure_default_variation($product_id);
+            if ($def_vid) {
+                $def_var_obj = wc_get_product($def_vid);
+                $def_attrs = $def_var_obj ? $def_var_obj->get_variation_attributes() : array();
+                WC()->cart->add_to_cart($product_id, $quantity, $def_vid, $def_attrs, $cart_item_data);
+            }
         }
 
         WC()->cart->calculate_totals();

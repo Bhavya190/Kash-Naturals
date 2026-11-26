@@ -372,55 +372,96 @@ jQuery(document).ready(function ($) {
         };
 
         ensureRazorpayScript(function () {
-            // STEP 1: Call Backend to Create Order
-            $.ajax({
-                type: 'POST',
-                url: '/api/create-order',
-                contentType: 'application/json',
-                data: JSON.stringify(orderPayload),
-                success: function (orderData) {
-                    if (!orderData || !orderData.order_id) {
-                        var err = (orderData && orderData.error) ? orderData.error : 'Order creation failed.';
-                        if (typeof onError === 'function') onError(err);
-                        return;
+            // STEP 1: Call Backend to Create Order (with fallback to WP AJAX)
+            var ajaxUrl = (typeof window.kash_dynamic_data !== 'undefined' && window.kash_dynamic_data.ajax_url)
+                ? window.kash_dynamic_data.ajax_url
+                : ((typeof window.kash_wc_params !== 'undefined') ? window.kash_wc_params.ajax_url : '/wp-admin/admin-ajax.php');
+
+            function executeOrderCreation(callbackSuccess, callbackError) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/create-order',
+                    contentType: 'application/json',
+                    data: JSON.stringify(orderPayload),
+                    success: function (orderData) {
+                        if (orderData && orderData.order_id) {
+                            callbackSuccess(orderData);
+                        } else {
+                            tryWpAjaxCreateOrder();
+                        }
+                    },
+                    error: function () {
+                        tryWpAjaxCreateOrder();
                     }
+                });
 
-                    // STEP 2: Configure & Open Razorpay Modal
-                    var logoUrl = (typeof window.kash_dynamic_data !== 'undefined' && window.kash_dynamic_data.theme_uri)
-                        ? window.kash_dynamic_data.theme_uri + '/assets/images/Kash Natural Leaf Logo.png'
-                        : '/wp-content/themes/kash-naturals/assets/images/Kash Natural Leaf Logo.png';
-
-                    var options = {
-                        key: keyId,
-                        amount: orderData.amount,
-                        currency: orderData.currency || 'INR',
-                        name: 'Kash Naturals',
-                        description: 'Authentic Royal Mukhwas & Digestives',
-                        image: logoUrl,
-                        order_id: orderData.order_id,
-                        prefill: {
-                            name: customerName,
-                            email: billingEmail,
-                            contact: billingPhone
-                        },
-                        notes: {
-                            store: 'Kash Naturals Online Store',
+                function tryWpAjaxCreateOrder() {
+                    $.ajax({
+                        type: 'POST',
+                        url: ajaxUrl,
+                        data: {
+                            action: 'kash_create_razorpay_order',
+                            amount: orderPayload.amount,
+                            currency: orderPayload.currency || 'INR',
                             receipt: orderPayload.receipt
                         },
-                        theme: {
-                            color: '#0f3820' // Kash Royal Emerald Green
-                        },
-                        modal: {
-                            ondismiss: function () {
-                                console.log('[Razorpay] Payment modal dismissed by user.');
-                                if (typeof onError === 'function') {
-                                    onError({ cancelled: true, message: 'Payment cancelled by user.' });
-                                }
+                        dataType: 'json',
+                        success: function (res) {
+                            if (res && res.success && res.data && res.data.order_id) {
+                                callbackSuccess(res.data);
+                            } else {
+                                var err = (res && res.data && res.data.error) ? res.data.error : 'Order creation failed.';
+                                callbackError(err);
                             }
                         },
-                        handler: function (response) {
-                            // Received razorpay_payment_id, razorpay_order_id, razorpay_signature
-                            // STEP 3: Verify Payment Signature with Backend
+                        error: function (xhr) {
+                            var errJson = {};
+                            try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
+                            var errMsg = errJson.error || 'Failed to initialize payment order with Razorpay.';
+                            callbackError(errMsg);
+                        }
+                    });
+                }
+            }
+
+            executeOrderCreation(function (orderData) {
+                // STEP 2: Configure & Open Razorpay Modal
+                var logoUrl = (typeof window.kash_dynamic_data !== 'undefined' && window.kash_dynamic_data.theme_uri)
+                    ? window.kash_dynamic_data.theme_uri + '/assets/images/Kash Natural Leaf Logo.png'
+                    : '/wp-content/themes/kash-naturals/assets/images/Kash Natural Leaf Logo.png';
+
+                var options = {
+                    key: keyId,
+                    amount: orderData.amount,
+                    currency: orderData.currency || 'INR',
+                    name: 'Kash Naturals',
+                    description: 'Authentic Royal Mukhwas & Digestives',
+                    image: logoUrl,
+                    order_id: orderData.order_id,
+                    prefill: {
+                        name: customerName,
+                        email: billingEmail,
+                        contact: billingPhone
+                    },
+                    notes: {
+                        store: 'Kash Naturals Online Store',
+                        receipt: orderPayload.receipt
+                    },
+                    theme: {
+                        color: '#0f3820' // Kash Royal Emerald Green
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            console.log('[Razorpay] Payment modal dismissed by user.');
+                            if (typeof onError === 'function') {
+                                onError({ cancelled: true, message: 'Payment cancelled by user.' });
+                            }
+                        }
+                    },
+                    handler: function (response) {
+                        // Received razorpay_payment_id, razorpay_order_id, razorpay_signature
+                        // STEP 3: Verify Payment Signature with Backend (with fallback)
+                        function executeVerification(onVerSuccess, onVerError) {
                             $.ajax({
                                 type: 'POST',
                                 url: '/api/verify-payment',
@@ -432,53 +473,80 @@ jQuery(document).ready(function ($) {
                                 }),
                                 success: function (verifyRes) {
                                     if (verifyRes && verifyRes.success) {
-                                        ensureHiddenInputs(response);
-                                        if (typeof onSuccess === 'function') {
-                                            onSuccess(response, verifyRes);
-                                        }
+                                        onVerSuccess(verifyRes);
                                     } else {
-                                        var failMsg = (verifyRes && verifyRes.error)
-                                            ? verifyRes.error
-                                            : 'Payment signature verification failed.';
-                                        if (typeof onError === 'function') {
-                                            onError({ error: failMsg });
-                                        }
+                                        tryWpAjaxVerify();
                                     }
                                 },
-                                error: function (xhr) {
-                                    var errJson = {};
-                                    try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
-                                    var failMsg = errJson.error || 'Payment signature verification failed. Please contact support.';
-                                    if (typeof onError === 'function') {
-                                        onError({ error: failMsg });
-                                    }
+                                error: function () {
+                                    tryWpAjaxVerify();
                                 }
                             });
+
+                            function tryWpAjaxVerify() {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: ajaxUrl,
+                                    data: {
+                                        action: 'kash_verify_razorpay_payment',
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature
+                                    },
+                                    dataType: 'json',
+                                    success: function (res) {
+                                        if (res && res.success) {
+                                            onVerSuccess(res.data);
+                                        } else {
+                                            var failMsg = (res && res.data && res.data.error)
+                                                ? res.data.error
+                                                : 'Payment signature verification failed.';
+                                            onVerError(failMsg);
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        var errJson = {};
+                                        try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
+                                        var failMsg = errJson.error || 'Payment signature verification failed. Please contact support.';
+                                        onVerError(failMsg);
+                                    }
+                                });
+                            }
                         }
-                    };
 
-                    var rzp = new window.Razorpay(options);
-
-                    // Handle payment.failed event
-                    rzp.on('payment.failed', function (failureResponse) {
-                        console.error('[Razorpay] Payment Failed:', failureResponse.error);
-                        var errMsg = (failureResponse.error && failureResponse.error.description)
-                            ? failureResponse.error.description
-                            : 'Payment transaction failed or declined by your bank.';
-                        if (typeof onError === 'function') {
-                            onError({ error: errMsg, details: failureResponse.error });
-                        }
-                    });
-
-                    rzp.open();
-                },
-                error: function (xhr) {
-                    var errJson = {};
-                    try { errJson = JSON.parse(xhr.responseText); } catch (e) {}
-                    var errMsg = errJson.error || 'Failed to initialize payment order with Razorpay.';
-                    if (typeof onError === 'function') {
-                        onError(errMsg);
+                        executeVerification(
+                            function (verifyRes) {
+                                ensureHiddenInputs(response);
+                                if (typeof onSuccess === 'function') {
+                                    onSuccess(response, verifyRes);
+                                }
+                            },
+                            function (failMsg) {
+                                if (typeof onError === 'function') {
+                                    onError({ error: failMsg });
+                                }
+                            }
+                        );
                     }
+                };
+
+                var rzp = new window.Razorpay(options);
+
+                // Handle payment.failed event
+                rzp.on('payment.failed', function (failureResponse) {
+                    console.error('[Razorpay] Payment Failed:', failureResponse.error);
+                    var errMsg = (failureResponse.error && failureResponse.error.description)
+                        ? failureResponse.error.description
+                        : 'Payment transaction failed or declined by your bank.';
+                    if (typeof onError === 'function') {
+                        onError({ error: errMsg, details: failureResponse.error });
+                    }
+                });
+
+                rzp.open();
+            }, function (errMsg) {
+                if (typeof onError === 'function') {
+                    onError(errMsg);
                 }
             });
         });
