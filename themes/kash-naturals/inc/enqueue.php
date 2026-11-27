@@ -168,11 +168,12 @@ function kash_naturals_scripts() {
 
         // Pass AJAX URL, Cart Nonce & Razorpay Key ID to JS
         wp_localize_script('kash-woocommerce-script', 'kash_wc_params', array(
-            'ajax_url'        => admin_url('admin-ajax.php'),
-            'cart_url'        => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
-            'checkout_url'    => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
-            'currency_symbol' => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
-            'razorpay_key_id' => $rzp_key_id,
+            'ajax_url'         => admin_url('admin-ajax.php'),
+            'cart_url'         => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
+            'checkout_url'     => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
+            'currency_symbol'  => function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₹',
+            'razorpay_key_id'  => $rzp_key_id,
+            'cart_total_paise' => (function_exists('WC') && WC()->cart) ? round(floatval(WC()->cart->get_total('edit')) * 100) : 0,
         ));
     }
 

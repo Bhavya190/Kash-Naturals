@@ -148,7 +148,11 @@ if (!function_exists('kash_create_razorpay_order')) {
     function kash_create_razorpay_order($amount, $currency = 'INR', $receipt = null, $notes = array()) {
         $amount_int = (int) round($amount);
 
-        if ($amount_int < 100) {
+        // Razorpay API enforces a minimum of 100 paise (₹1.00). If testing with sub-rupee amount (e.g. 10 paise),
+        // gracefully floor to 100 paise so payment modal generates cleanly without gateway rejection.
+        if ($amount_int > 0 && $amount_int < 100) {
+            $amount_int = 100;
+        } elseif ($amount_int <= 0) {
             return array(
                 'status' => 400,
                 'error'  => 'Amount must be at least 100 paise (₹1.00).'
@@ -351,7 +355,20 @@ if (function_exists('add_action')) {
                 $receipt  = $_POST['receipt'] ?? null;
                 $notes    = $_POST['notes'] ?? array();
 
-                $result = kash_create_razorpay_order($amount, $currency, $receipt, $notes);
+                // If amount is not passed or empty, check WooCommerce cart
+                if (empty($amount) || (int)$amount <= 0) {
+                    if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+                        $cart_total = floatval(WC()->cart->get_total('edit'));
+                        $amount = round($cart_total * 100);
+                    }
+                }
+
+                $amount_int = (int) round($amount);
+                if ($amount_int > 0 && $amount_int < 100) {
+                    $amount_int = 100;
+                }
+
+                $result = kash_create_razorpay_order($amount_int, $currency, $receipt, $notes);
 
                 if ($result['status'] === 200) {
                     wp_send_json_success($result['data'], 200);

@@ -64,8 +64,13 @@ jQuery(document).ready(function ($) {
         // Update single place order button label dynamically based on selected payment gateway
         var $btn = $('#place_order');
         if ($btn.length && !$btn.prop('disabled')) {
-            var totalDisplay = $('.wc-block-components-totals-item__value, .order-total .amount, .wc-block-components-order-summary__total-value').first().text();
+            var totalDisplay = $('.wc-block-components-totals-footer-item .wc-block-components-totals-item__value, .wc-block-components-totals-item__value, .order-total .amount, .wc-block-components-order-summary__total-value').first().text();
             totalDisplay = $.trim(totalDisplay);
+
+            var dynamicPaise = parseAmountToPaise(totalDisplay);
+            if (dynamicPaise > 0) {
+                $btn.data('amount-paise', dynamicPaise).attr('data-amount-paise', dynamicPaise);
+            }
 
             if (gatewayId === 'cod') {
                 $btn.html('<i class="fa-solid fa-hand-holding-dollar" style="margin-right: 8px;"></i> Place Order (Cash on Delivery)' + (totalDisplay ? ' • ' + totalDisplay : ''));
@@ -347,22 +352,80 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    function parseAmountToPaise(str) {
+        if (!str) return 0;
+        var s = String(str).trim();
+        if (!s) return 0;
+
+        // Match currency pattern like ₹1,036.00 or Rs. 1,036.00 or ₹0.10
+        var match = s.match(/(?:₹|Rs\.?|INR)?\s*([0-9]+(?:,[0-9]+)*(?:\.[0-9]+)?)/i);
+        if (match && match[1]) {
+            var numStr = match[1].replace(/,/g, '');
+            var floatVal = parseFloat(numStr);
+            if (!isNaN(floatVal) && floatVal >= 0) {
+                return Math.round(floatVal * 100);
+            }
+        }
+
+        // Fallback: strip all non-numeric chars except dot
+        var cleaned = s.replace(/[^0-9.]/g, '');
+        var parsed = parseFloat(cleaned);
+        if (!isNaN(parsed) && parsed >= 0) {
+            return Math.round(parsed * 100);
+        }
+        return 0;
+    }
+
     function getCheckoutAmountPaise() {
-        var rawText = '';
         var $btn = $('#place_order');
+
+        // Priority 1: Check explicit data attribute on place order button
         if ($btn.length) {
-            rawText = $btn.text() || $btn.val() || '';
+            var btnAttrPaise = $btn.data('amount-paise') || $btn.attr('data-amount-paise') || $btn.data('amount');
+            if (btnAttrPaise && !isNaN(parseInt(btnAttrPaise, 10)) && parseInt(btnAttrPaise, 10) > 0) {
+                return Math.max(100, parseInt(btnAttrPaise, 10));
+            }
         }
-        if (!rawText) {
-            var $totalEl = $('.wc-block-components-totals-item__value, .order-total .amount, .wc-block-components-order-summary__total-value');
-            if ($totalEl.length) rawText = $totalEl.text();
+
+        // Priority 2: Dedicated Order Summary Total element (never overwritten by button loading states)
+        var $totalEl = $('.wc-block-components-totals-footer-item .wc-block-components-totals-item__value, .wc-block-components-totals-item__value').first();
+        if ($totalEl.length) {
+            var attrPaise = $totalEl.data('total-paise') || $totalEl.attr('data-total-paise');
+            if (attrPaise && !isNaN(parseInt(attrPaise, 10)) && parseInt(attrPaise, 10) > 0) {
+                return Math.max(100, parseInt(attrPaise, 10));
+            }
+            var textPaise = parseAmountToPaise($totalEl.text());
+            if (textPaise > 0) {
+                return Math.max(100, textPaise);
+            }
         }
-        var cleanAmount = rawText.replace(/[^0-9.]/g, '');
-        var floatVal = parseFloat(cleanAmount);
-        if (!isNaN(floatVal) && floatVal > 0) {
-            return Math.max(100, Math.round(floatVal * 100));
+
+        // Priority 3: WooCommerce standard order-total row
+        var $orderTotalRow = $('tr.order-total .amount, .order-total td, .wc-block-components-order-summary__total-value').first();
+        if ($orderTotalRow.length) {
+            var rowPaise = parseAmountToPaise($orderTotalRow.text());
+            if (rowPaise > 0) {
+                return Math.max(100, rowPaise);
+            }
         }
-        return 17900; // Standard fallback (179 INR = 17900 paise, min 100)
+
+        // Priority 4: Read from original button text before it was set to loading state
+        var btnText = originalButtonHtml || ($btn.length ? ($btn.text() || $btn.val() || '') : '');
+        var btnPaise = parseAmountToPaise(btnText);
+        if (btnPaise > 0) {
+            return Math.max(100, btnPaise);
+        }
+
+        // Priority 5: Localized params from WordPress cart session
+        if (typeof window.kash_wc_params !== 'undefined' && window.kash_wc_params.cart_total_paise) {
+            var paramPaise = parseInt(window.kash_wc_params.cart_total_paise, 10);
+            if (!isNaN(paramPaise) && paramPaise > 0) {
+                return Math.max(100, paramPaise);
+            }
+        }
+
+        // Razorpay API minimum requirement: 100 paise (₹1.00)
+        return 100;
     }
 
     function ensureHiddenInputs(resp) {
@@ -649,13 +712,17 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
 
         var $btn = $(this);
+
+        // Read dynamic checkout total in paise BEFORE changing button HTML to loading state
+        var amountToPay = getCheckoutAmountPaise();
+
         if (!originalButtonHtml) {
             originalButtonHtml = $btn.html();
         }
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> Opening Razorpay Secure Checkout...');
 
         window.kashPayWithRazorpay(
-            {},
+            { amount: amountToPay },
             function (response, verifyRes) {
                 // Payment Verified Successfully
                 showRazorpayNotice('Payment authorized & verified successfully! Confirming your order...', false);
