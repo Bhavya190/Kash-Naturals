@@ -256,7 +256,7 @@ jQuery(document).ready(function ($) {
 
         var ajaxUrl = (typeof kash_wc_params !== 'undefined' && kash_wc_params.ajax_url)
             ? kash_wc_params.ajax_url
-            : ((typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) ? kash_dynamic_data.ajax_url : '/admin-ajax.php');
+            : ((typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) ? kash_dynamic_data.ajax_url : '/wp-admin/admin-ajax.php');
 
         $.ajax({
             type: 'POST',
@@ -291,6 +291,46 @@ jQuery(document).ready(function ($) {
             e.preventDefault();
             $('#kash-checkout-apply-coupon').trigger('click');
         }
+    });
+
+    /* ==========================================================================
+       CHECKOUT COUPON CODE REMOVAL HANDLER
+       ========================================================================== */
+    $(document).on('click', '.kash-checkout-remove-coupon', function (e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var couponCode = $btn.data('coupon') || '';
+
+        $btn.prop('disabled', true).css('opacity', '0.6').html('<i class="fa-solid fa-spinner fa-spin"></i> Removing...');
+
+        var ajaxUrl = (typeof kash_wc_params !== 'undefined' && kash_wc_params.ajax_url)
+            ? kash_wc_params.ajax_url
+            : ((typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.ajax_url) ? kash_dynamic_data.ajax_url : '/wp-admin/admin-ajax.php');
+
+        $.ajax({
+            type: 'POST',
+            url: ajaxUrl,
+            data: {
+                action: 'kash_remove_coupon',
+                coupon_code: couponCode,
+                security: (typeof kash_dynamic_data !== 'undefined' && kash_dynamic_data.cart_nonce) ? kash_dynamic_data.cart_nonce : ''
+            },
+            success: function (res) {
+                if (res && res.success) {
+                    if (typeof $(document.body).trigger === 'function') {
+                        $(document.body).trigger('update_checkout');
+                    }
+                    window.location.reload();
+                } else {
+                    var msg = (res && res.data && res.data.message) ? res.data.message : 'Failed to remove coupon.';
+                    alert(msg);
+                    $btn.prop('disabled', false).css('opacity', '1').html('<i class="fa-solid fa-xmark"></i> Remove');
+                }
+            },
+            error: function () {
+                window.location.reload();
+            }
+        });
     });
 
     /* ==========================================================================

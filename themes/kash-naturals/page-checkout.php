@@ -355,8 +355,31 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                 $cart_total_display = '₹179.00';
                 $shipping_display = __('FREE', 'kash-naturals');
 
+                $applied_coupons_data = array();
                 if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
                     $has_real_wc_items = true;
+
+                    // Enforce strict single coupon rule: if session has more than 1 coupon, keep only the latest one
+                    $applied_coupons = WC()->cart->get_applied_coupons();
+                    if (is_array($applied_coupons) && count($applied_coupons) > 1) {
+                        $keep_coupon = end($applied_coupons);
+                        WC()->cart->remove_coupons();
+                        WC()->cart->apply_coupon($keep_coupon);
+                        WC()->cart->calculate_totals();
+                        $applied_coupons = array($keep_coupon);
+                    }
+
+                    if (!empty($applied_coupons)) {
+                        foreach ($applied_coupons as $c_code) {
+                            $discount_amt = WC()->cart->get_coupon_discount_amount($c_code, WC()->cart->display_cart_ex_tax);
+                            $applied_coupons_data[] = array(
+                                'code'      => $c_code,
+                                'discount'  => $discount_amt,
+                                'formatted' => function_exists('wc_price') ? wc_price($discount_amt) : ('₹' . number_format($discount_amt, 2))
+                            );
+                        }
+                    }
+
                     $cart_subtotal_display = WC()->cart->get_cart_subtotal();
                     $cart_total_display = WC()->cart->get_total();
                     $shipping_display = WC()->cart->get_cart_shipping_total() ? WC()->cart->get_cart_shipping_total() : __('FREE', 'kash-naturals');
@@ -488,14 +511,45 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                         </div>
                                     <?php endif; ?>
 
-                                    <!-- Add a coupon toggle -->
+                                    <!-- Add a coupon section -->
                                     <div class="wc-block-components-totals-coupon">
-                                        <details style="cursor: pointer;">
+                                        <?php if (!empty($applied_coupons_data)) : ?>
+                                            <!-- Applied Coupon Pill Card -->
+                                            <?php foreach ($applied_coupons_data as $c_item) : ?>
+                                                <div class="kash-applied-coupon-pill" style="margin-bottom: 12px; background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.08);">
+                                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #dcfce7; color: #15803d; border-radius: 50%; font-size: 0.9rem;">
+                                                            <i class="fa-solid fa-ticket"></i>
+                                                        </span>
+                                                        <div>
+                                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                                <span style="font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800; color: #0f3820; letter-spacing: 0.5px;"><?php echo esc_html(strtoupper($c_item['code'])); ?></span>
+                                                                <span style="background: #15803d; color: #ffffff; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;"><?php esc_html_e('APPLIED', 'kash-naturals'); ?></span>
+                                                            </div>
+                                                            <div style="font-size: 0.8rem; color: #166534; font-weight: 600; margin-top: 2px;">
+                                                                <?php printf(esc_html__('Saving %s on this order', 'kash-naturals'), wp_kses_post($c_item['formatted'])); ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="kash-checkout-remove-coupon" data-coupon="<?php echo esc_attr($c_item['code']); ?>" title="<?php esc_attr_e('Remove this coupon', 'kash-naturals'); ?>" style="background: #ffffff; border: 1.5px solid #ef4444; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                                                        <i class="fa-solid fa-xmark"></i> <?php esc_html_e('Remove', 'kash-naturals'); ?>
+                                                    </button>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+
+                                        <details style="cursor: pointer;" <?php echo empty($applied_coupons_data) ? 'open' : ''; ?>>
                                             <summary class="wc-block-components-panel__button wc-block-components-totals-coupon-link">
-                                                <span><i class="fa-solid fa-ticket" style="color: #c68b27; margin-right: 6px;"></i> <?php esc_html_e('Add coupons', 'kash-naturals'); ?></span>
+                                                <span><i class="fa-solid fa-ticket" style="color: #c68b27; margin-right: 6px;"></i> <?php echo !empty($applied_coupons_data) ? esc_html__('Have another coupon code?', 'kash-naturals') : esc_html__('Add coupons', 'kash-naturals'); ?></span>
                                                 <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: #888;"></i>
                                             </summary>
                                             <div class="wc-block-components-totals-coupon__form">
+                                                <?php if (!empty($applied_coupons_data)) : ?>
+                                                    <div style="font-size: 0.8rem; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; width: 100%; box-sizing: border-box;">
+                                                        <i class="fa-solid fa-circle-info"></i>
+                                                        <span><?php esc_html_e('Only 1 coupon can be active per order. Applying a new code will replace the current one.', 'kash-naturals'); ?></span>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="wc-block-components-totals-coupon__input">
                                                     <input type="text" id="kash-checkout-coupon-code" placeholder="<?php esc_attr_e('Enter code', 'kash-naturals'); ?>">
                                                 </div>
@@ -510,6 +564,24 @@ $cart_is_empty = $is_real_wc && WC()->cart->is_empty() && (!function_exists('is_
                                             <span><?php esc_html_e('Subtotal', 'kash-naturals'); ?></span>
                                             <span style="font-family: 'Outfit', sans-serif; font-weight: 600; color: #222;"><?php echo wp_kses_post($cart_subtotal_display); ?></span>
                                         </div>
+
+                                        <?php if (!empty($applied_coupons_data)) : ?>
+                                            <?php foreach ($applied_coupons_data as $c_item) : ?>
+                                                <div class="wc-block-components-totals-item kash-discount-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; margin: 4px 0; font-size: 0.92rem; color: #15803d; background: rgba(34, 197, 94, 0.05); border-radius: 6px;">
+                                                    <span style="display: inline-flex; align-items: center; gap: 6px;">
+                                                        <i class="fa-solid fa-tag" style="color: #15803d;"></i>
+                                                        <span><?php printf(esc_html__('Coupon Discount (%s)', 'kash-naturals'), '<strong style="color: #0f3820; font-family: \'Outfit\', sans-serif;">' . esc_html(strtoupper($c_item['code'])) . '</strong>'); ?></span>
+                                                        <button type="button" class="kash-checkout-remove-coupon" data-coupon="<?php echo esc_attr($c_item['code']); ?>" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.78rem; text-decoration: underline; margin-left: 4px; padding: 0;">
+                                                            [<?php esc_html_e('Remove', 'kash-naturals'); ?>]
+                                                        </button>
+                                                    </span>
+                                                    <span style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #15803d;">
+                                                        -<?php echo wp_kses_post($c_item['formatted']); ?>
+                                                    </span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+
                                         <div class="wc-block-components-totals-item" style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; color: #555;">
                                             <span><?php esc_html_e('Pan-India Priority Shipping', 'kash-naturals'); ?></span>
                                             <span style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #27ae60;"><?php echo wp_kses_post($shipping_display); ?></span>

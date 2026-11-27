@@ -1405,6 +1405,7 @@ remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_login_fo
 
 /**
  * AJAX Handler: Apply Coupon Code from Custom Checkout Form
+ * Strictly enforces single coupon rule: removes any previous coupon and applies new one.
  */
 add_action('wp_ajax_kash_apply_coupon', 'kash_ajax_apply_coupon_handler');
 add_action('wp_ajax_nopriv_kash_apply_coupon', 'kash_ajax_apply_coupon_handler');
@@ -1415,13 +1416,41 @@ function kash_ajax_apply_coupon_handler() {
     }
 
     if (function_exists('WC') && WC()->cart) {
+        $applied_coupons = WC()->cart->get_applied_coupons();
+
+        // Check if the exact coupon is already active
         if (WC()->cart->has_discount($coupon_code)) {
-            wp_send_json_error(array('message' => __('Coupon code is already applied.', 'kash-naturals')));
+            wp_send_json_error(array('message' => sprintf(__('Coupon "%s" is already applied.', 'kash-naturals'), strtoupper($coupon_code))));
         }
+
+        // Strict single-coupon policy: store previous coupons to safely replace
+        $previous_coupons = $applied_coupons;
+        if (!empty($previous_coupons)) {
+            WC()->cart->remove_coupons();
+        }
+
         $applied = WC()->cart->apply_coupon($coupon_code);
         if ($applied) {
-            wp_send_json_success(array('message' => sprintf(__('Coupon "%s" applied successfully!', 'kash-naturals'), esc_html($coupon_code))));
+            WC()->cart->calculate_totals();
+            $success_msg = !empty($previous_coupons)
+                ? sprintf(__('Coupon "%s" applied! (Replaced previous coupon "%s")', 'kash-naturals'), esc_html(strtoupper($coupon_code)), esc_html(strtoupper(reset($previous_coupons))))
+                : sprintf(__('Coupon "%s" applied successfully!', 'kash-naturals'), esc_html(strtoupper($coupon_code)));
+
+            wp_send_json_success(array(
+                'message'      => $success_msg,
+                'coupon_code'  => strtoupper($coupon_code),
+                'cart_total'   => WC()->cart->get_total(),
+                'cart_subtotal'=> WC()->cart->get_cart_subtotal(),
+            ));
         } else {
+            // Restore previous coupon if the new coupon failed
+            if (!empty($previous_coupons)) {
+                foreach ($previous_coupons as $prev_code) {
+                    WC()->cart->apply_coupon($prev_code);
+                }
+                WC()->cart->calculate_totals();
+            }
+
             $notices = function_exists('wc_get_notices') ? wc_get_notices('error') : array();
             $notice_msg = !empty($notices) ? strip_tags(end($notices)['notice']) : __('Invalid or expired coupon code.', 'kash-naturals');
             if (function_exists('wc_clear_notices')) {
@@ -1432,6 +1461,55 @@ function kash_ajax_apply_coupon_handler() {
     } else {
         wp_send_json_error(array('message' => __('Cart is not accessible.', 'kash-naturals')));
     }
+}
+
+/**
+ * AJAX Handler: Remove Coupon Code from Custom Checkout Form
+ */
+add_action('wp_ajax_kash_remove_coupon', 'kash_ajax_remove_coupon_handler');
+add_action('wp_ajax_nopriv_kash_remove_coupon', 'kash_ajax_remove_coupon_handler');
+function kash_ajax_remove_coupon_handler() {
+    $coupon_code = isset($_POST['coupon_code']) ? sanitize_text_field(wp_unslash($_POST['coupon_code'])) : '';
+    if (function_exists('WC') && WC()->cart) {
+        if (!empty($coupon_code)) {
+            WC()->cart->remove_coupon($coupon_code);
+        } else {
+            WC()->cart->remove_coupons();
+        }
+        WC()->cart->calculate_totals();
+        wp_send_json_success(array(
+            'message'       => __('Coupon removed successfully.', 'kash-naturals'),
+            'cart_total'    => WC()->cart->get_total(),
+            'cart_subtotal' => WC()->cart->get_cart_subtotal(),
+        ));
+    } else {
+        wp_send_json_error(array('message' => __('Cart is not accessible.', 'kash-naturals')));
+    }
+}
+
+/**
+ * Global WooCommerce Enforcement: Allow only 1 coupon code at a time across the entire store
+ */
+add_filter('woocommerce_apply_with_individual_use_coupon', '__return_false', 99);
+add_filter('woocommerce_coupon_is_valid', 'kash_enforce_single_coupon_rule', 10, 3);
+function kash_enforce_single_coupon_rule($valid, $coupon, $discount) {
+    if (!$valid) {
+        return false;
+    }
+    if (function_exists('WC') && WC()->cart) {
+        $applied = WC()->cart->get_applied_coupons();
+        if (!empty($applied)) {
+            foreach ($applied as $code) {
+                if (strcasecmp($code, $coupon->get_code()) !== 0) {
+                    throw new Exception(sprintf(
+                        __('Only one coupon code can be applied per order. Coupon "%s" is already active.', 'kash-naturals'),
+                        strtoupper($code)
+                    ));
+                }
+            }
+        }
+    }
+    return $valid;
 }
 
 /**
